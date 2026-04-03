@@ -1,0 +1,123 @@
+'use client';
+
+import { useState } from 'react';
+import Image from 'next/image';
+import { type GalleryItem, type GalleryCategory } from '@/lib/data';
+
+type FilterTab = 'all' | GalleryCategory;
+
+const TABS: { key: FilterTab; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'backstage', label: 'Backstage' },
+  { key: 'moments', label: 'Moments' },
+  { key: 'audience', label: 'Audience' },
+  { key: 'stage', label: 'Stage' },
+  { key: 'details', label: 'Details' },
+];
+
+const CATEGORY_LABELS: Record<GalleryCategory, string> = {
+  backstage: 'Backstage',
+  moments: 'Moments',
+  audience: 'Audience',
+  stage: 'Stage',
+  details: 'Details',
+};
+
+// Alternate aspect ratios for visual rhythm
+const ASPECT_CLASSES = ['aspect-video', 'aspect-square', 'aspect-square', 'aspect-video', 'aspect-square', 'aspect-video'];
+
+// Background color variants for placeholder variety
+const BG_VARIANTS = [
+  'bg-[#D7C6B2]',
+  'bg-[#EAE1D6]',
+  'bg-stone-300',
+  'bg-[#C4B09A]',
+  'bg-[#BFA98E]',
+  'bg-stone-200',
+];
+
+interface GalleryGridProps {
+  galleryItems: GalleryItem[];
+}
+
+export default function GalleryGrid({ galleryItems }: GalleryGridProps) {
+  const [activeTab, setActiveTab] = useState<FilterTab>('all');
+
+  const filtered =
+    activeTab === 'all'
+      ? galleryItems
+      : galleryItems.filter((item) => item.category === activeTab);
+
+  return (
+    <div>
+      {/* Filter tabs */}
+      <div className="mb-12 flex flex-wrap gap-1">
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={[
+              'px-5 py-2.5 font-sans text-[11px] font-medium uppercase tracking-[0.18em] transition-all duration-200',
+              activeTab === tab.key
+                ? 'bg-[#2A2421] text-[#F7F3EE]'
+                : 'bg-transparent text-[#5B4638] hover:bg-[#EAE1D6]',
+            ].join(' ')}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Masonry grid using CSS columns */}
+      <div
+        className="transition-all duration-300"
+        style={{
+          columnCount: 'auto',
+          columnWidth: '300px',
+          columnGap: '16px',
+        }}
+      >
+        {filtered.map((item, index) => {
+          const aspectClass = ASPECT_CLASSES[index % ASPECT_CLASSES.length];
+          const bgClass = BG_VARIANTS[index % BG_VARIANTS.length];
+
+          return (
+            <div
+              key={item.id}
+              className="group relative mb-4 break-inside-avoid overflow-hidden"
+            >
+              {/* Image */}
+              <div className={`relative w-full ${aspectClass} overflow-hidden`}>
+                <Image
+                  src={item.src}
+                  alt={item.alt}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                />
+                {/* Hover overlay */}
+                <div className="absolute inset-0 flex flex-col items-start justify-end bg-[#2A2421] p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-90">
+                  <span className="mb-2 font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-[#A56E52]">
+                    {CATEGORY_LABELS[item.category]}
+                  </span>
+                  <p className="font-sans text-sm leading-snug text-[#F7F3EE]">
+                    {item.alt}
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Empty state */}
+      {filtered.length === 0 && (
+        <div className="flex flex-col items-center gap-4 py-24 text-center">
+          <p className="font-sans text-sm text-[#5B4638]">
+            No items in this category yet.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
