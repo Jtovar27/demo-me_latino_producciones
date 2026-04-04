@@ -41,12 +41,12 @@ export default function HomePage() {
     <PublicLayout>
 
       {/* ── A. HERO ─────────────────────────────── */}
-      <section className="min-h-screen bg-[#FDFAF7] flex items-center">
+      <section className="bg-[#FDFAF7] flex items-center">
         <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center py-24 md:py-32">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 items-center py-14 md:py-24 lg:py-32">
 
             {/* Left — editorial text */}
-            <div className="flex flex-col gap-10">
+            <div className="flex flex-col gap-7 md:gap-10">
               <div className="flex flex-col gap-3">
                 <span className="font-sans text-[11px] font-medium uppercase tracking-[0.25em] text-[#A56E52]">
                   ME Latino Producciones
@@ -55,7 +55,7 @@ export default function HomePage() {
               </div>
 
               <h1
-                className="font-serif text-5xl md:text-6xl lg:text-7xl font-normal leading-[1.05] text-[#2A2421]"
+                className="font-serif text-4xl md:text-6xl lg:text-7xl font-normal leading-[1.05] text-[#2A2421]"
 
               >
                 Experiencias
@@ -130,9 +130,9 @@ export default function HomePage() {
       </section>
 
       {/* ── B. BRAND STATEMENT ──────────────────── */}
-      <section className="bg-[#F7F3EE] py-24 md:py-32">
+      <section className="bg-[#F7F3EE] py-12 md:py-20 lg:py-28">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
-          <div className="max-w-4xl mx-auto flex flex-col items-center text-center gap-10">
+          <div className="max-w-4xl mx-auto flex flex-col items-center text-center gap-6 md:gap-10">
             {/* Terracotta divider above */}
             <div className="h-px w-16 bg-[#A56E52]" />
 
@@ -154,13 +154,13 @@ export default function HomePage() {
 
       {/* ── C. FEATURED EXPERIENCE — The Real Happiness ── */}
       {featuredExperience && (
-        <section className="bg-[#2A2421] py-24 md:py-32">
+        <section className="bg-[#2A2421] py-12 md:py-20 lg:py-28">
           <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 lg:gap-24 items-center">
 
               {/* Image */}
               <div className="relative order-2 lg:order-1">
-                <div className="relative w-full h-[500px] overflow-hidden">
+                <div className="relative w-full h-[240px] md:h-[400px] lg:h-[500px] overflow-hidden">
                   <Image
                     fill
                     src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1400&q=80"
@@ -219,9 +219,9 @@ export default function HomePage() {
       )}
 
       {/* ── D. EXPERIENCE CATEGORIES ────────────── */}
-      <section className="bg-[#FDFAF7] py-24 md:py-32">
+      <section className="bg-[#FDFAF7] py-12 md:py-20 lg:py-28">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
-          <div className="flex flex-col gap-16">
+          <div className="flex flex-col gap-8 md:gap-16">
             <SectionHeader
               label="Nuestros formatos"
               title="Experiencias diseñadas para cada etapa."
@@ -233,7 +233,7 @@ export default function HomePage() {
                 <Link
                   key={exp.id}
                   href="/experiences"
-                  className="group flex flex-col gap-6 bg-[#FDFAF7] p-8 md:p-10 hover:bg-[#EAE1D6] transition-colors duration-300"
+                  className="group flex flex-col gap-4 md:gap-6 bg-[#FDFAF7] p-6 md:p-8 lg:p-10 hover:bg-[#EAE1D6] transition-colors duration-300"
                 >
                   <span
                     className="font-serif text-5xl font-normal text-[#D7C6B2] group-hover:text-[#A56E52] transition-colors duration-300"
@@ -264,9 +264,9 @@ export default function HomePage() {
       </section>
 
       {/* ── E. UPCOMING EVENTS PREVIEW ──────────── */}
-      <section className="bg-[#EAE1D6] py-24 md:py-32">
+      <section className="bg-[#EAE1D6] py-12 md:py-20 lg:py-28">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
-          <div className="flex flex-col gap-16">
+          <div className="flex flex-col gap-8 md:gap-16">
 
             {/* Header row */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
@@ -289,7 +289,7 @@ export default function HomePage() {
                 return (
                   <div key={event.id} className="flex flex-col bg-[#FDFAF7] group">
                     {/* Date header */}
-                    <div className="bg-[#2A2421] px-8 py-6 flex items-center gap-6">
+                    <div className="bg-[#2A2421] px-5 py-4 md:px-8 md:py-6 flex items-center gap-4 md:gap-6">
                       <div className="flex flex-col items-center">
                         <span
                           className="font-serif text-4xl font-normal text-[#EAE1D6] leading-none"
@@ -311,7 +311,7 @@ export default function HomePage() {
                     </div>
 
                     {/* Card body */}
-                    <div className="flex flex-col gap-5 p-8 flex-1">
+                    <div className="flex flex-col gap-3 md:gap-5 p-5 md:p-8 flex-1">
                       <h3
                         className="font-serif text-2xl font-normal leading-snug text-[#2A2421]"
 
@@ -332,7 +332,7 @@ export default function HomePage() {
                     </div>
 
                     {/* Card footer */}
-                    <div className="px-8 pb-8 flex items-center justify-between">
+                    <div className="px-5 pb-5 md:px-8 md:pb-8 flex items-center justify-between">
                       <div className="flex flex-col">
                         {event.price === 0 ? (
                           <span className="font-serif text-lg text-[#2A2421]">Entrada libre</span>
@@ -356,9 +356,9 @@ export default function HomePage() {
       </section>
 
       {/* ── F. FEATURED SPEAKERS ────────────────── */}
-      <section className="bg-[#F7F3EE] py-24 md:py-32">
+      <section className="bg-[#F7F3EE] py-12 md:py-20 lg:py-28">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
-          <div className="flex flex-col gap-16">
+          <div className="flex flex-col gap-8 md:gap-16">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
               <SectionHeader
                 label="Voces que inspiran"
@@ -372,9 +372,9 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">
               {featuredSpeakers.map((speaker, i) => (
-                <div key={speaker.id} className="flex flex-col gap-6 group">
+                <div key={speaker.id} className="flex flex-col gap-4 md:gap-6 group">
                   {/* Image placeholder */}
                   <div className="relative w-full aspect-[3/4] overflow-hidden">
                     <div
@@ -391,7 +391,7 @@ export default function HomePage() {
                     {/* Speaker initial placeholder */}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span
-                        className="font-serif text-7xl font-normal text-[#FDFAF7] opacity-30"
+                        className="font-serif text-5xl md:text-7xl font-normal text-[#FDFAF7] opacity-30"
 
                       >
                         {speaker.name.charAt(0)}
@@ -432,9 +432,9 @@ export default function HomePage() {
       </section>
 
       {/* ── G. EDITORIAL IMAGE SECTION ──────────── */}
-      <section className="bg-[#2A2421] py-24 md:py-32">
+      <section className="bg-[#2A2421] py-12 md:py-20 lg:py-28">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 items-center">
 
             {/* Text */}
             <div className="flex flex-col gap-8">
@@ -470,7 +470,7 @@ export default function HomePage() {
             {/* Image composition */}
             <div className="relative">
               {/* Main image */}
-              <div className="relative w-full h-[480px] overflow-hidden">
+              <div className="relative w-full h-[240px] md:h-[380px] lg:h-[480px] overflow-hidden">
                 <Image
                   fill
                   src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=80"
@@ -495,9 +495,9 @@ export default function HomePage() {
       </section>
 
       {/* ── H. METRICS ──────────────────────────── */}
-      <section className="bg-[#EAE1D6] py-24 md:py-32">
+      <section className="bg-[#EAE1D6] py-12 md:py-20 lg:py-28">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
-          <div className="flex flex-col gap-16">
+          <div className="flex flex-col gap-8 md:gap-16">
             <div className="text-center">
               <span className="font-sans text-[11px] font-medium uppercase tracking-[0.25em] text-[#A56E52]">
                 En números
@@ -514,9 +514,9 @@ export default function HomePage() {
                 { value: `${stats.yearsActive}`, label: 'Años de trayectoria' },
                 { value: `${stats.satisfaction}%`, label: 'Satisfacción general' },
               ].map(({ value, label }) => (
-                <div key={label} className="flex flex-col items-center text-center gap-3 bg-[#EAE1D6] px-6 py-10 md:py-14">
+                <div key={label} className="flex flex-col items-center text-center gap-2 bg-[#EAE1D6] px-4 py-7 md:py-10 lg:py-14">
                   <span
-                    className="font-serif text-4xl md:text-5xl font-normal text-[#2A2421]"
+                    className="font-serif text-3xl md:text-4xl lg:text-5xl font-normal text-[#2A2421]"
 
                   >
                     {value}
@@ -532,9 +532,9 @@ export default function HomePage() {
       </section>
 
       {/* ── I. FINAL CTA ────────────────────────── */}
-      <section className="bg-[#D7C6B2] py-24 md:py-32">
+      <section className="bg-[#D7C6B2] py-12 md:py-20 lg:py-28">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
-          <div className="max-w-3xl mx-auto flex flex-col items-center text-center gap-10">
+          <div className="max-w-3xl mx-auto flex flex-col items-center text-center gap-6 md:gap-10">
             <div className="flex flex-col gap-3 items-center">
               <span className="font-sans text-[11px] font-medium uppercase tracking-[0.25em] text-[#A56E52]">
                 Tu próximo paso
