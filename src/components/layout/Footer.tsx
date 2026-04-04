@@ -1,10 +1,10 @@
 import Link from 'next/link';
 
 const navLinks = [
-  { label: 'Home', href: '/' },
-  { label: 'About', href: '/about' },
+  { label: 'Inicio', href: '/' },
+  { label: 'Nosotros', href: '/about' },
   { label: 'Eventos', href: '/events' },
-  { label: 'Speakers', href: '/speakers' },
+  { label: 'Ponentes', href: '/speakers' },
   { label: 'Galería', href: '/gallery' },
   { label: 'Contacto', href: '/contact' },
 ];
@@ -143,7 +143,7 @@ export default function Footer() {
             &copy; {year} ME Latino Producciones. Todos los derechos reservados.
           </p>
           <p className="font-sans text-[11px] uppercase tracking-widest text-[#5B4638]">
-            By ME Latino Producciones
+            ME Latino Producciones
           </p>
         </div>
       </div>

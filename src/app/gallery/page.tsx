@@ -25,10 +25,10 @@ export default function GalleryPage() {
             </div>
             <div className="pb-2">
               <p className="font-sans text-base leading-relaxed text-[#5B4638]">
-                Every image here is a record of something real — a moment of connection, transformation, or beauty that took place inside a ME Latino Producciones experience. From backstage preparations to the full energy of a room alive with purpose, this gallery is our most honest story.
+                Cada imagen aquí es el registro de algo real — un momento de conexión, transformación o belleza que ocurrió dentro de una experiencia de ME Latino Producciones. Desde los preparativos tras bambalinas hasta la energía plena de una sala viva de propósito, esta galería es nuestra historia más honesta.
               </p>
               <p className="mt-4 font-sans text-sm leading-relaxed text-[#A56E52]">
-                Browse by category or explore everything at once.
+                Explora por categoría o ve todo de una vez.
               </p>
             </div>
           </div>
@@ -51,13 +51,11 @@ export default function GalleryPage() {
       <section className="bg-[#EAE1D6] py-20">
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="font-serif text-2xl font-normal italic leading-relaxed text-[#2A2421]"
-
-            >
-              "We build spaces where the Latino story is told fully — with pride, complexity, and radical beauty."
+            <p className="font-serif text-2xl font-normal italic leading-relaxed text-[#2A2421]">
+              "Construimos espacios donde la historia latina se cuenta plenamente — con orgullo, complejidad y belleza radical."
             </p>
             <p className="mt-6 font-sans text-sm text-[#A56E52]">
-              Mariana Rios Delgado — Founder, ME Latino Producciones
+              Mariana Ríos Delgado — Fundadora, ME Latino Producciones
             </p>
           </div>
         </div>

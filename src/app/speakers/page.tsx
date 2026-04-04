@@ -75,19 +75,18 @@ export default function SpeakersPage() {
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
           <div className="max-w-3xl">
             <span className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
-              Speakers &amp; Invitados
+              Ponentes e Invitados
             </span>
             <div className="mt-2 h-px w-8 bg-[#A56E52]" />
             <h1
               className="mt-6 font-serif text-5xl font-normal leading-tight text-[#2A2421] md:text-6xl lg:text-7xl"
-
             >
               Voces que
               <br />
               transforman.
             </h1>
             <p className="mt-8 max-w-xl font-sans text-base leading-relaxed text-[#5B4638]">
-              Every speaker we invite carries a story that expands possibility. Our curation philosophy is simple: we seek voices that challenge, heal, inspire, and ground — voices rooted in the Latino experience and reaching far beyond it.
+              Cada ponente que invitamos lleva una historia que amplía lo posible. Nuestra filosofía de selección es simple: buscamos voces que desafíen, sanen, inspiren y arraiguen — voces enraizadas en la experiencia latina que llegan mucho más allá.
             </p>
           </div>
         </div>
@@ -103,8 +102,8 @@ export default function SpeakersPage() {
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
           <SectionHeader
             label="Seleccionados"
-            title="Speakers destacados"
-            subtitle="The voices at the center of our most transformational stages."
+            title="Ponentes destacados"
+            subtitle="Las voces en el centro de nuestros escenarios más transformadores."
             className="mb-8 md:mb-16"
           />
 
@@ -130,9 +129,9 @@ export default function SpeakersPage() {
       <section className="bg-[#EAE1D6] py-12 md:py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
           <SectionHeader
-            label="Todos los speakers"
+            label="Todos los ponentes"
             title="La comunidad de voces"
-            subtitle="From keynote visionaries to intimate workshop facilitators — each one carefully chosen."
+            subtitle="Desde conferenciantes visionarios hasta facilitadores de talleres íntimos — cada uno elegido cuidadosamente."
             className="mb-8 md:mb-16"
           />
 
@@ -158,12 +157,11 @@ export default function SpeakersPage() {
           <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:items-center">
             <div>
               <span className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
-                Aplica como Speaker
+                Aplica como Ponente
               </span>
               <div className="mt-2 h-px w-8 bg-[#A56E52]" />
               <h2
                 className="mt-6 font-serif text-4xl font-normal leading-tight text-[#F7F3EE] md:text-5xl"
-
               >
                 Comparte tu voz
                 <br />
@@ -173,17 +171,17 @@ export default function SpeakersPage() {
 
             <div className="flex flex-col gap-6">
               <p className="font-sans text-base leading-relaxed text-[#D7C6B2]">
-                We are always listening for voices that challenge, illuminate, and elevate. If you carry a perspective rooted in the Latino experience — whether in business, wellness, faith, creativity, or community — we invite you to start a conversation with us.
+                Siempre estamos atentos a voces que desafíen, iluminen y eleven. Si tienes una perspectiva arraigada en la experiencia latina — en negocios, bienestar, fe, creatividad o comunidad — te invitamos a iniciar una conversación con nosotros.
               </p>
               <p className="font-sans text-sm leading-relaxed text-[#A56E52]">
-                All inquiries are reviewed personally. We respond to every message within 5 to 7 business days.
+                Todas las solicitudes son revisadas personalmente. Respondemos cada mensaje en un plazo de 5 a 7 días hábiles.
               </p>
               <div className="flex items-center gap-4 pt-2">
                 <Button href="/contact#speaker" variant="terracotta" size="lg">
-                  Submit your inquiry
+                  Enviar solicitud
                 </Button>
                 <Button href="/contact" variant="ghost" size="lg">
-                  Contact us
+                  Contáctanos
                 </Button>
               </div>
             </div>

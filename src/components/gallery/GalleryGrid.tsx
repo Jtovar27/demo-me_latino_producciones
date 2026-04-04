@@ -7,20 +7,20 @@ import { type GalleryItem, type GalleryCategory } from '@/lib/data';
 type FilterTab = 'all' | GalleryCategory;
 
 const TABS: { key: FilterTab; label: string }[] = [
-  { key: 'all', label: 'All' },
+  { key: 'all', label: 'Todos' },
   { key: 'backstage', label: 'Backstage' },
-  { key: 'moments', label: 'Moments' },
-  { key: 'audience', label: 'Audience' },
-  { key: 'stage', label: 'Stage' },
-  { key: 'details', label: 'Details' },
+  { key: 'moments', label: 'Momentos' },
+  { key: 'audience', label: 'Audiencia' },
+  { key: 'stage', label: 'Escenario' },
+  { key: 'details', label: 'Detalles' },
 ];
 
 const CATEGORY_LABELS: Record<GalleryCategory, string> = {
   backstage: 'Backstage',
-  moments: 'Moments',
-  audience: 'Audience',
-  stage: 'Stage',
-  details: 'Details',
+  moments: 'Momentos',
+  audience: 'Audiencia',
+  stage: 'Escenario',
+  details: 'Detalles',
 };
 
 // Alternate aspect ratios for visual rhythm
@@ -114,7 +114,7 @@ export default function GalleryGrid({ galleryItems }: GalleryGridProps) {
       {filtered.length === 0 && (
         <div className="flex flex-col items-center gap-4 py-24 text-center">
           <p className="font-sans text-sm text-[#5B4638]">
-            No items in this category yet.
+            No hay imágenes en esta categoría todavía.
           </p>
         </div>
       )}

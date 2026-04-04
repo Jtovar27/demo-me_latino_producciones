@@ -5,11 +5,11 @@ import { useEffect, useState } from 'react';
 import Button from '@/components/ui/Button';
 
 const navLinks = [
-  { label: 'Home', href: '/' },
-  { label: 'About', href: '/about' },
+  { label: 'Inicio', href: '/' },
+  { label: 'Nosotros', href: '/about' },
   { label: 'Experiencias', href: '/experiences' },
   { label: 'Eventos', href: '/events' },
-  { label: 'Speakers', href: '/speakers' },
+  { label: 'Ponentes', href: '/speakers' },
   { label: 'Galería', href: '/gallery' },
   { label: 'Contacto', href: '/contact' },
 ];

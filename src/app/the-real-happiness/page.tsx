@@ -73,14 +73,14 @@ const day2: { time: string; title: string; description: string }[] = [
 
 const tickets = [
   {
-    name: 'General Access',
+    name: 'Acceso General',
     price: '$397',
     popular: false,
     description: 'Todo lo esencial para vivir The Real Happiness.',
     includes: [
       'Acceso completo ambos días',
       'Todos los keynotes y paneles',
-      'Sesiones de breathwork',
+      'Sesiones de respiración consciente',
       'Networking comunitario',
     ],
     cta: 'Registrarse',
@@ -88,30 +88,30 @@ const tickets = [
     variant: 'secondary' as const,
   },
   {
-    name: 'VIP Experience',
+    name: 'Experiencia VIP',
     price: '$697',
     popular: true,
     description: 'Una experiencia más íntima con acceso exclusivo.',
     includes: [
-      'Todo en General Access',
+      'Todo en Acceso General',
       'Acceso al lounge VIP',
       'Asientos prioritarios en el auditorio',
       'Cena privada pre-evento',
-      'Q&A exclusivo con speakers',
+      'Sesión exclusiva de preguntas con ponentes',
     ],
     cta: 'Registrarse',
     ctaHref: '/contact',
     variant: 'terracotta' as const,
   },
   {
-    name: 'Founders Circle',
+    name: 'Círculo Fundadores',
     price: '$1,497',
     popular: false,
     description: 'Para quienes quieren una relación profunda con ME Latino.',
     includes: [
-      'Todo en VIP Experience',
+      'Todo en Experiencia VIP',
       'Cena privada con los fundadores',
-      'Acceso backstage al evento',
+      'Acceso tras bambalinas al evento',
       'Limitado a 25 personas',
     ],
     cta: 'Aplicar',
@@ -574,7 +574,7 @@ export default function TheRealHappinessPage() {
                 {ticket.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <span className="font-sans text-[9px] font-medium uppercase tracking-widest text-[#F7F3EE] bg-[#A56E52] px-4 py-1">
-                      Mas popular
+                      Más popular
                     </span>
                   </div>
                 )}
