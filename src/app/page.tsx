@@ -4,6 +4,7 @@ import PublicLayout from '@/components/layout/PublicLayout';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import SectionHeader from '@/components/ui/SectionHeader';
+import MobileCarousel from '@/components/ui/MobileCarousel';
 import { events, speakers, experiences, stats } from '@/lib/data';
 
 // ── Helpers ────────────────────────────────────
@@ -228,24 +229,47 @@ export default function HomePage() {
               subtitle="Cada formato es una puerta diferente hacia el mismo destino: crecimiento, conexión y transformación."
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[#D7C6B2]">
+            {/* Mobile carousel */}
+            <div className="md:hidden -mx-6 px-6">
+              <MobileCarousel itemWidth="w-[75vw]" interval={3500}>
+                {experienceCategories.map((exp, i) => (
+                  <Link
+                    key={exp.id}
+                    href="/experiences"
+                    className="group flex flex-col gap-4 bg-[#FDFAF7] border border-[#D7C6B2] p-6 hover:bg-[#EAE1D6] transition-colors duration-300 h-full"
+                  >
+                    <span className="font-serif text-5xl font-normal text-[#D7C6B2] group-hover:text-[#A56E52] transition-colors duration-300">
+                      0{i + 1}
+                    </span>
+                    <div className="flex flex-col gap-3 flex-1">
+                      <h3 className="font-serif text-xl font-normal text-[#2A2421]">
+                        {exp.title.replace(' — Flagship Experience', '')}
+                      </h3>
+                      <p className="font-sans text-sm leading-relaxed text-[#5B4638]">
+                        {exp.shortDesc}
+                      </p>
+                    </div>
+                    <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] flex items-center gap-2">
+                      Ver más
+                      <span className="inline-block group-hover:translate-x-1 transition-transform duration-200">→</span>
+                    </span>
+                  </Link>
+                ))}
+              </MobileCarousel>
+            </div>
+            {/* Desktop grid */}
+            <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#D7C6B2]">
               {experienceCategories.map((exp, i) => (
                 <Link
                   key={exp.id}
                   href="/experiences"
-                  className="group flex flex-col gap-4 md:gap-6 bg-[#FDFAF7] p-6 md:p-8 lg:p-10 hover:bg-[#EAE1D6] transition-colors duration-300"
+                  className="group flex flex-col gap-6 bg-[#FDFAF7] p-8 lg:p-10 hover:bg-[#EAE1D6] transition-colors duration-300"
                 >
-                  <span
-                    className="font-serif text-5xl font-normal text-[#D7C6B2] group-hover:text-[#A56E52] transition-colors duration-300"
-
-                  >
+                  <span className="font-serif text-5xl font-normal text-[#D7C6B2] group-hover:text-[#A56E52] transition-colors duration-300">
                     0{i + 1}
                   </span>
                   <div className="flex flex-col gap-3 flex-1">
-                    <h3
-                      className="font-serif text-xl font-normal text-[#2A2421]"
-
-                    >
+                    <h3 className="font-serif text-xl font-normal text-[#2A2421]">
                       {exp.title.replace(' — Flagship Experience', '')}
                     </h3>
                     <p className="font-sans text-sm leading-relaxed text-[#5B4638]">
@@ -282,57 +306,74 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Event cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#C4B09A]">
+            {/* Mobile: 2-at-a-time carousel */}
+            <div className="md:hidden -mx-6 px-6">
+              <MobileCarousel itemWidth="w-[72vw]" interval={4500}>
+                {upcomingEvents.map((event) => {
+                  const d = formatDate(event.date);
+                  return (
+                    <div key={event.id} className="flex flex-col bg-[#FDFAF7] h-full">
+                      <div className="bg-[#2A2421] px-5 py-4 flex items-center gap-4">
+                        <div className="flex flex-col items-center">
+                          <span className="font-serif text-3xl font-normal text-[#EAE1D6] leading-none">{d.day}</span>
+                          <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] mt-1">{d.month} {d.year}</span>
+                        </div>
+                        <div className="h-10 w-px bg-[#3D342F]" />
+                        <div className="flex flex-col gap-1">
+                          <Badge variant={event.status === 'sold-out' ? 'sold-out' : 'upcoming'} />
+                          <span className="font-sans text-[10px] uppercase tracking-widest text-[#B89E87]">{categoryLabel(event.category)}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-3 p-5 flex-1">
+                        <h3 className="font-serif text-xl font-normal leading-snug text-[#2A2421]">{event.title}</h3>
+                        <p className="font-sans text-xs text-[#5B4638]">{event.venue}</p>
+                        <p className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">{event.city}, {event.state}</p>
+                      </div>
+                      <div className="px-5 pb-5 flex items-center justify-between">
+                        <div className="flex flex-col">
+                          {event.price === 0 ? (
+                            <span className="font-serif text-base text-[#2A2421]">Entrada libre</span>
+                          ) : (
+                            <>
+                              <span className="font-serif text-xl text-[#2A2421]">${event.price}</span>
+                              <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">por persona</span>
+                            </>
+                          )}
+                        </div>
+                        <Button href={`/events/${event.slug}`} variant="ghost" size="sm">Reservar</Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </MobileCarousel>
+            </div>
+
+            {/* Desktop grid */}
+            <div className="hidden md:grid grid-cols-3 gap-px bg-[#C4B09A]">
               {upcomingEvents.map((event) => {
                 const d = formatDate(event.date);
                 return (
                   <div key={event.id} className="flex flex-col bg-[#FDFAF7] group">
-                    {/* Date header */}
-                    <div className="bg-[#2A2421] px-5 py-4 md:px-8 md:py-6 flex items-center gap-4 md:gap-6">
+                    <div className="bg-[#2A2421] px-8 py-6 flex items-center gap-6">
                       <div className="flex flex-col items-center">
-                        <span
-                          className="font-serif text-4xl font-normal text-[#EAE1D6] leading-none"
-
-                        >
-                          {d.day}
-                        </span>
-                        <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] mt-1">
-                          {d.month} {d.year}
-                        </span>
+                        <span className="font-serif text-4xl font-normal text-[#EAE1D6] leading-none">{d.day}</span>
+                        <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] mt-1">{d.month} {d.year}</span>
                       </div>
                       <div className="h-12 w-px bg-[#3D342F]" />
                       <div className="flex flex-col gap-1">
                         <Badge variant={event.status === 'sold-out' ? 'sold-out' : 'upcoming'} />
-                        <span className="font-sans text-[10px] uppercase tracking-widest text-[#B89E87]">
-                          {categoryLabel(event.category)}
-                        </span>
+                        <span className="font-sans text-[10px] uppercase tracking-widest text-[#B89E87]">{categoryLabel(event.category)}</span>
                       </div>
                     </div>
-
-                    {/* Card body */}
-                    <div className="flex flex-col gap-3 md:gap-5 p-5 md:p-8 flex-1">
-                      <h3
-                        className="font-serif text-2xl font-normal leading-snug text-[#2A2421]"
-
-                      >
-                        {event.title}
-                      </h3>
+                    <div className="flex flex-col gap-5 p-8 flex-1">
+                      <h3 className="font-serif text-2xl font-normal leading-snug text-[#2A2421]">{event.title}</h3>
                       <div className="flex flex-col gap-1">
-                        <p className="font-sans text-sm text-[#5B4638]">
-                          {event.venue}
-                        </p>
-                        <p className="font-sans text-[11px] uppercase tracking-widest text-[#A56E52]">
-                          {event.city}, {event.state}
-                        </p>
+                        <p className="font-sans text-sm text-[#5B4638]">{event.venue}</p>
+                        <p className="font-sans text-[11px] uppercase tracking-widest text-[#A56E52]">{event.city}, {event.state}</p>
                       </div>
-                      <p className="font-sans text-sm leading-relaxed text-[#5B4638] line-clamp-3">
-                        {event.description}
-                      </p>
+                      <p className="font-sans text-sm leading-relaxed text-[#5B4638] line-clamp-3">{event.description}</p>
                     </div>
-
-                    {/* Card footer */}
-                    <div className="px-5 pb-5 md:px-8 md:pb-8 flex items-center justify-between">
+                    <div className="px-8 pb-8 flex items-center justify-between">
                       <div className="flex flex-col">
                         {event.price === 0 ? (
                           <span className="font-serif text-lg text-[#2A2421]">Entrada libre</span>
@@ -343,9 +384,7 @@ export default function HomePage() {
                           </>
                         )}
                       </div>
-                      <Button href={`/events/${event.slug}`} variant="ghost" size="sm">
-                        Reservar lugar
-                      </Button>
+                      <Button href={`/events/${event.slug}`} variant="ghost" size="sm">Reservar lugar</Button>
                     </div>
                   </div>
                 );
@@ -372,53 +411,63 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">
-              {featuredSpeakers.map((speaker, i) => (
-                <div key={speaker.id} className="flex flex-col gap-4 md:gap-6 group">
-                  {/* Image placeholder */}
-                  <div className="relative w-full aspect-[3/4] overflow-hidden">
-                    <div
-                      className={`absolute inset-0 ${
+            {/* Mobile: auto-advance carousel */}
+            <div className="md:hidden -mx-6 px-6">
+              <MobileCarousel itemWidth="w-[42vw]" interval={3000}>
+                {featuredSpeakers.map((speaker, i) => (
+                  <div key={speaker.id} className="flex flex-col gap-3 group">
+                    <div className="relative w-full aspect-[3/4] overflow-hidden">
+                      <div className={`absolute inset-0 ${
                         i % 4 === 0 ? 'bg-[#D7C6B2]' :
                         i % 4 === 1 ? 'bg-[#C4B09A]' :
                         i % 4 === 2 ? 'bg-[#B89E87]' :
                         'bg-[#EAE1D6]'
-                      }`}
-                    />
-                    {/* Subtle compositional shape */}
+                      }`} />
+                      <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-[#2A2421] opacity-10" />
+                      <div className="absolute top-3 right-3 w-6 h-6 border border-[#A56E52] opacity-40" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="font-serif text-4xl font-normal text-[#FDFAF7] opacity-30">
+                          {speaker.name.charAt(0)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <h3 className="font-serif text-sm font-normal text-[#2A2421] leading-snug">{speaker.name}</h3>
+                      <p className="font-sans text-[10px] text-[#A56E52]">{speaker.title}</p>
+                    </div>
+                  </div>
+                ))}
+              </MobileCarousel>
+            </div>
+
+            {/* Desktop grid */}
+            <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-8">
+              {featuredSpeakers.map((speaker, i) => (
+                <div key={speaker.id} className="flex flex-col gap-6 group">
+                  <div className="relative w-full aspect-[3/4] overflow-hidden">
+                    <div className={`absolute inset-0 ${
+                      i % 4 === 0 ? 'bg-[#D7C6B2]' :
+                      i % 4 === 1 ? 'bg-[#C4B09A]' :
+                      i % 4 === 2 ? 'bg-[#B89E87]' :
+                      'bg-[#EAE1D6]'
+                    }`} />
                     <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-[#2A2421] opacity-10" />
                     <div className="absolute top-4 right-4 w-8 h-8 border border-[#A56E52] opacity-40" />
-                    {/* Speaker initial placeholder */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span
-                        className="font-serif text-5xl md:text-7xl font-normal text-[#FDFAF7] opacity-30"
-
-                      >
+                      <span className="font-serif text-7xl font-normal text-[#FDFAF7] opacity-30">
                         {speaker.name.charAt(0)}
                       </span>
                     </div>
                   </div>
-
-                  {/* Info */}
                   <div className="flex flex-col gap-3">
                     <div>
-                      <h3
-                        className="font-serif text-xl font-normal text-[#2A2421] leading-snug"
-
-                      >
-                        {speaker.name}
-                      </h3>
+                      <h3 className="font-serif text-xl font-normal text-[#2A2421] leading-snug">{speaker.name}</h3>
                       <p className="font-sans text-sm text-[#A56E52] mt-1">{speaker.title}</p>
                       <p className="font-sans text-xs text-[#5B4638] mt-0.5">{speaker.organization}</p>
                     </div>
-
-                    {/* Expertise tags */}
                     <div className="flex flex-wrap gap-1">
                       {speaker.expertise.slice(0, 2).map((tag) => (
-                        <span
-                          key={tag}
-                          className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638] border border-[#D7C6B2] px-2 py-0.5"
-                        >
+                        <span key={tag} className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638] border border-[#D7C6B2] px-2 py-0.5">
                           {tag}
                         </span>
                       ))}

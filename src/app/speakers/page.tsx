@@ -2,6 +2,7 @@ import Image from 'next/image';
 import PublicLayout from '@/components/layout/PublicLayout';
 import SectionHeader from '@/components/ui/SectionHeader';
 import Button from '@/components/ui/Button';
+import MobileCarousel from '@/components/ui/MobileCarousel';
 import { speakers, events } from '@/lib/data';
 
 function ExpertiseTag({ label }: { label: string }) {
@@ -98,16 +99,26 @@ export default function SpeakersPage() {
       </div>
 
       {/* ── Featured Speakers ─────────────────────── */}
-      <section className="bg-[#FDFAF7] py-24">
+      <section className="bg-[#FDFAF7] py-12 md:py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
           <SectionHeader
             label="Seleccionados"
             title="Speakers destacados"
             subtitle="The voices at the center of our most transformational stages."
-            className="mb-16"
+            className="mb-8 md:mb-16"
           />
 
-          <div className="grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Mobile carousel */}
+          <div className="sm:hidden -mx-6 px-6">
+            <MobileCarousel itemWidth="w-[72vw]" interval={4000}>
+              {featured.map((speaker) => (
+                <SpeakerCard key={speaker.id} speaker={speaker} large />
+              ))}
+            </MobileCarousel>
+          </div>
+
+          {/* Tablet+ grid */}
+          <div className="hidden sm:grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
             {featured.map((speaker) => (
               <SpeakerCard key={speaker.id} speaker={speaker} large />
             ))}
@@ -116,16 +127,24 @@ export default function SpeakersPage() {
       </section>
 
       {/* ── All Speakers ─────────────────────────── */}
-      <section className="bg-[#EAE1D6] py-24">
+      <section className="bg-[#EAE1D6] py-12 md:py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
           <SectionHeader
             label="Todos los speakers"
             title="La comunidad de voces"
             subtitle="From keynote visionaries to intimate workshop facilitators — each one carefully chosen."
-            className="mb-16"
+            className="mb-8 md:mb-16"
           />
 
-          <div className="grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {/* Mobile: 2-col grid is compact enough */}
+          <div className="sm:hidden grid grid-cols-2 gap-x-4 gap-y-8">
+            {all.map((speaker) => (
+              <SpeakerCard key={speaker.id} speaker={speaker} />
+            ))}
+          </div>
+
+          {/* Tablet+ grid */}
+          <div className="hidden sm:grid gap-x-8 gap-y-14 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {all.map((speaker) => (
               <SpeakerCard key={speaker.id} speaker={speaker} />
             ))}

@@ -2,6 +2,7 @@ import Image from 'next/image';
 import PublicLayout from '@/components/layout/PublicLayout';
 import SectionHeader from '@/components/ui/SectionHeader';
 import Button from '@/components/ui/Button';
+import MobileCarousel from '@/components/ui/MobileCarousel';
 import { stats } from '@/lib/data';
 
 // ── Editorial data ──────────────────────────────
@@ -160,34 +161,40 @@ export default function AboutPage() {
       </section>
 
       {/* ── C. VISION & PHILOSOPHY ─────────────── */}
-      <section className="bg-[#F7F3EE] py-24 md:py-32">
+      <section className="bg-[#F7F3EE] py-12 md:py-28">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <SectionHeader
             label="Filosofía"
             title="Una visión diferente del evento."
             subtitle="Cuatro principios que guían cada decisión creativa, logística y humana que tomamos."
-            className="mb-16"
+            className="mb-8 md:mb-16"
           />
 
-          <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
+          {/* Mobile carousel */}
+          <div className="md:hidden -mx-6 px-6">
+            <MobileCarousel itemWidth="w-[82vw]" interval={4000}>
+              {philosophyPillars.map((pillar) => (
+                <div key={pillar.number} className="bg-white border border-[#EAE1D6] p-7 flex flex-col gap-4 min-h-[200px]">
+                  <span className="shrink-0 font-serif text-4xl font-normal leading-none text-[#A56E52]">
+                    {pillar.number}
+                  </span>
+                  <h3 className="font-serif text-xl font-normal text-[#2A2421]">{pillar.title}</h3>
+                  <p className="font-sans text-sm leading-relaxed text-[#5B4638]">{pillar.description}</p>
+                </div>
+              ))}
+            </MobileCarousel>
+          </div>
+
+          {/* Desktop grid */}
+          <div className="hidden md:grid grid-cols-2 gap-12">
             {philosophyPillars.map((pillar) => (
               <div key={pillar.number} className="flex gap-8">
-                <span
-                  className="shrink-0 font-serif text-4xl font-normal leading-none text-[#A56E52]"
-
-                >
+                <span className="shrink-0 font-serif text-4xl font-normal leading-none text-[#A56E52]">
                   {pillar.number}
                 </span>
                 <div>
-                  <h3
-                    className="mb-3 font-serif text-xl font-normal text-[#2A2421]"
-
-                  >
-                    {pillar.title}
-                  </h3>
-                  <p className="font-sans text-sm leading-relaxed text-[#5B4638]">
-                    {pillar.description}
-                  </p>
+                  <h3 className="mb-3 font-serif text-xl font-normal text-[#2A2421]">{pillar.title}</h3>
+                  <p className="font-sans text-sm leading-relaxed text-[#5B4638]">{pillar.description}</p>
                 </div>
               </div>
             ))}
@@ -246,36 +253,41 @@ export default function AboutPage() {
       </section>
 
       {/* ── E. LEADERSHIP ──────────────────────── */}
-      <section className="bg-[#FDFAF7] py-24 md:py-32">
+      <section className="bg-[#FDFAF7] py-12 md:py-28">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <SectionHeader
             label="Equipo"
             title="Las personas detrás de la experiencia."
-            className="mb-16"
+            className="mb-8 md:mb-16"
           />
 
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
+          {/* Mobile carousel */}
+          <div className="md:hidden -mx-6 px-6">
+            <MobileCarousel itemWidth="w-[78vw]" interval={5000}>
+              {leadershipTeam.map((person) => (
+                <div key={person.name} className="flex flex-col">
+                  <div className="relative mb-4 aspect-square w-full overflow-hidden">
+                    <Image fill src={person.image} alt={`${person.name} — ${person.title}`}
+                      className="object-cover" sizes="80vw" />
+                  </div>
+                  <h3 className="mb-1 font-serif text-xl font-normal text-[#2A2421]">{person.name}</h3>
+                  <span className="mb-3 font-sans text-xs font-medium uppercase tracking-widest text-[#A56E52]">{person.title}</span>
+                  <p className="font-sans text-sm leading-relaxed text-[#5B4638] line-clamp-4">{person.bio}</p>
+                </div>
+              ))}
+            </MobileCarousel>
+          </div>
+
+          {/* Desktop grid */}
+          <div className="hidden md:grid grid-cols-3 gap-10">
             {leadershipTeam.map((person) => (
               <div key={person.name} className="flex flex-col">
-                {/* Image */}
                 <div className="relative mb-6 aspect-square w-full overflow-hidden">
-                  <Image
-                    fill
-                    src={person.image}
-                    alt={`${person.name} — ${person.title}`}
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
+                  <Image fill src={person.image} alt={`${person.name} — ${person.title}`}
+                    className="object-cover" sizes="33vw" />
                 </div>
-                <h3
-                  className="mb-1 font-serif text-xl font-normal text-[#2A2421]"
-
-                >
-                  {person.name}
-                </h3>
-                <span className="mb-4 font-sans text-xs font-medium uppercase tracking-widest text-[#A56E52]">
-                  {person.title}
-                </span>
+                <h3 className="mb-1 font-serif text-xl font-normal text-[#2A2421]">{person.name}</h3>
+                <span className="mb-4 font-sans text-xs font-medium uppercase tracking-widest text-[#A56E52]">{person.title}</span>
                 <p className="font-sans text-sm leading-relaxed text-[#5B4638]">{person.bio}</p>
               </div>
             ))}
@@ -284,35 +296,34 @@ export default function AboutPage() {
       </section>
 
       {/* ── F. VALUES BLOCK ────────────────────── */}
-      <section className="bg-[#EAE1D6] py-24 md:py-32">
+      <section className="bg-[#EAE1D6] py-12 md:py-28">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <SectionHeader
             label="Valores"
             title="Lo que nos mueve."
-            className="mb-16"
+            className="mb-8 md:mb-16"
           />
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          {/* Mobile carousel */}
+          <div className="md:hidden -mx-6 px-6">
+            <MobileCarousel itemWidth="w-[82vw]" interval={4500}>
+              {values.map((value) => (
+                <div key={value.number} className="flex flex-col gap-3 bg-[#F7F3EE] p-7 min-h-[180px]">
+                  <span className="font-serif text-3xl font-normal text-[#A56E52]">{value.number}</span>
+                  <h3 className="font-serif text-xl font-normal text-[#2A2421]">{value.name}</h3>
+                  <p className="font-sans text-sm leading-relaxed text-[#5B4638]">{value.description}</p>
+                </div>
+              ))}
+            </MobileCarousel>
+          </div>
+
+          {/* Desktop grid */}
+          <div className="hidden md:grid grid-cols-2 gap-8">
             {values.map((value) => (
-              <div
-                key={value.number}
-                className="flex flex-col gap-3 bg-[#F7F3EE] p-10"
-              >
-                <span
-                  className="font-serif text-3xl font-normal text-[#A56E52]"
-
-                >
-                  {value.number}
-                </span>
-                <h3
-                  className="font-serif text-xl font-normal text-[#2A2421]"
-
-                >
-                  {value.name}
-                </h3>
-                <p className="font-sans text-sm leading-relaxed text-[#5B4638]">
-                  {value.description}
-                </p>
+              <div key={value.number} className="flex flex-col gap-3 bg-[#F7F3EE] p-10">
+                <span className="font-serif text-3xl font-normal text-[#A56E52]">{value.number}</span>
+                <h3 className="font-serif text-xl font-normal text-[#2A2421]">{value.name}</h3>
+                <p className="font-sans text-sm leading-relaxed text-[#5B4638]">{value.description}</p>
               </div>
             ))}
           </div>
