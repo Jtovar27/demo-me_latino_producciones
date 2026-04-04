@@ -4,6 +4,7 @@ import SectionHeader from '@/components/ui/SectionHeader';
 import Button from '@/components/ui/Button';
 import MobileCarousel from '@/components/ui/MobileCarousel';
 import { experiences } from '@/lib/data';
+import { editorialImages } from '@/lib/media';
 
 const categoryLabels: Record<string, string> = {
   flagship: 'Experiencia Insignia',
@@ -11,14 +12,6 @@ const categoryLabels: Record<string, string> = {
   wellness: 'Bienestar',
   community: 'Comunidad',
   branded: 'Experiencia de Marca',
-};
-
-const categoryColors: Record<string, string> = {
-  flagship: 'bg-[#5B4638]',
-  summit: 'bg-[#A56E52]',
-  wellness: 'bg-[#D7C6B2]',
-  community: 'bg-[#EAE1D6]',
-  branded: 'bg-[#2A2421]',
 };
 
 const processSteps = [
@@ -181,8 +174,8 @@ export default function ExperiencesPage() {
               <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[480px] overflow-hidden">
                 <Image
                   fill
-                  src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1400&q=80"
-                  alt="The Real Happiness flagship experience — event stage"
+                  src={editorialImages.experiencesFlagship.src}
+                  alt={editorialImages.experiencesFlagship.alt}
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />

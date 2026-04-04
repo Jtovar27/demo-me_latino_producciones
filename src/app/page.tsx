@@ -6,6 +6,7 @@ import Badge from '@/components/ui/Badge';
 import SectionHeader from '@/components/ui/SectionHeader';
 import MobileCarousel from '@/components/ui/MobileCarousel';
 import { events, speakers, experiences, stats } from '@/lib/data';
+import { editorialImages } from '@/lib/media';
 
 // ── Helpers ────────────────────────────────────
 
@@ -141,7 +142,8 @@ export default function HomePage() {
               className="font-serif text-2xl md:text-3xl lg:text-4xl font-normal leading-snug text-[#2A2421]"
 
             >
-              "No producimos eventos. Construimos experiencias con propósito, comunidad y transformación."
+              &ldquo;No producimos eventos. Construimos experiencias con prop&oacute;sito,
+              comunidad y transformaci&oacute;n.&rdquo;
             </blockquote>
 
             <p className="font-sans text-base leading-relaxed text-[#5B4638] max-w-2xl">
@@ -164,8 +166,8 @@ export default function HomePage() {
                 <div className="relative w-full h-[240px] md:h-[400px] lg:h-[500px] overflow-hidden">
                   <Image
                     fill
-                    src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1400&q=80"
-                    alt="The Real Happiness flagship event — community gathering"
+                    src={editorialImages.homeFeaturedExperience.src}
+                    alt={editorialImages.homeFeaturedExperience.alt}
                     className="object-cover"
                     sizes="(max-width: 1024px) 100vw, 50vw"
                   />
@@ -236,23 +238,40 @@ export default function HomePage() {
                   <Link
                     key={exp.id}
                     href="/experiences"
-                    className="group flex flex-col gap-4 bg-[#FDFAF7] border border-[#D7C6B2] p-6 hover:bg-[#EAE1D6] transition-colors duration-300 h-full"
+                    className="group flex h-full flex-col overflow-hidden border border-[#D7C6B2] bg-[#FDFAF7] transition-colors duration-300 hover:bg-[#EAE1D6]"
                   >
-                    <span className="font-serif text-5xl font-normal text-[#D7C6B2] group-hover:text-[#A56E52] transition-colors duration-300">
-                      0{i + 1}
-                    </span>
-                    <div className="flex flex-col gap-3 flex-1">
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      <Image
+                        fill
+                        src={exp.image}
+                        alt={exp.title}
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                        sizes="75vw"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#2A2421]/75 via-[#2A2421]/10 to-transparent" />
+                      <div className="absolute left-5 top-5 flex h-12 w-12 items-center justify-center border border-[#F7F3EE]/40 bg-[#2A2421]/35 backdrop-blur-[2px]">
+                        <span className="font-serif text-2xl font-normal text-[#F7F3EE]">
+                          0{i + 1}
+                        </span>
+                      </div>
+                      <div className="absolute bottom-5 left-5">
+                        <span className="font-sans text-[10px] uppercase tracking-widest text-[#F7F3EE]/85">
+                          {categoryLabel(exp.category)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex flex-1 flex-col gap-3 p-6">
                       <h3 className="font-serif text-xl font-normal text-[#2A2421]">
                         {exp.title.replace(' — Flagship Experience', '')}
                       </h3>
                       <p className="font-sans text-sm leading-relaxed text-[#5B4638]">
                         {exp.shortDesc}
                       </p>
+                      <span className="mt-auto flex items-center gap-2 font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">
+                        Ver más
+                        <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
+                      </span>
                     </div>
-                    <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] flex items-center gap-2">
-                      Ver más
-                      <span className="inline-block group-hover:translate-x-1 transition-transform duration-200">→</span>
-                    </span>
                   </Link>
                 ))}
               </MobileCarousel>
@@ -263,23 +282,40 @@ export default function HomePage() {
                 <Link
                   key={exp.id}
                   href="/experiences"
-                  className="group flex flex-col gap-6 bg-[#FDFAF7] p-8 lg:p-10 hover:bg-[#EAE1D6] transition-colors duration-300"
+                  className="group flex flex-col overflow-hidden bg-[#FDFAF7] transition-colors duration-300 hover:bg-[#EAE1D6]"
                 >
-                  <span className="font-serif text-5xl font-normal text-[#D7C6B2] group-hover:text-[#A56E52] transition-colors duration-300">
-                    0{i + 1}
-                  </span>
-                  <div className="flex flex-col gap-3 flex-1">
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    <Image
+                      fill
+                      src={exp.image}
+                      alt={exp.title}
+                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      sizes="(max-width: 1024px) 50vw, 25vw"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#2A2421]/70 via-[#2A2421]/5 to-transparent" />
+                    <div className="absolute left-6 top-6 flex h-14 w-14 items-center justify-center border border-[#F7F3EE]/35 bg-[#2A2421]/30 backdrop-blur-[2px]">
+                      <span className="font-serif text-3xl font-normal text-[#F7F3EE]">
+                        0{i + 1}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-6 left-6">
+                      <span className="font-sans text-[10px] uppercase tracking-widest text-[#F7F3EE]/85">
+                        {categoryLabel(exp.category)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-1 flex-col gap-3 p-8 lg:p-10">
                     <h3 className="font-serif text-xl font-normal text-[#2A2421]">
                       {exp.title.replace(' — Flagship Experience', '')}
                     </h3>
                     <p className="font-sans text-sm leading-relaxed text-[#5B4638]">
                       {exp.shortDesc}
                     </p>
+                    <span className="mt-auto flex items-center gap-2 font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">
+                      Ver más
+                      <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
+                    </span>
                   </div>
-                  <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] flex items-center gap-2">
-                    Ver más
-                    <span className="inline-block group-hover:translate-x-1 transition-transform duration-200">→</span>
-                  </span>
                 </Link>
               ))}
             </div>
@@ -522,8 +558,8 @@ export default function HomePage() {
               <div className="relative w-full h-[240px] md:h-[380px] lg:h-[480px] overflow-hidden">
                 <Image
                   fill
-                  src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=80"
-                  alt="Community gathering — Latino community event audience"
+                  src={editorialImages.homeImpact.src}
+                  alt={editorialImages.homeImpact.alt}
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />

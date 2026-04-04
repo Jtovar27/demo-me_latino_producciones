@@ -4,6 +4,7 @@ import SectionHeader from '@/components/ui/SectionHeader';
 import Button from '@/components/ui/Button';
 import MobileCarousel from '@/components/ui/MobileCarousel';
 import { stats } from '@/lib/data';
+import { editorialImages } from '@/lib/media';
 
 // ── Editorial data ──────────────────────────────
 
@@ -123,7 +124,8 @@ export default function AboutPage() {
                   className="font-serif text-2xl font-normal leading-relaxed text-[#2A2421] md:text-3xl"
 
                 >
-                  "Creemos que los eventos más poderosos no entretienen — transforman."
+                  &ldquo;Creemos que los eventos m&aacute;s poderosos no entretienen &mdash;
+                  transforman.&rdquo;
                 </blockquote>
                 <cite className="mt-6 block font-sans text-xs font-medium uppercase tracking-widest text-[#A56E52] not-italic">
                   Mariana Ríos Delgado, Founder &amp; CEO
@@ -241,8 +243,8 @@ export default function AboutPage() {
             <div className="relative aspect-video w-full overflow-hidden">
               <Image
                 fill
-                src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=1200&q=80"
-                alt="Event audience at The Real Happiness experience"
+                src={editorialImages.aboutTheRealHappiness.src}
+                alt={editorialImages.aboutTheRealHappiness.alt}
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />

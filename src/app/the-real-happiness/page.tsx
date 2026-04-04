@@ -2,8 +2,8 @@ import Image from 'next/image';
 import PublicLayout from '@/components/layout/PublicLayout';
 import Button from '@/components/ui/Button';
 import SectionHeader from '@/components/ui/SectionHeader';
-import Badge from '@/components/ui/Badge';
 import { events, speakers, testimonials } from '@/lib/data';
+import { editorialImages } from '@/lib/media';
 
 // ── Data ───────────────────────────────────────
 
@@ -152,7 +152,7 @@ export default function TheRealHappinessPage() {
         {/* Background texture accents */}
         <div className="absolute inset-0 pointer-events-none">
           <Image
-            src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1800&q=80"
+            src={editorialImages.theRealHappinessHero.src}
             alt=""
             fill
             className="object-cover opacity-20"
@@ -223,7 +223,8 @@ export default function TheRealHappinessPage() {
               className="font-serif text-2xl md:text-3xl font-normal leading-snug text-[#2A2421]"
 
             >
-              "No es una conferencia. No es un retiro. Es un espacio donde el propósito se convierte en práctica."
+              &ldquo;No es una conferencia. No es un retiro. Es un espacio donde el
+              prop&oacute;sito se convierte en pr&aacute;ctica.&rdquo;
             </blockquote>
             <div className="h-px w-8 bg-[#D7C6B2]" />
             <p className="font-sans text-sm text-[#A56E52] uppercase tracking-widest">
@@ -410,7 +411,7 @@ export default function TheRealHappinessPage() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8">
-            {featuredSpeakers.map((speaker, i) => (
+            {featuredSpeakers.map((speaker) => (
               <div key={speaker.id} className="flex flex-col gap-4 group">
                 {/* Speaker portrait */}
                 <div className="relative w-full aspect-[3/4] overflow-hidden">
@@ -460,8 +461,8 @@ export default function TheRealHappinessPage() {
           {/* Left: venue image */}
           <div className="w-full aspect-video relative overflow-hidden">
             <Image
-              src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80"
-              alt="The Fillmore Miami Beach"
+              src={editorialImages.theRealHappinessVenue.src}
+              alt={editorialImages.theRealHappinessVenue.alt}
               fill
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 50vw"

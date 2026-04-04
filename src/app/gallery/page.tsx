@@ -52,7 +52,8 @@ export default function GalleryPage() {
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
           <div className="mx-auto max-w-2xl text-center">
             <p className="font-serif text-2xl font-normal italic leading-relaxed text-[#2A2421]">
-              "Construimos espacios donde la historia latina se cuenta plenamente — con orgullo, complejidad y belleza radical."
+              &ldquo;Construimos espacios donde la historia latina se cuenta plenamente
+              &mdash; con orgullo, complejidad y belleza radical.&rdquo;
             </p>
             <p className="mt-6 font-sans text-sm text-[#A56E52]">
               Mariana Ríos Delgado — Fundadora, ME Latino Producciones
