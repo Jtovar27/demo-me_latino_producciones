@@ -32,6 +32,7 @@ export async function upsertSpeaker(formData: FormData) {
 
   revalidatePath('/admin/speakers');
   revalidatePath('/speakers');
+  revalidatePath('/');
   return { success: true };
 }
 
@@ -40,6 +41,8 @@ export async function deleteSpeaker(id: string) {
   const { error } = await client.from('speakers').delete().eq('id', id);
   if (error) return { error: error.message };
   revalidatePath('/admin/speakers');
+  revalidatePath('/speakers');
+  revalidatePath('/');
   return { success: true };
 }
 

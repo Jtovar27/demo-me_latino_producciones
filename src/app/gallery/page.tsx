@@ -59,7 +59,7 @@ export default async function GalleryPage() {
               &mdash; con orgullo, complejidad y belleza radical.&rdquo;
             </p>
             <p className="mt-6 font-sans text-sm text-[#A56E52]">
-              Mariana Ríos Delgado — Fundadora, ME Latino Producciones
+              ME Producciones
             </p>
           </div>
         </div>

@@ -5,8 +5,13 @@ import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import SectionHeader from '@/components/ui/SectionHeader';
 import MobileCarousel from '@/components/ui/MobileCarousel';
-import { events, speakers, experiences, stats } from '@/lib/data';
+import { experiences, stats } from '@/lib/data';
 import { editorialImages } from '@/lib/media';
+import { getEvents } from '@/app/actions/events';
+import { getSpeakers } from '@/app/actions/speakers';
+import type { DBEvent, DBSpeaker } from '@/types/supabase';
+
+export const revalidate = 0;
 
 // ── Helpers ────────────────────────────────────
 
@@ -33,9 +38,14 @@ function categoryLabel(cat: string) {
 
 // ── Page ───────────────────────────────────────
 
-export default function HomePage() {
-  const upcomingEvents = events.filter((e) => e.status === 'upcoming').slice(0, 3);
-  const featuredSpeakers = speakers.filter((s) => s.featured).slice(0, 4);
+export default async function HomePage() {
+  const [{ data: allEvents }, { data: allSpeakers }] = await Promise.all([
+    getEvents(),
+    getSpeakers(),
+  ]);
+
+  const upcomingEvents = allEvents.filter((e) => e.status === 'upcoming').slice(0, 3);
+  const featuredSpeakers = allSpeakers.filter((s) => s.featured).slice(0, 4);
   const featuredExperience = experiences.find((e) => e.slug === 'the-real-happiness');
   const experienceCategories = experiences.filter((e) => e.slug !== 'the-real-happiness').slice(0, 4);
 
@@ -458,13 +468,23 @@ export default function HomePage() {
                         i % 4 === 2 ? 'bg-[#B89E87]' :
                         'bg-[#EAE1D6]'
                       }`} />
-                      <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-[#2A2421] opacity-10" />
+                      {speaker.image_url ? (
+                        <Image
+                          src={speaker.image_url}
+                          alt={speaker.name}
+                          fill
+                          className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+                          sizes="42vw"
+                          unoptimized
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="font-serif text-4xl font-normal text-[#FDFAF7] opacity-30">
+                            {speaker.name.charAt(0)}
+                          </span>
+                        </div>
+                      )}
                       <div className="absolute top-3 right-3 w-6 h-6 border border-[#A56E52] opacity-40" />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="font-serif text-4xl font-normal text-[#FDFAF7] opacity-30">
-                          {speaker.name.charAt(0)}
-                        </span>
-                      </div>
                     </div>
                     <div className="flex flex-col gap-1">
                       <h3 className="font-serif text-sm font-normal text-[#2A2421] leading-snug">{speaker.name}</h3>
@@ -486,13 +506,23 @@ export default function HomePage() {
                       i % 4 === 2 ? 'bg-[#B89E87]' :
                       'bg-[#EAE1D6]'
                     }`} />
-                    <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-[#2A2421] opacity-10" />
+                    {speaker.image_url ? (
+                      <Image
+                        src={speaker.image_url}
+                        alt={speaker.name}
+                        fill
+                        className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+                        sizes="(max-width: 1024px) 50vw, 25vw"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="font-serif text-7xl font-normal text-[#FDFAF7] opacity-30">
+                          {speaker.name.charAt(0)}
+                        </span>
+                      </div>
+                    )}
                     <div className="absolute top-4 right-4 w-8 h-8 border border-[#A56E52] opacity-40" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="font-serif text-7xl font-normal text-[#FDFAF7] opacity-30">
-                        {speaker.name.charAt(0)}
-                      </span>
-                    </div>
                   </div>
                   <div className="flex flex-col gap-3">
                     <div>

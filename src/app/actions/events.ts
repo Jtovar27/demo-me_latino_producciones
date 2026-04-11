@@ -50,6 +50,7 @@ export async function deleteEvent(id: string) {
   if (error) return { error: error.message };
   revalidatePath('/admin/events');
   revalidatePath('/events');
+  revalidatePath('/');
   return { success: true };
 }
 

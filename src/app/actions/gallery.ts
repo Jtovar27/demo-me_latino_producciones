@@ -38,6 +38,7 @@ export async function uploadMediaFile(formData: FormData) {
   if (error) return { error: error.message };
 
   revalidatePath('/admin/media');
+  revalidatePath('/gallery');
   return { success: true, item: data };
 }
 
@@ -49,6 +50,7 @@ export async function deleteMediaFile(id: string, storagePath: string) {
   if (error) return { error: error.message };
 
   revalidatePath('/admin/media');
+  revalidatePath('/gallery');
   return { success: true };
 }
 
@@ -57,6 +59,7 @@ export async function updateGalleryItem(id: string, updates: { alt?: string; cat
   const { error } = await client.from('gallery_items').update(updates).eq('id', id);
   if (error) return { error: error.message };
   revalidatePath('/admin/media');
+  revalidatePath('/gallery');
   return { success: true };
 }
 
