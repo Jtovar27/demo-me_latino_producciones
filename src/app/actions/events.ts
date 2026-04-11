@@ -62,3 +62,32 @@ export async function getEvents() {
   if (error) return { data: [], error: error.message };
   return { data: data ?? [], error: null };
 }
+
+/**
+ * Marca UN evento como destacado para el popup de inicio.
+ * Quita el destacado de todos los demás eventos primero.
+ */
+export async function setFeaturedForPopup(id: string) {
+  const client = createAdminClient();
+
+  // Quitar destacado de todos los eventos
+  const { error: clearError } = await client
+    .from('events')
+    .update({ featured: false })
+    .not('id', 'is', null);
+
+  if (clearError) return { error: clearError.message };
+
+  // Destacar solo el evento seleccionado
+  const { error } = await client
+    .from('events')
+    .update({ featured: true })
+    .eq('id', id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath('/admin/events');
+  revalidatePath('/events');
+  revalidatePath('/');
+  return { success: true };
+}

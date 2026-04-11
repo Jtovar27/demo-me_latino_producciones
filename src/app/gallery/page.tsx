@@ -1,8 +1,12 @@
 import PublicLayout from '@/components/layout/PublicLayout';
 import GalleryGrid from '@/components/gallery/GalleryGrid';
-import { galleryItems } from '@/lib/data';
+import { getGalleryItems } from '@/app/actions/gallery';
 
-export default function GalleryPage() {
+export const revalidate = 0;
+
+export default async function GalleryPage() {
+  const { data: galleryItems } = await getGalleryItems();
+
   return (
     <PublicLayout>
       {/* ── Hero ─────────────────────────────────── */}
@@ -16,7 +20,6 @@ export default function GalleryPage() {
               <div className="mt-2 h-px w-8 bg-[#A56E52]" />
               <h1
                 className="mt-6 font-serif text-5xl font-normal leading-tight text-[#2A2421] md:text-6xl lg:text-7xl"
-
               >
                 Momentos
                 <br />

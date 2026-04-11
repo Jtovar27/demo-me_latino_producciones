@@ -1,125 +1,209 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
+import { Video } from 'lucide-react';
 import AdminLayout from '@/components/layout/AdminLayout';
 import Button from '@/components/ui/Button';
-import { galleryItems, type GalleryCategory } from '@/lib/data';
+import { getGalleryItems, uploadMediaFile, deleteMediaFile, updateGalleryItem } from '@/app/actions/gallery';
+import type { DBGalleryItem } from '@/types/supabase';
 
-type FilterCat = 'all' | GalleryCategory;
+type FilterCat = 'all' | string;
 
-const categoryConfig: Record<
-  GalleryCategory,
-  { label: string; bg: string; text: string }
-> = {
-  stage: { label: 'Stage', bg: 'bg-[#2A2421]', text: 'text-[#F7F3EE]' },
-  moments: { label: 'Moments', bg: 'bg-[#A56E52]', text: 'text-[#F7F3EE]' },
+const categoryConfig: Record<string, { label: string; bg: string; text: string }> = {
+  stage:     { label: 'Stage',     bg: 'bg-[#2A2421]', text: 'text-[#F7F3EE]' },
+  moments:   { label: 'Moments',   bg: 'bg-[#A56E52]', text: 'text-[#F7F3EE]' },
   backstage: { label: 'Backstage', bg: 'bg-[#5B4638]', text: 'text-[#F7F3EE]' },
-  audience: { label: 'Audience', bg: 'bg-[#D7C6B2]', text: 'text-[#2A2421]' },
-  details: { label: 'Details', bg: 'bg-[#EAE1D6]', text: 'text-[#5B4638]' },
+  audience:  { label: 'Audience',  bg: 'bg-[#D7C6B2]', text: 'text-[#2A2421]' },
+  details:   { label: 'Details',   bg: 'bg-[#EAE1D6]', text: 'text-[#5B4638]' },
 };
 
-const filterOptions: { value: FilterCat; label: string }[] = [
-  { value: 'all', label: 'Todos' },
-  { value: 'stage', label: 'Stage' },
-  { value: 'moments', label: 'Moments' },
+const filterOptions = [
+  { value: 'all',       label: 'Todos' },
+  { value: 'stage',     label: 'Stage' },
+  { value: 'moments',   label: 'Moments' },
   { value: 'backstage', label: 'Backstage' },
-  { value: 'audience', label: 'Audience' },
-  { value: 'details', label: 'Details' },
+  { value: 'audience',  label: 'Audience' },
+  { value: 'details',   label: 'Details' },
 ];
 
+function getCatConfig(cat: string | null) {
+  return categoryConfig[cat ?? ''] ?? { label: cat ?? 'Media', bg: 'bg-[#EAE1D6]', text: 'text-[#5B4638]' };
+}
+
 export default function AdminMediaPage() {
-  const [filter, setFilter] = useState<FilterCat>('all');
-  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
-  const [uploadedFile, setUploadedFile] = useState<string | null>(null);
-  const [viewItem, setViewItem] = useState<string | null>(null);
+  const [items, setItems]         = useState<DBGalleryItem[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [filter, setFilter]       = useState<FilterCat>('all');
+  const [viewItem, setViewItem]   = useState<DBGalleryItem | null>(null);
+  const [toast, setToast]         = useState('');
+  const [uploadCat, setUploadCat] = useState('moments');
+  const [uploadAlt, setUploadAlt] = useState('');
+  const [showUploadForm, setShowUploadForm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const activeItems = galleryItems.filter((item) => !deletedIds.has(item.id));
-  const filtered = activeItems.filter(
+  function showToast(msg: string) {
+    setToast(msg);
+    setTimeout(() => setToast(''), 3000);
+  }
+
+  async function loadItems() {
+    setLoading(true);
+    const { data } = await getGalleryItems();
+    setItems(data as DBGalleryItem[]);
+    setLoading(false);
+  }
+
+  useEffect(() => { loadItems(); }, []);
+
+  const filtered = items.filter(
     (item) => filter === 'all' || item.category === filter
   );
 
-  function handleDelete(id: string) {
-    setDeletedIds((prev) => new Set([...prev, id]));
+  async function handleDelete(item: DBGalleryItem) {
+    const res = await deleteMediaFile(item.id, item.storage_path);
+    if (res?.error) {
+      showToast('Error al eliminar');
+    } else {
+      setItems((prev) => prev.filter((i) => i.id !== item.id));
+      showToast('Archivo eliminado');
+    }
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) {
-      setUploadedFile(file.name);
-      setTimeout(() => setUploadedFile(null), 3000);
+  async function handleToggleFeatured(item: DBGalleryItem) {
+    const res = await updateGalleryItem(item.id, { featured: !item.featured });
+    if (!res?.error) {
+      setItems((prev) => prev.map((i) => i.id === item.id ? { ...i, featured: !i.featured } : i));
     }
+  }
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('alt', uploadAlt || file.name);
+    fd.append('category', uploadCat);
+    const res = await uploadMediaFile(fd);
+    if (res?.error) {
+      showToast(`Error: ${res.error}`);
+    } else {
+      showToast('Archivo subido');
+      setUploadAlt('');
+      setShowUploadForm(false);
+      loadItems();
+    }
+    setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   }
 
-  const viewingItem = galleryItems.find((m) => m.id === viewItem);
-
   return (
     <AdminLayout>
-      {/* Upload notification strip */}
-      {uploadedFile && (
+      {/* Toast */}
+      {toast && (
         <div className="fixed top-6 right-6 z-50 border border-[#A56E52] bg-[#FDFAF7] px-6 py-4 shadow-lg max-w-xs">
-          <p className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">
-            Archivo seleccionado (demo)
-          </p>
-          <p className="font-sans text-xs text-[#2A2421] mt-1 truncate">{uploadedFile}</p>
+          <p className="font-sans text-xs uppercase tracking-widest text-[#A56E52]">{toast}</p>
         </div>
       )}
 
       {/* View modal */}
-      {viewItem && viewingItem && (
+      {viewItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-[#2A2421]/80 backdrop-blur-sm"
-            onClick={() => setViewItem(null)}
-          />
-          <div className="relative z-10 w-full max-w-lg border border-[#EAE1D6] bg-[#FDFAF7] shadow-2xl mx-4">
-            <div className="border-b border-[#EAE1D6] px-8 py-5 flex items-center justify-between">
-              <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-[#2A2421]">
-                Vista previa
-              </p>
-              <button
-                onClick={() => setViewItem(null)}
-                className="font-sans text-[#5B4638] hover:text-[#2A2421] text-lg leading-none"
-              >
-                ×
-              </button>
+          <div className="absolute inset-0 bg-[#2A2421]/80 backdrop-blur-sm" onClick={() => setViewItem(null)} />
+          <div className="relative z-10 w-full max-w-lg border border-[#EAE1D6] bg-[#FDFAF7] shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="border-b border-[#EAE1D6] px-6 py-5 flex items-center justify-between">
+              <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-[#2A2421]">Vista previa</p>
+              <button onClick={() => setViewItem(null)} className="text-[#5B4638] hover:text-[#2A2421] text-xl leading-none p-1">×</button>
             </div>
             <div className="p-6">
-              <div
-                className={`h-64 w-full ${categoryConfig[viewingItem.category].bg} flex items-center justify-center`}
-              >
-                <div className="text-center px-6">
-                  <span
-                    className={`font-sans text-[10px] uppercase tracking-widest ${categoryConfig[viewingItem.category].text} opacity-60`}
-                  >
-                    {categoryConfig[viewingItem.category].label}
-                  </span>
-                  <p
-                    className={`mt-2 font-sans text-xs ${categoryConfig[viewingItem.category].text} opacity-80 leading-relaxed`}
-                  >
-                    {viewingItem.alt}
-                  </p>
+              {viewItem.media_type === 'video' ? (
+                <div className="h-64 w-full bg-[#2A2421] flex items-center justify-center">
+                  <Video size={40} className="text-[#A56E52]" />
                 </div>
-              </div>
-              <div className="mt-4">
-                <p className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">
-                  ID: {viewingItem.id}
-                </p>
-                <p className="font-sans text-xs text-[#2A2421] mt-1 leading-relaxed">
-                  {viewingItem.alt}
-                </p>
-                <div className="mt-3 flex items-center gap-3">
+              ) : (
+                <div className="relative h-64 w-full overflow-hidden bg-[#EAE1D6]">
+                  <Image src={viewItem.public_url} alt={viewItem.alt ?? ''} fill className="object-cover" sizes="512px" unoptimized />
+                </div>
+              )}
+              <div className="mt-4 space-y-2">
+                <p className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">Descripción</p>
+                <p className="font-sans text-sm text-[#2A2421]">{viewItem.alt ?? '—'}</p>
+                <div className="flex items-center gap-3 pt-2">
                   <span className="border border-[#D7C6B2] px-2 py-0.5 font-sans text-[8px] uppercase tracking-widest text-[#5B4638]">
-                    {categoryConfig[viewingItem.category].label}
+                    {getCatConfig(viewItem.category).label}
                   </span>
-                  {viewingItem.featured && (
+                  {viewItem.featured && (
                     <span className="border border-[#A56E52] px-2 py-0.5 font-sans text-[8px] uppercase tracking-widest text-[#A56E52]">
                       Destacado
                     </span>
                   )}
+                  <span className="border border-[#D7C6B2] px-2 py-0.5 font-sans text-[8px] uppercase tracking-widest text-[#5B4638]">
+                    {viewItem.media_type}
+                  </span>
                 </div>
               </div>
+              <div className="mt-5 flex gap-2">
+                <button
+                  onClick={() => { handleToggleFeatured(viewItem); setViewItem(null); }}
+                  className="flex-1 border border-[#D7C6B2] py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-[#A56E52] hover:text-[#A56E52] transition-colors">
+                  {viewItem.featured ? 'Quitar destacado' : '★ Destacar'}
+                </button>
+                <button
+                  onClick={() => { handleDelete(viewItem); setViewItem(null); }}
+                  className="flex-1 border border-[#D7C6B2] py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-red-400 hover:text-red-500 transition-colors">
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Upload panel */}
+      {showUploadForm && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+          <div className="absolute inset-0 bg-[#2A2421]/60 backdrop-blur-sm" onClick={() => setShowUploadForm(false)} />
+          <div className="relative z-10 w-full sm:max-w-md border border-[#EAE1D6] bg-[#FDFAF7] shadow-2xl mx-0 sm:mx-4 rounded-t-lg sm:rounded-none">
+            <div className="border-b border-[#EAE1D6] px-6 py-5 flex items-center justify-between">
+              <p className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">Subir archivo</p>
+              <button onClick={() => setShowUploadForm(false)} className="text-[#5B4638] hover:text-[#2A2421] text-xl leading-none p-1">×</button>
+            </div>
+            <div className="px-6 py-6 space-y-5">
+              <div>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Descripción (alt text)</label>
+                <input type="text" value={uploadAlt} onChange={(e) => setUploadAlt(e.target.value)}
+                  placeholder="Descripción del archivo..."
+                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
+              </div>
+              <div>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Categoría</label>
+                <select value={uploadCat} onChange={(e) => setUploadCat(e.target.value)}
+                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors">
+                  {Object.entries(categoryConfig).map(([k, v]) => (
+                    <option key={k} value={k}>{v.label}</option>
+                  ))}
+                </select>
+              </div>
+              <input ref={fileInputRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleFileChange} />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="w-full border-2 border-dashed border-[#D7C6B2] hover:border-[#A56E52] transition-colors py-10 flex flex-col items-center gap-3 disabled:opacity-50">
+                {uploading ? (
+                  <p className="font-sans text-xs uppercase tracking-widest text-[#A56E52]">Subiendo...</p>
+                ) : (
+                  <>
+                    <svg className="w-7 h-7 text-[#A56E52]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    <p className="font-sans text-sm text-[#2A2421]">Toca para seleccionar archivo</p>
+                    <p className="font-sans text-xs text-[#5B4638]">Imagen o video — máx 50MB</p>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -130,102 +214,116 @@ export default function AdminMediaPage() {
         <div>
           <h2 className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">Media</h2>
           <p className="mt-1 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">
-            {activeItems.length} ítem{activeItems.length !== 1 ? 's' : ''} en la galería
+            {loading ? 'Cargando...' : `${items.length} archivo${items.length !== 1 ? 's' : ''} en la galería`}
           </p>
         </div>
-        <div>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept="image/*,video/*"
-            className="hidden"
-          />
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            + Subir Archivos
-          </Button>
-        </div>
+        <Button variant="primary" size="sm" onClick={() => setShowUploadForm(true)}>
+          + Subir Archivos
+        </Button>
       </div>
 
       {/* Filter tabs */}
       <div className="flex flex-wrap gap-2 mb-6">
         {filterOptions.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => setFilter(opt.value)}
+          <button key={opt.value} onClick={() => setFilter(opt.value)}
             className={[
               'px-4 py-2 border font-sans text-[10px] uppercase tracking-widest transition-colors',
               filter === opt.value
                 ? 'border-[#2A2421] bg-[#2A2421] text-[#F7F3EE]'
                 : 'border-[#D7C6B2] text-[#5B4638] hover:border-[#5B4638]',
-            ].join(' ')}
-          >
+            ].join(' ')}>
             {opt.label}
           </button>
         ))}
       </div>
 
-      {/* Media grid */}
-      {filtered.length === 0 ? (
+      {/* Loading state */}
+      {loading && (
         <div className="border border-[#EAE1D6] bg-[#FDFAF7] py-20 text-center">
-          <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]/50">
-            Sin ítems en esta categoría
-          </p>
+          <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]/50">Cargando galería...</p>
         </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4">
+      )}
+
+      {/* Empty state */}
+      {!loading && filtered.length === 0 && (
+        <div className="border border-dashed border-[#D7C6B2] py-20 text-center">
+          <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]/50 mb-4">
+            {filter === 'all' ? 'Galería vacía — sube tu primer archivo' : 'Sin ítems en esta categoría'}
+          </p>
+          {filter === 'all' && (
+            <Button variant="primary" size="sm" onClick={() => setShowUploadForm(true)}>+ Subir archivo</Button>
+          )}
+        </div>
+      )}
+
+      {/* Media grid */}
+      {!loading && filtered.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {filtered.map((item) => {
-            const cat = categoryConfig[item.category];
+            const cat = getCatConfig(item.category);
             return (
-              <div
-                key={item.id}
-                className="group relative border border-[#EAE1D6] bg-[#FDFAF7] overflow-hidden"
-              >
-                {/* Colored placeholder (aspect-video) */}
-                <div
-                  className={`${cat.bg} aspect-video w-full flex items-center justify-center relative`}
-                >
-                  <span
-                    className={`font-sans text-[9px] uppercase tracking-widest ${cat.text} opacity-50`}
-                  >
-                    {cat.label}
-                  </span>
+              <div key={item.id} className="border border-[#EAE1D6] bg-[#FDFAF7] overflow-hidden">
+                {/* Thumbnail */}
+                <div className="relative aspect-video w-full overflow-hidden bg-[#EAE1D6]">
+                  {item.media_type === 'video' ? (
+                    <div className={`${cat.bg} w-full h-full flex items-center justify-center`}>
+                      <Video size={24} className={cat.text} />
+                    </div>
+                  ) : (
+                    <Image
+                      src={item.public_url}
+                      alt={item.alt ?? ''}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      unoptimized
+                    />
+                  )}
                   {item.featured && (
-                    <div className="absolute top-2 right-2">
+                    <div className="absolute top-1.5 left-1.5">
                       <span className="border border-[#A56E52] bg-[#FDFAF7]/90 px-1.5 py-0.5 font-sans text-[7px] uppercase tracking-widest text-[#A56E52]">
                         ★
                       </span>
                     </div>
                   )}
-                  {/* Hover overlay with buttons */}
-                  <div className="absolute inset-0 bg-[#2A2421]/0 group-hover:bg-[#2A2421]/50 transition-colors flex items-center justify-center gap-2">
-                    <button
-                      onClick={() => setViewItem(item.id)}
-                      className="opacity-0 group-hover:opacity-100 border border-[#F7F3EE] px-3 py-1.5 font-sans text-[8px] uppercase tracking-widest text-[#F7F3EE] hover:bg-[#F7F3EE] hover:text-[#2A2421] transition-all"
-                    >
-                      Ver
-                    </button>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="opacity-0 group-hover:opacity-100 border border-red-300 px-3 py-1.5 font-sans text-[8px] uppercase tracking-widest text-red-300 hover:bg-red-400 hover:text-white transition-all"
-                    >
-                      Eliminar
-                    </button>
-                  </div>
                 </div>
 
-                {/* Category label overlay at bottom */}
+                {/* Info + actions */}
                 <div className="px-3 py-3">
-                  <span className="border border-[#D7C6B2] px-1.5 py-0.5 font-sans text-[8px] uppercase tracking-widest text-[#5B4638]">
-                    {cat.label}
-                  </span>
-                  <p className="mt-1.5 font-sans text-[9px] text-[#5B4638] leading-snug line-clamp-2">
-                    {item.alt}
-                  </p>
+                  <div className="flex items-center justify-between gap-1 mb-2">
+                    <span className="border border-[#D7C6B2] px-1.5 py-0.5 font-sans text-[8px] uppercase tracking-widest text-[#5B4638]">
+                      {cat.label}
+                    </span>
+                    {item.media_type === 'video' && (
+                      <span className="border border-[#D7C6B2] px-1.5 py-0.5 font-sans text-[8px] uppercase tracking-widest text-[#5B4638]">
+                        Video
+                      </span>
+                    )}
+                  </div>
+                  {item.alt && (
+                    <p className="font-sans text-[9px] text-[#5B4638] leading-snug line-clamp-1 mb-2">
+                      {item.alt}
+                    </p>
+                  )}
+                  {/* Action buttons — always visible for mobile */}
+                  <div className="flex gap-1.5">
+                    <button onClick={() => setViewItem(item)}
+                      className="flex-1 border border-[#D7C6B2] py-2 font-sans text-[8px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors">
+                      Ver
+                    </button>
+                    <button onClick={() => handleToggleFeatured(item)}
+                      className={['flex-1 border py-2 font-sans text-[8px] uppercase tracking-widest transition-colors',
+                        item.featured
+                          ? 'border-[#A56E52] text-[#A56E52]'
+                          : 'border-[#D7C6B2] text-[#5B4638] hover:border-[#A56E52] hover:text-[#A56E52]',
+                      ].join(' ')}>
+                      {item.featured ? '★' : '☆'}
+                    </button>
+                    <button onClick={() => handleDelete(item)}
+                      className="flex-1 border border-[#D7C6B2] py-2 font-sans text-[8px] uppercase tracking-widest text-[#5B4638] hover:border-red-400 hover:text-red-500 transition-colors">
+                      ×
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -233,9 +331,11 @@ export default function AdminMediaPage() {
         </div>
       )}
 
-      <p className="mt-6 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]/40">
-        {filtered.length} ítem{filtered.length !== 1 ? 's' : ''} mostrados — hover para acciones
-      </p>
+      {!loading && filtered.length > 0 && (
+        <p className="mt-6 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]/40">
+          {filtered.length} ítem{filtered.length !== 1 ? 's' : ''} mostrados
+        </p>
+      )}
     </AdminLayout>
   );
 }

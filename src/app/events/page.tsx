@@ -2,9 +2,15 @@ import PublicLayout from '@/components/layout/PublicLayout';
 import SectionHeader from '@/components/ui/SectionHeader';
 import Button from '@/components/ui/Button';
 import EventsFilter from '@/components/events/EventsFilter';
-import { events } from '@/lib/data';
+import { getEvents } from '@/app/actions/events';
 
-export default function EventsPage() {
+export const revalidate = 0;
+
+export default async function EventsPage() {
+  const { data: events } = await getEvents();
+  const upcomingCount = events.filter((e) => e.status === 'upcoming').length;
+  const cities = new Set(events.map((e) => e.city)).size;
+
   return (
     <PublicLayout>
 
@@ -40,32 +46,23 @@ export default function EventsPage() {
               {/* Stat strip */}
               <div className="flex gap-10 pt-4 border-t border-[#D7C6B2]">
                 <div>
-                  <p
-                    className="font-serif text-3xl font-normal text-[#2A2421]"
-
-                  >
-                    {events.filter((e) => e.status === 'upcoming').length}
+                  <p className="font-serif text-3xl font-normal text-[#2A2421]">
+                    {upcomingCount}
                   </p>
                   <p className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] mt-1">
                     Próximos
                   </p>
                 </div>
                 <div>
-                  <p
-                    className="font-serif text-3xl font-normal text-[#2A2421]"
-
-                  >
-                    5
+                  <p className="font-serif text-3xl font-normal text-[#2A2421]">
+                    {cities}
                   </p>
                   <p className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] mt-1">
                     Ciudades
                   </p>
                 </div>
                 <div>
-                  <p
-                    className="font-serif text-3xl font-normal text-[#2A2421]"
-
-                  >
+                  <p className="font-serif text-3xl font-normal text-[#2A2421]">
                     {events.length}
                   </p>
                   <p className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] mt-1">

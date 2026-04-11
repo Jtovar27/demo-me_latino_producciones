@@ -1,12 +1,21 @@
+import Image from 'next/image';
 import PublicLayout from '@/components/layout/PublicLayout';
 import SectionHeader from '@/components/ui/SectionHeader';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
-import { sponsors, type SponsorTier } from '@/lib/data';
+import { getSponsors } from '@/app/actions/sponsors';
+import type { DBSponsor } from '@/types/supabase';
+
+export const revalidate = 0;
 
 // ── Constants ───────────────────────────────────
 
+type SponsorTier = 'platinum' | 'gold' | 'silver' | 'partner';
 const TIER_ORDER: SponsorTier[] = ['platinum', 'gold', 'silver', 'partner'];
+
+function safeTier(t: string): SponsorTier {
+  return TIER_ORDER.includes(t as SponsorTier) ? (t as SponsorTier) : 'partner';
+}
 
 const TIER_LABELS: Record<SponsorTier, string> = {
   platinum: 'Platinum',
@@ -92,10 +101,11 @@ const TIER_PACKAGES = [
 
 // ── Page ────────────────────────────────────────
 
-export default function SponsorsPage() {
-  const groupedSponsors = TIER_ORDER.reduce<Record<SponsorTier, typeof sponsors>>(
+export default async function SponsorsPage() {
+  const { data: sponsors } = await getSponsors();
+  const groupedSponsors = TIER_ORDER.reduce<Record<SponsorTier, DBSponsor[]>>(
     (acc, tier) => {
-      acc[tier] = sponsors.filter((s) => s.tier === tier);
+      acc[tier] = sponsors.filter((s) => safeTier(s.tier) === tier);
       return acc;
     },
     { platinum: [], gold: [], silver: [], partner: [] }
@@ -168,21 +178,33 @@ export default function SponsorsPage() {
                             : 'border border-[#EAE1D6] bg-[#F7F3EE]',
                         ].join(' ')}
                       >
-                        {/* Name as logo placeholder */}
+                        {/* Logo or name */}
                         <div className="flex h-14 items-center">
-                          <p
-                            className="font-serif text-xl font-normal text-[#2A2421]"
-
-                          >
-                            {sponsor.name}
-                          </p>
+                          {sponsor.logo_url ? (
+                            <div className="relative h-12 w-32">
+                              <Image
+                                src={sponsor.logo_url}
+                                alt={sponsor.name}
+                                fill
+                                className="object-contain object-left"
+                                sizes="128px"
+                                unoptimized
+                              />
+                            </div>
+                          ) : (
+                            <p className="font-serif text-xl font-normal text-[#2A2421]">
+                              {sponsor.name}
+                            </p>
+                          )}
                         </div>
 
                         <Badge variant={tier} />
 
-                        <p className="font-sans text-sm leading-relaxed text-[#5B4638]">
-                          {sponsor.description}
-                        </p>
+                        {sponsor.description && (
+                          <p className="font-sans text-sm leading-relaxed text-[#5B4638]">
+                            {sponsor.description}
+                          </p>
+                        )}
                       </div>
                     ))}
                   </div>

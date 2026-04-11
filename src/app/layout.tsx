@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
+import PromoPopup from "@/components/ui/PromoPopup";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -91,6 +92,7 @@ export default function RootLayout({
       className={`${cormorant.variable} ${jost.variable} h-full scroll-smooth`}
     >
       <body className="min-h-full flex flex-col antialiased bg-[#FDFAF7] text-[#2A2421]">
+        <PromoPopup />
         {children}
       </body>
     </html>

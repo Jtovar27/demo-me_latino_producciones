@@ -1,49 +1,64 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import AdminLayout from '@/components/layout/AdminLayout';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
-import { sponsors, type Sponsor, type SponsorTier } from '@/lib/data';
+import MediaPicker from '@/components/admin/MediaPicker';
+import { getSponsors, upsertSponsor, deleteSponsor } from '@/app/actions/sponsors';
+import type { DBSponsor } from '@/types/supabase';
+
+type SponsorTier = 'platinum' | 'gold' | 'silver' | 'partner';
 
 const tierOrder: SponsorTier[] = ['platinum', 'gold', 'silver', 'partner'];
 
 const tierSectionLabel: Record<SponsorTier, string> = {
   platinum: 'Platinum',
-  gold: 'Gold',
-  silver: 'Silver',
-  partner: 'Partner',
+  gold:     'Gold',
+  silver:   'Silver',
+  partner:  'Partner',
 };
 
-const tierBadgeVariant: Record<SponsorTier, 'platinum' | 'gold' | 'silver' | 'partner'> = {
+const tierBadgeVariant: Record<SponsorTier, SponsorTier> = {
   platinum: 'platinum',
-  gold: 'gold',
-  silver: 'silver',
-  partner: 'partner',
+  gold:     'gold',
+  silver:   'silver',
+  partner:  'partner',
 };
 
 const emptyForm = {
-  name: '',
-  tier: 'silver' as SponsorTier,
-  website: '',
+  name:        '',
+  tier:        'silver' as SponsorTier,
+  website:     '',
   description: '',
+  logo_url:    '',
 };
 type FormState = typeof emptyForm;
 
 function initials(name: string) {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
+  return name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
+}
+
+function safeTier(t: string): SponsorTier {
+  return tierOrder.includes(t as SponsorTier) ? (t as SponsorTier) : 'partner';
 }
 
 export default function AdminSponsorsPage() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editSponsor, setEditSponsor] = useState<Sponsor | null>(null);
-  const [form, setForm] = useState<FormState>(emptyForm);
-  const [toast, setToast] = useState('');
+  const [sponsors, setSponsors]     = useState<DBSponsor[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [modalOpen, setModalOpen]   = useState(false);
+  const [editSponsor, setEditSponsor] = useState<DBSponsor | null>(null);
+  const [form, setForm]             = useState<FormState>(emptyForm);
+  const [saving, setSaving]         = useState(false);
+  const [toast, setToast]           = useState('');
+
+  useEffect(() => {
+    getSponsors().then(({ data }) => {
+      setSponsors(data as DBSponsor[]);
+      setLoading(false);
+    });
+  }, []);
 
   function showToast(msg: string) {
     setToast(msg);
@@ -56,20 +71,44 @@ export default function AdminSponsorsPage() {
     setModalOpen(true);
   }
 
-  function openEdit(sp: Sponsor) {
+  function openEdit(sp: DBSponsor) {
     setEditSponsor(sp);
     setForm({
-      name: sp.name,
-      tier: sp.tier,
-      website: sp.website,
-      description: sp.description,
+      name:        sp.name,
+      tier:        safeTier(sp.tier),
+      website:     sp.website ?? '',
+      description: sp.description ?? '',
+      logo_url:    sp.logo_url ?? '',
     });
     setModalOpen(true);
   }
 
-  function handleSave() {
-    setModalOpen(false);
-    showToast(editSponsor ? 'Sponsor actualizado (demo)' : 'Sponsor agregado (demo)');
+  async function handleSave() {
+    setSaving(true);
+    const fd = new FormData();
+    if (editSponsor) fd.append('id', editSponsor.id);
+    fd.append('name',        form.name);
+    fd.append('tier',        form.tier);
+    fd.append('website',     form.website);
+    fd.append('description', form.description);
+    fd.append('logo_url',    form.logo_url);
+
+    const result = await upsertSponsor(fd);
+    if (result?.error) {
+      showToast('Error al guardar');
+    } else {
+      const { data } = await getSponsors();
+      setSponsors(data as DBSponsor[]);
+      showToast(editSponsor ? 'Sponsor actualizado' : 'Sponsor agregado');
+      setModalOpen(false);
+    }
+    setSaving(false);
+  }
+
+  async function handleDelete(id: string) {
+    await deleteSponsor(id);
+    setSponsors((prev) => prev.filter((s) => s.id !== id));
+    showToast('Sponsor eliminado');
   }
 
   function updateForm(field: keyof FormState, value: string) {
@@ -79,7 +118,7 @@ export default function AdminSponsorsPage() {
   const sponsorsByTier = tierOrder
     .map((tier) => ({
       tier,
-      items: sponsors.filter((s) => s.tier === tier),
+      items: sponsors.filter((s) => safeTier(s.tier) === tier),
     }))
     .filter((g) => g.items.length > 0);
 
@@ -99,11 +138,7 @@ export default function AdminSponsorsPage() {
             Sponsors &amp; Partners
           </h2>
           <p className="mt-1 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">
-            {sponsors.length} en total —{' '}
-            {tierOrder
-              .filter((t) => sponsors.some((s) => s.tier === t))
-              .map((t) => `${sponsors.filter((s) => s.tier === t).length} ${tierSectionLabel[t]}`)
-              .join(' · ')}
+            {loading ? 'Cargando...' : `${sponsors.length} sponsors en total`}
           </p>
         </div>
         <Button variant="primary" size="sm" onClick={openNew}>
@@ -111,146 +146,139 @@ export default function AdminSponsorsPage() {
         </Button>
       </div>
 
-      {/* Grouped by tier */}
-      <div className="space-y-10">
-        {sponsorsByTier.map(({ tier, items }) => (
-          <div key={tier}>
-            {/* Tier heading */}
-            <div className="flex items-center gap-4 mb-5">
-              <Badge variant={tierBadgeVariant[tier]} />
-              <div className="flex-1 h-px bg-[#EAE1D6]" />
-              <span className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]/50">
-                {items.length} sponsor{items.length !== 1 ? 's' : ''}
-              </span>
-            </div>
+      {loading && (
+        <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]/50 py-14 text-center">
+          Cargando sponsors...
+        </p>
+      )}
 
-            {/* Sponsor cards */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {items.map((sp) => (
-                <div
-                  key={sp.id}
-                  className="border border-[#EAE1D6] bg-[#FDFAF7] p-6 hover:border-[#D7C6B2] transition-colors"
-                >
-                  <div className="flex items-center gap-4 mb-4">
-                    {/* Logo placeholder */}
-                    <div className="h-12 w-12 border border-[#EAE1D6] bg-[#EAE1D6] flex items-center justify-center shrink-0">
-                      <span className="font-sans text-xs font-semibold text-[#5B4638]">
-                        {initials(sp.name)}
-                      </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-sans text-sm font-medium text-[#2A2421] leading-tight">{sp.name}</p>
-                      <div className="mt-1">
-                        <Badge variant={tierBadgeVariant[sp.tier]} />
+      {!loading && sponsors.length === 0 && (
+        <div className="border border-dashed border-[#D7C6B2] py-20 text-center">
+          <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]/50 mb-4">
+            Sin sponsors registrados
+          </p>
+          <Button variant="primary" size="sm" onClick={openNew}>+ Agregar el primero</Button>
+        </div>
+      )}
+
+      {/* Grouped by tier */}
+      {!loading && sponsors.length > 0 && (
+        <div className="space-y-10">
+          {sponsorsByTier.map(({ tier, items }) => (
+            <div key={tier}>
+              <div className="flex items-center gap-4 mb-5">
+                <Badge variant={tierBadgeVariant[tier]} />
+                <div className="flex-1 h-px bg-[#EAE1D6]" />
+                <span className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]/50">
+                  {items.length} sponsor{items.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {items.map((sp) => (
+                  <div key={sp.id} className="border border-[#EAE1D6] bg-[#FDFAF7] p-6 hover:border-[#D7C6B2] transition-colors">
+                    <div className="flex items-center gap-4 mb-4">
+                      {/* Logo */}
+                      {sp.logo_url ? (
+                        <div className="relative h-12 w-12 overflow-hidden border border-[#EAE1D6] shrink-0">
+                          <Image src={sp.logo_url} alt={sp.name} fill className="object-contain p-1" sizes="48px" unoptimized />
+                        </div>
+                      ) : (
+                        <div className="h-12 w-12 border border-[#EAE1D6] bg-[#EAE1D6] flex items-center justify-center shrink-0">
+                          <span className="font-sans text-xs font-semibold text-[#5B4638]">{initials(sp.name)}</span>
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-sans text-sm font-medium text-[#2A2421] leading-tight">{sp.name}</p>
+                        <div className="mt-1">
+                          <Badge variant={tierBadgeVariant[safeTier(sp.tier)]} />
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <p className="font-sans text-xs text-[#5B4638] leading-relaxed line-clamp-2 mb-3">
-                    {sp.description}
-                  </p>
-                  <p className="font-sans text-[9px] uppercase tracking-wider text-[#A56E52] mb-5">
-                    {sp.website}
-                  </p>
+                    {sp.description && (
+                      <p className="font-sans text-xs text-[#5B4638] leading-relaxed line-clamp-2 mb-3">
+                        {sp.description}
+                      </p>
+                    )}
+                    {sp.website && (
+                      <p className="font-sans text-[9px] uppercase tracking-wider text-[#A56E52] mb-5 truncate">
+                        {sp.website}
+                      </p>
+                    )}
 
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => openEdit(sp)}
-                      className="flex-1 border border-[#D7C6B2] py-2 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => showToast(`Contactando a ${sp.name}... (demo)`)}
-                      className="flex-1 border border-[#2A2421] py-2 font-sans text-[9px] uppercase tracking-widest text-[#2A2421] hover:bg-[#2A2421] hover:text-[#F7F3EE] transition-colors"
-                    >
-                      Contactar
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => openEdit(sp)}
+                        className="flex-1 border border-[#D7C6B2] py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors">
+                        Editar
+                      </button>
+                      <button onClick={() => handleDelete(sp.id)}
+                        className="flex-1 border border-[#D7C6B2] py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-red-400 hover:text-red-500 transition-colors">
+                        Eliminar
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-[#2A2421]/60 backdrop-blur-sm"
-            onClick={() => setModalOpen(false)}
-          />
-          <div className="relative z-10 w-full max-w-lg border border-[#EAE1D6] bg-[#FDFAF7] shadow-2xl mx-4">
-            <div className="border-b border-[#EAE1D6] px-8 py-6 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+          <div className="absolute inset-0 bg-[#2A2421]/60 backdrop-blur-sm" onClick={() => setModalOpen(false)} />
+          <div className="relative z-10 w-full sm:max-w-lg border border-[#EAE1D6] bg-[#FDFAF7] shadow-2xl mx-0 sm:mx-4 max-h-[92vh] overflow-y-auto rounded-t-lg sm:rounded-none">
+            <div className="border-b border-[#EAE1D6] px-6 py-5 flex items-center justify-between">
               <p className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">
                 {editSponsor ? 'Editar Sponsor' : 'Agregar Sponsor'}
               </p>
-              <button
-                onClick={() => setModalOpen(false)}
-                className="font-sans text-[#5B4638] hover:text-[#2A2421] transition-colors text-lg leading-none"
-              >
+              <button onClick={() => setModalOpen(false)}
+                className="font-sans text-[#5B4638] hover:text-[#2A2421] transition-colors text-xl leading-none p-1">
                 ×
               </button>
             </div>
-            <div className="px-8 py-7 space-y-5">
+            <div className="px-6 py-6 space-y-5">
+
+              {/* Logo picker */}
+              <MediaPicker
+                value={form.logo_url}
+                onChange={(url) => updateForm('logo_url', url)}
+                accept="image"
+                label="Logo del sponsor"
+              />
+
               <div>
-                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">
-                  Nombre
-                </label>
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => updateForm('name', e.target.value)}
-                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors"
-                />
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Nombre</label>
+                <input type="text" value={form.name} onChange={(e) => updateForm('name', e.target.value)}
+                  placeholder="Nombre del sponsor"
+                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
               </div>
               <div>
-                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">
-                  Tier
-                </label>
-                <select
-                  value={form.tier}
-                  onChange={(e) => updateForm('tier', e.target.value)}
-                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors"
-                >
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Tier</label>
+                <select value={form.tier} onChange={(e) => updateForm('tier', e.target.value)}
+                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors">
                   {tierOrder.map((t) => (
                     <option key={t} value={t}>{tierSectionLabel[t]}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">
-                  Website
-                </label>
-                <input
-                  type="text"
-                  value={form.website}
-                  onChange={(e) => updateForm('website', e.target.value)}
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Website</label>
+                <input type="text" value={form.website} onChange={(e) => updateForm('website', e.target.value)}
                   placeholder="https://..."
-                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors"
-                />
+                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
               </div>
               <div>
-                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">
-                  Descripción
-                </label>
-                <textarea
-                  value={form.description}
-                  onChange={(e) => updateForm('description', e.target.value)}
-                  rows={3}
-                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors resize-none"
-                />
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Descripción</label>
+                <textarea value={form.description} onChange={(e) => updateForm('description', e.target.value)} rows={3}
+                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors resize-none" />
               </div>
             </div>
-            <div className="border-t border-[#EAE1D6] px-8 py-5 flex items-center justify-end gap-3">
-              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>
-                Cancelar
-              </Button>
-              <Button variant="primary" size="sm" onClick={handleSave}>
-                Guardar
-              </Button>
+            <div className="border-t border-[#EAE1D6] px-6 py-5 flex items-center justify-end gap-3">
+              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>Cancelar</Button>
+              <Button variant="primary" size="sm" loading={saving} onClick={handleSave}>Guardar</Button>
             </div>
           </div>
         </div>

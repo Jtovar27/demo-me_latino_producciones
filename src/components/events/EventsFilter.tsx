@@ -2,15 +2,22 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import type { Event, EventCategory, EventStatus } from '@/lib/data';
+import type { DBEvent } from '@/types/supabase';
+
+// ── Ticket constants — reemplazar cuando estén disponibles ──
+const WA_NUMBER = '13055252555';
+const TICKET_LINK_1 = '#'; // TODO: reemplazar con link real
+const TICKET_LINK_2 = '#'; // TODO: reemplazar con link real
 
 // ── Types ────────────────────────────────────────
 
+type EventCategory = 'flagship' | 'wellness' | 'summit' | 'community' | 'branded';
+type EventStatus = 'upcoming' | 'sold-out' | 'past';
 type CategoryFilter = 'all' | EventCategory;
 type StatusFilter = 'all' | EventStatus;
 
 interface EventsFilterProps {
-  events: Event[];
+  events: DBEvent[];
 }
 
 // ── Filter options ───────────────────────────────
@@ -107,6 +114,24 @@ export default function EventsFilter({ events }: EventsFilterProps) {
   const [visible, setVisible] = useState(true);
   const prevFilters = useRef({ category: selectedCategory, status: selectedStatus });
 
+  // ── Ticket sheet state ────────────────────────────────────────
+  const [ticketEvent, setTicketEvent] = useState<DBEvent | null>(null);
+  const [ticketShow, setTicketShow] = useState(false);
+
+  function openTickets(event: DBEvent) {
+    setTicketEvent(event);
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => requestAnimationFrame(() => setTicketShow(true)));
+  }
+
+  function closeTickets() {
+    setTicketShow(false);
+    setTimeout(() => {
+      setTicketEvent(null);
+      document.body.style.overflow = '';
+    }, 480);
+  }
+
   // Animate grid on filter change
   useEffect(() => {
     const prev = prevFilters.current;
@@ -132,7 +157,7 @@ export default function EventsFilter({ events }: EventsFilterProps) {
   }
 
   return (
-    <div>
+    <>
       {/* ── Filter bar ────────────────────────────── */}
       <div className="sticky top-0 z-10 border-b border-[#EAE1D6] bg-[#F7F3EE] px-6 py-6">
         <div className="mx-auto max-w-7xl">
@@ -218,8 +243,8 @@ export default function EventsFilter({ events }: EventsFilterProps) {
             >
               {filteredEvents.map((event) => {
                 const date = formatDate(event.date);
-                const status = STATUS_CONFIG[event.status];
-                const catLabel = CATEGORY_LABELS[event.category];
+                const status = STATUS_CONFIG[event.status as EventStatus] ?? STATUS_CONFIG['past'];
+                const catLabel = CATEGORY_LABELS[event.category as EventCategory] ?? event.category;
 
                 return (
                   <article
@@ -227,14 +252,21 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                     className="flex flex-col border border-[#EAE1D6] bg-[#F7F3EE]"
                   >
                     {/* Event image */}
-                    <div className="relative h-48 overflow-hidden">
-                      <Image
-                        src={event.image}
-                        alt={event.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
+                    <div className="relative h-48 overflow-hidden bg-[#EAE1D6]">
+                      {event.image_url ? (
+                        <Image
+                          src={event.image_url}
+                          alt={event.title}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          unoptimized
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <span className="font-serif text-3xl text-[#D7C6B2]">ME</span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Date + badges row */}
@@ -286,11 +318,20 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                       </div>
 
                       <p className="font-sans text-sm leading-relaxed text-[#5B4638]">
-                        {truncate(event.description, 100)}
+                        {truncate(event.description ?? '', 100)}
                       </p>
 
-                      {/* Ver detalles — ghost full-width button */}
-                      <div className="mt-auto pt-2">
+                      {/* CTA buttons */}
+                      <div className="mt-auto pt-2 flex flex-col gap-2">
+                        {event.status !== 'past' && (
+                          <button
+                            onClick={() => openTickets(event)}
+                            className="block w-full px-4 py-3 text-center font-sans text-[10px] font-semibold uppercase tracking-widest text-white transition-opacity hover:opacity-90"
+                            style={{ background: 'linear-gradient(90deg, #D91B94, #9B157A)' }}
+                          >
+                            {event.status === 'sold-out' ? 'Lista de espera' : 'Comprar Tickets'}
+                          </button>
+                        )}
                         <a
                           href={`/events/${event.slug}`}
                           className="block w-full border border-[#D7C6B2] bg-transparent px-4 py-3 text-center font-sans text-[10px] font-medium uppercase tracking-widest text-[#5B4638] transition-all duration-150 hover:border-[#2A2421] hover:text-[#2A2421]"
@@ -307,6 +348,180 @@ export default function EventsFilter({ events }: EventsFilterProps) {
 
         </div>
       </div>
-    </div>
+
+    {/* ── Ticket Sheet ─────────────────────────────────────────── */}
+    {ticketEvent && (
+      <div className="fixed inset-0 z-[200]" style={{ pointerEvents: ticketEvent ? 'auto' : 'none' }}>
+        {/* Backdrop */}
+        <div
+          className="absolute inset-0 bg-black/60 backdrop-blur-[2px] transition-opacity duration-300"
+          style={{ opacity: ticketShow ? 1 : 0 }}
+          onClick={closeTickets}
+          aria-hidden
+        />
+
+        {/* Sheet — bottom on mobile, floating card on desktop */}
+        <div className="absolute inset-x-0 bottom-0 flex justify-center sm:bottom-8 sm:px-4">
+          <div
+            className="relative w-full sm:max-w-[460px] bg-[#FDFAF7] shadow-2xl overflow-y-auto max-h-[88vh]"
+            style={{
+              transform: ticketShow ? 'translateY(0)' : 'translateY(110%)',
+              transition: 'transform 0.48s cubic-bezier(0.32, 0.72, 0, 1)',
+            }}
+            role="dialog"
+            aria-modal
+            aria-label={`Tickets: ${ticketEvent.title}`}
+          >
+            {/* Drag handle — mobile only */}
+            <div className="flex justify-center pt-3 pb-1 sm:hidden" aria-hidden>
+              <div className="h-1 w-10 rounded-full bg-[#D7C6B2]" />
+            </div>
+
+            {/* Close */}
+            <button
+              onClick={closeTickets}
+              aria-label="Cerrar"
+              className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-[#EAE1D6] hover:bg-[#D7C6B2] transition-colors"
+            >
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                <path d="M1 1l9 9M10 1L1 10" stroke="#2A2421" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+            </button>
+
+            {/* Header */}
+            <div className="px-6 pt-6 pb-4 sm:px-7 border-b border-[#EAE1D6]">
+              <p className="font-sans text-[9px] uppercase tracking-[0.22em] text-[#A56E52] mb-1">
+                {ticketEvent.city}, {ticketEvent.state} &nbsp;·&nbsp; {ticketEvent.venue}
+              </p>
+              <h3 className="font-serif text-xl sm:text-2xl font-normal leading-snug text-[#2A2421] pr-8">
+                {ticketEvent.title}
+              </h3>
+              <p className="font-sans text-xs text-[#5B4638] mt-1">
+                {new Date(ticketEvent.date + 'T00:00:00').toLocaleDateString('es-US', {
+                  day: 'numeric', month: 'long', year: 'numeric',
+                })}
+              </p>
+            </div>
+
+            {/* Ticket options */}
+            <div className="px-6 py-5 sm:px-7">
+              <p className="font-sans text-[9px] uppercase tracking-[0.22em] text-[#5B4638] mb-3">
+                {ticketEvent.status === 'sold-out' ? 'Lista de espera' : 'Selecciona cómo comprar'}
+              </p>
+
+              <div className="flex flex-col gap-2.5">
+                {/* Option 1 */}
+                {TICKET_LINK_1 === '#' ? (
+                  <div className="flex items-center gap-3 px-4 py-4 border border-[#EAE1D6] opacity-40">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#D91B94]/10 text-[#D91B94]">
+                      <TicketSVG />
+                    </span>
+                    <div>
+                      <p className="font-sans text-xs font-medium text-[#2A2421]">
+                        Comprar en línea — Opción 1
+                        <span className="ml-2 text-[9px] uppercase tracking-widest text-[#A56E52]">Próximamente</span>
+                      </p>
+                      <p className="font-sans text-[10px] text-[#5B4638]">Pago con tarjeta de crédito</p>
+                    </div>
+                  </div>
+                ) : (
+                  <a href={TICKET_LINK_1} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-4 py-4 border border-[#D7C6B2] hover:border-[#D91B94] transition-colors group">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#D91B94]/10 text-[#D91B94]">
+                      <TicketSVG />
+                    </span>
+                    <div className="flex-1">
+                      <p className="font-sans text-xs font-medium text-[#2A2421]">Comprar en línea — Opción 1</p>
+                      <p className="font-sans text-[10px] text-[#5B4638]">Pago con tarjeta de crédito</p>
+                    </div>
+                    <ArrowSVG className="text-[#D91B94] shrink-0" />
+                  </a>
+                )}
+
+                {/* Option 2 */}
+                {TICKET_LINK_2 === '#' ? (
+                  <div className="flex items-center gap-3 px-4 py-4 border border-[#EAE1D6] opacity-40">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#D91B94]/10 text-[#D91B94]">
+                      <TicketSVG />
+                    </span>
+                    <div>
+                      <p className="font-sans text-xs font-medium text-[#2A2421]">
+                        Comprar en línea — Opción 2
+                        <span className="ml-2 text-[9px] uppercase tracking-widest text-[#A56E52]">Próximamente</span>
+                      </p>
+                      <p className="font-sans text-[10px] text-[#5B4638]">Pago alternativo</p>
+                    </div>
+                  </div>
+                ) : (
+                  <a href={TICKET_LINK_2} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-4 py-4 border border-[#D7C6B2] hover:border-[#D91B94] transition-colors group">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#D91B94]/10 text-[#D91B94]">
+                      <TicketSVG />
+                    </span>
+                    <div className="flex-1">
+                      <p className="font-sans text-xs font-medium text-[#2A2421]">Comprar en línea — Opción 2</p>
+                      <p className="font-sans text-[10px] text-[#5B4638]">Pago alternativo</p>
+                    </div>
+                    <ArrowSVG className="text-[#D91B94] shrink-0" />
+                  </a>
+                )}
+
+                {/* Zelle via WhatsApp */}
+                <a
+                  href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
+                    `Hola! Me interesa comprar tickets para "${ticketEvent.title}" el ${new Date(ticketEvent.date + 'T00:00:00').toLocaleDateString('es-US', { day: 'numeric', month: 'long', year: 'numeric' })} en ${ticketEvent.city}, ${ticketEvent.state}. ¿Cómo puedo pagar con Zelle?`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-4 py-4 border border-[#25D366] bg-[#25D366]/5 hover:bg-[#25D366]/10 transition-colors group"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#25D366]/20 text-[#25D366]">
+                    <WhatsAppSVG />
+                  </span>
+                  <div className="flex-1">
+                    <p className="font-sans text-xs font-medium text-[#2A2421]">Pagar con Zelle</p>
+                    <p className="font-sans text-[10px] text-[#5B4638]">Escríbenos por WhatsApp</p>
+                  </div>
+                  <ArrowSVG className="text-[#25D366] shrink-0" />
+                </a>
+              </div>
+
+              <button
+                onClick={closeTickets}
+                className="mt-5 w-full py-2.5 font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hover:text-[#2A2421] transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+  </>
+  );
+}
+
+// ── SVG helpers ───────────────────────────────────────────────────
+function TicketSVG() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+    </svg>
+  );
+}
+
+function ArrowSVG({ className }: { className?: string }) {
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" className={className}>
+      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function WhatsAppSVG() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+    </svg>
   );
 }

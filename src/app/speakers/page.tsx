@@ -3,7 +3,10 @@ import PublicLayout from '@/components/layout/PublicLayout';
 import SectionHeader from '@/components/ui/SectionHeader';
 import Button from '@/components/ui/Button';
 import MobileCarousel from '@/components/ui/MobileCarousel';
-import { speakers, events } from '@/lib/data';
+import { getSpeakers } from '@/app/actions/speakers';
+import type { DBSpeaker } from '@/types/supabase';
+
+export const revalidate = 0;
 
 function ExpertiseTag({ label }: { label: string }) {
   return (
@@ -13,46 +16,45 @@ function ExpertiseTag({ label }: { label: string }) {
   );
 }
 
-function SpeakerCard({ speaker, large = false }: { speaker: (typeof speakers)[0]; large?: boolean }) {
-  const speakerEvents = events.filter((e) => speaker.eventIds.includes(e.id));
-  const primaryEvent = speakerEvents[0];
-
+function SpeakerCard({ speaker }: { speaker: DBSpeaker; large?: boolean }) {
   return (
     <article className="card-lift group flex flex-col">
       {/* Speaker portrait */}
-      <div className="relative w-full aspect-square overflow-hidden">
-        <Image
-          src={speaker.image}
-          alt={speaker.name}
-          fill
-          className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
-          sizes="(max-width: 768px) 50vw, 25vw"
-        />
-        <div className="absolute inset-0 bg-[#EAE1D6] opacity-0 transition-opacity duration-300 group-hover:opacity-20" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#2A2421]/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="relative w-full aspect-square overflow-hidden bg-[#EAE1D6]">
+        {speaker.image_url ? (
+          <>
+            <Image
+              src={speaker.image_url}
+              alt={speaker.name}
+              fill
+              className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+              sizes="(max-width: 768px) 50vw, 25vw"
+              unoptimized
+            />
+            <div className="absolute inset-0 bg-[#EAE1D6] opacity-0 transition-opacity duration-300 group-hover:opacity-20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#2A2421]/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          </>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="font-serif text-4xl text-[#B89E87]">
+              {speaker.name.split(' ').map((n) => n[0]).slice(0, 2).join('')}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Content */}
       <div className="flex flex-col gap-3 pt-5">
-        {primaryEvent && (
-          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-[#A56E52]">
-            {primaryEvent.title}
-          </p>
-        )}
-
         <div>
-          <h3
-            className="font-serif text-xl font-normal leading-snug text-[#2A2421]"
-
-          >
+          <h3 className="font-serif text-xl font-normal leading-snug text-[#2A2421]">
             {speaker.name}
           </h3>
-          <p className="mt-1 font-sans text-sm text-[#5B4638]">
-            {speaker.title}
-          </p>
-          <p className="font-sans text-sm text-[#A56E52]">
-            {speaker.organization}
-          </p>
+          {speaker.title && (
+            <p className="mt-1 font-sans text-sm text-[#5B4638]">{speaker.title}</p>
+          )}
+          {speaker.organization && (
+            <p className="font-sans text-sm text-[#A56E52]">{speaker.organization}</p>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-1.5">
@@ -65,7 +67,8 @@ function SpeakerCard({ speaker, large = false }: { speaker: (typeof speakers)[0]
   );
 }
 
-export default function SpeakersPage() {
+export default async function SpeakersPage() {
+  const { data: speakers } = await getSpeakers();
   const featured = speakers.filter((s) => s.featured);
   const all = speakers;
 

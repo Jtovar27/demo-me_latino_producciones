@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { type GalleryItem, type GalleryCategory } from '@/lib/data';
+import { Video } from 'lucide-react';
+import type { DBGalleryItem } from '@/types/supabase';
 
+type GalleryCategory = 'backstage' | 'moments' | 'audience' | 'stage' | 'details';
 type FilterTab = 'all' | GalleryCategory;
 
 const TABS: { key: FilterTab; label: string }[] = [
@@ -37,7 +39,7 @@ const BG_VARIANTS = [
 ];
 
 interface GalleryGridProps {
-  galleryItems: GalleryItem[];
+  galleryItems: DBGalleryItem[];
 }
 
 export default function GalleryGrid({ galleryItems }: GalleryGridProps) {
@@ -80,28 +82,41 @@ export default function GalleryGrid({ galleryItems }: GalleryGridProps) {
         {filtered.map((item, index) => {
           const aspectClass = ASPECT_CLASSES[index % ASPECT_CLASSES.length];
           const bgClass = BG_VARIANTS[index % BG_VARIANTS.length];
+          const catLabel = item.category
+            ? (CATEGORY_LABELS[item.category as GalleryCategory] ?? item.category)
+            : '';
 
           return (
             <div
               key={item.id}
               className="group relative mb-4 break-inside-avoid overflow-hidden"
             >
-              {/* Image */}
-              <div className={`relative w-full ${aspectClass} overflow-hidden`}>
-                <Image
-                  src={item.src}
-                  alt={item.alt}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                />
+              {/* Image or Video */}
+              <div className={`relative w-full ${aspectClass} overflow-hidden ${bgClass}`}>
+                {item.media_type === 'video' ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                    <Video size={32} className="text-[#A56E52]" />
+                    <span className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">Video</span>
+                  </div>
+                ) : (
+                  <Image
+                    src={item.public_url}
+                    alt={item.alt ?? ''}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    unoptimized
+                  />
+                )}
                 {/* Hover overlay */}
                 <div className="absolute inset-0 flex flex-col items-start justify-end bg-[#2A2421] p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-90">
-                  <span className="mb-2 font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-[#A56E52]">
-                    {CATEGORY_LABELS[item.category]}
-                  </span>
+                  {catLabel && (
+                    <span className="mb-2 font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-[#A56E52]">
+                      {catLabel}
+                    </span>
+                  )}
                   <p className="font-sans text-sm leading-snug text-[#F7F3EE]">
-                    {item.alt}
+                    {item.alt ?? ''}
                   </p>
                 </div>
               </div>
