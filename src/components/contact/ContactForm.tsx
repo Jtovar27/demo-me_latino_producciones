@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent, type ChangeEvent } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 // ── Types ────────────────────────────────────────
 
@@ -131,16 +132,31 @@ export default function ContactForm() {
       return;
     }
     setLoading(true);
-    await new Promise<void>((resolve) => setTimeout(resolve, 1500));
-    setLoading(false);
-    setSubmitted(true);
+    try {
+      const supabase = createClient();
+      const { error: dbError } = await supabase.from('leads').insert({
+        name: form.name.trim(),
+        email: form.email.trim().toLowerCase(),
+        phone: form.phone.trim() || null,
+        interest: form.inquiryType || null,
+        message: form.message.trim(),
+        source: 'website',
+        status: 'new',
+      });
+      if (dbError) throw dbError;
+      setSubmitted(true);
+    } catch {
+      setErrors({ message: 'Hubo un error al enviar tu mensaje. Intenta de nuevo.' });
+    } finally {
+      setLoading(false);
+    }
   }
 
   // ── Success state ──────────────────────────────
 
   if (submitted) {
     return (
-      <div className="flex flex-col gap-5 border border-green-300 bg-green-50 p-10">
+      <div className="flex flex-col gap-5 border border-[#A56E52] bg-[#F7F3EE] p-10">
         <div className="h-px w-8 bg-[#A56E52]" />
         <h3
           className="font-serif text-2xl font-normal text-[#2A2421]"

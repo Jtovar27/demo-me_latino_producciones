@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import Logo from '@/components/ui/Logo';
 
 const navLinks = [
   { label: 'Inicio', href: '/' },
   { label: 'Nosotros', href: '/about' },
   { label: 'Eventos', href: '/events' },
-  { label: 'Ponentes', href: '/speakers' },
+  { label: 'Speakers', href: '/speakers' },
   { label: 'Galería', href: '/gallery' },
   { label: 'Contacto', href: '/contact' },
 ];
@@ -36,11 +37,8 @@ export default function Footer() {
 
           {/* Column 1 — Brand */}
           <div className="flex flex-col gap-5">
-            <Link
-              href="/"
-              className="font-sans text-xs font-semibold uppercase tracking-[0.3em] text-[#F7F3EE] transition-opacity hover:opacity-70"
-            >
-              ME Latino
+            <Link href="/" className="transition-opacity hover:opacity-70 self-start">
+              <Logo variant="light" size="md" />
             </Link>
             <p
               className="font-serif text-lg font-normal leading-snug text-[#D7C6B2]"
@@ -110,21 +108,21 @@ export default function Footer() {
                   <a
                     href="#"
                     className="font-sans text-sm text-[#EAE1D6] transition-colors duration-200 hover:text-[#A56E52]"
-                    aria-label="Instagram de ME Latino Producciones"
+                    aria-label="Instagram de ME Producciones"
                   >
                     Instagram
                   </a>
                   <a
                     href="#"
                     className="font-sans text-sm text-[#EAE1D6] transition-colors duration-200 hover:text-[#A56E52]"
-                    aria-label="LinkedIn de ME Latino Producciones"
+                    aria-label="LinkedIn de ME Producciones"
                   >
                     LinkedIn
                   </a>
                   <a
                     href="#"
                     className="font-sans text-sm text-[#EAE1D6] transition-colors duration-200 hover:text-[#A56E52]"
-                    aria-label="Facebook de ME Latino Producciones"
+                    aria-label="Facebook de ME Producciones"
                   >
                     Facebook
                   </a>
@@ -140,11 +138,20 @@ export default function Footer() {
         <div className="h-px bg-[#5B4638]/40" />
         <div className="flex flex-col items-center justify-between gap-4 py-6 md:flex-row">
           <p className="font-sans text-[11px] text-[#5B4638]">
-            &copy; {year} ME Latino Producciones. Todos los derechos reservados.
+            &copy; {year} ME Producciones. Todos los derechos reservados.
           </p>
-          <p className="font-sans text-[11px] uppercase tracking-widest text-[#5B4638]">
-            ME Latino Producciones
-          </p>
+          <div className="flex items-center gap-6">
+            <p className="font-sans text-[11px] uppercase tracking-widest text-[#5B4638]">
+              ME Producciones
+            </p>
+            <Link
+              href="/admin"
+              className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]/40 hover:text-[#5B4638] transition-colors"
+              aria-label="Portal administrativo"
+            >
+              Admin
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

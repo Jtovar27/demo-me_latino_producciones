@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────
-//  ME Latino Producciones — Structured Mock Data
+//  ME Producciones — Structured Mock Data
 //  Sub-brand: The Real Happiness
 // ─────────────────────────────────────────────
 
@@ -135,10 +135,50 @@ export interface DashboardMetrics {
   avgTicketValue: number;
 }
 
+export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'attended';
+export type BookingSource = 'web' | 'email' | 'instagram' | 'referral' | 'otro';
+
+export interface Booking {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  eventId: string;
+  eventName: string;
+  guests: number;
+  bookingType: string;
+  notes: string;
+  internalNotes: string;
+  status: BookingStatus;
+  source: BookingSource;
+  submittedAt: string;
+  followUp: boolean;
+}
+
+export type ReviewStatus = 'published' | 'hidden' | 'pending';
+
+export interface Review {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  quote: string;
+  rating: number;
+  eventId: string;
+  eventName: string;
+  status: ReviewStatus;
+  featured: boolean;
+  order: number;
+  date: string;
+  photoUrl?: string;
+}
+
 export interface AdminData {
   dashboardMetrics: DashboardMetrics;
   recentRegistrations: Registration[];
   leads: Lead[];
+  bookings: Booking[];
+  reviews: Review[];
   mediaItems: GalleryItem[];
 }
 
@@ -337,7 +377,7 @@ export const events: Event[] = [
     category: "branded",
     status: "sold-out",
     description:
-      "An invitation-only branded experience celebrating the close of the year in style. Premium cocktail reception, live performances, and an intimate conversation with ME Latino's founders.",
+      "An invitation-only branded experience celebrating the close of the year in style. Premium cocktail reception, live performances, and an intimate conversation with ME Producciones' founders.",
     image: "https://images.unsplash.com/photo-1560523857-00a8c8a9e9f6?auto=format&fit=crop&w=1400&q=80",
     capacity: 200,
     registered: 200,
@@ -354,8 +394,8 @@ export const speakers: Speaker[] = [
     id: "spk-001",
     name: "Mariana Ríos Delgado",
     title: "Founder & CEO",
-    organization: "ME Latino Producciones",
-    bio: "Mariana founded ME Latino Producciones after 15 years in live event production across Latin America and the United States. A tireless champion of the Latino story, she built The Real Happiness from a vision into one of the most anticipated Latino cultural events in the country.",
+    organization: "ME Producciones",
+    bio: "Mariana founded ME Producciones after 15 years in live event production across Latin America and the United States. A tireless champion of the Latino story, she built The Real Happiness from a vision into one of the most anticipated Latino cultural events in the country.",
     image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80",
     expertise: ["Event Production", "Latino Leadership", "Brand Strategy", "Community Building"],
     eventIds: ["evt-001", "evt-006", "evt-010"],
@@ -754,6 +794,86 @@ export const stats: Stats = {
   satisfaction: 97,
 };
 
+// ── Admin Bookings ─────────────────────────────
+
+export const mockBookings: Booking[] = [
+  {
+    id: 'bkg-001', name: 'Alejandra Moreno', email: 'alejandra@gmail.com',
+    phone: '+1 305 555 0101', eventId: 'evt-001',
+    eventName: 'The Real Happiness — Miami 2025',
+    guests: 2, bookingType: 'General', notes: 'Quiero información sobre descuento para grupo.',
+    internalNotes: '', status: 'confirmed', source: 'web',
+    submittedAt: '2025-09-10', followUp: false,
+  },
+  {
+    id: 'bkg-002', name: 'Miguel Torres', email: 'mtorres@empresa.com',
+    phone: '+1 212 555 0202', eventId: 'evt-002',
+    eventName: 'Raíces Summit: Latino Leadership Forum',
+    guests: 1, bookingType: 'VIP', notes: 'Interesado en mesa corporativa.',
+    internalNotes: 'Contactar para cotización grupal', status: 'pending', source: 'email',
+    submittedAt: '2025-06-20', followUp: true,
+  },
+  {
+    id: 'bkg-003', name: 'Laura Quintero', email: 'lquintero@mail.com',
+    phone: '+1 323 555 0303', eventId: 'evt-003',
+    eventName: 'Bienestar Wellness Retreat',
+    guests: 1, bookingType: 'General', notes: '',
+    internalNotes: '', status: 'confirmed', source: 'instagram',
+    submittedAt: '2025-07-15', followUp: false,
+  },
+  {
+    id: 'bkg-004', name: 'Roberto Sánchez', email: 'rsanchez@corp.com',
+    phone: '+1 713 555 0404', eventId: 'evt-004',
+    eventName: 'Comunidad en Acción',
+    guests: 4, bookingType: 'Familia', notes: 'Venimos 4 adultos y 2 niños.',
+    internalNotes: '', status: 'attended', source: 'referral',
+    submittedAt: '2025-08-01', followUp: false,
+  },
+  {
+    id: 'bkg-005', name: 'Patricia Vega', email: 'pvega@outlook.com',
+    phone: '+1 305 555 0505', eventId: 'evt-001',
+    eventName: 'The Real Happiness — Miami 2025',
+    guests: 1, bookingType: 'General', notes: '',
+    internalNotes: 'No respondió al email de confirmación', status: 'cancelled', source: 'web',
+    submittedAt: '2025-09-05', followUp: false,
+  },
+];
+
+// ── Admin Reviews ──────────────────────────────
+
+export const mockReviews: Review[] = [
+  {
+    id: 'rev-001', name: 'Daniela Herrera', role: 'Directora de Marketing', company: 'Vive Foods',
+    quote: 'The Real Happiness cambió la manera en que entiendo el liderazgo. Vine buscando claridad y encontré comunidad. El nivel de producción fue impecable.',
+    rating: 5, eventId: 'evt-001', eventName: 'The Real Happiness — Miami 2025',
+    status: 'published', featured: true, order: 1, date: '2025-10-20',
+  },
+  {
+    id: 'rev-002', name: 'Carlos Mendoza', role: 'Founder & CEO', company: 'Mendoza Capital',
+    quote: 'El Raíces Summit superó mis expectativas. Las conversaciones fueron profundas y el networking fue genuino — no el típico intercambio de tarjetas.',
+    rating: 5, eventId: 'evt-002', eventName: 'Raíces Summit: Latino Leadership Forum',
+    status: 'published', featured: true, order: 2, date: '2025-07-15',
+  },
+  {
+    id: 'rev-003', name: 'Valentina Cruz', role: 'Psicóloga Clínica', company: 'Consultorio Privado',
+    quote: 'El retiro de bienestar fue una experiencia de restauración profunda. Los facilitadores son extraordinarios y el entorno fue cuidado hasta el último detalle.',
+    rating: 5, eventId: 'evt-003', eventName: 'Bienestar Wellness Retreat',
+    status: 'published', featured: false, order: 3, date: '2025-08-26',
+  },
+  {
+    id: 'rev-004', name: 'Jorge Ramírez', role: 'Empresario', company: 'Ramírez Logistics',
+    quote: 'Asistí escéptico y salí transformado. El equipo de ME Producciones entiende cómo crear experiencias que realmente impactan.',
+    rating: 4, eventId: 'evt-001', eventName: 'The Real Happiness — Miami 2025',
+    status: 'hidden', featured: false, order: 4, date: '2025-10-21',
+  },
+  {
+    id: 'rev-005', name: 'Sofía Castillo', role: 'Coach Ejecutiva', company: 'Castillo Coaching',
+    quote: 'La energía en sala fue incomparable. Los speakers fueron seleccionados con mucho criterio. Ya estoy inscrita para el próximo año.',
+    rating: 5, eventId: 'evt-006', eventName: 'The Real Happiness — LA 2024',
+    status: 'pending', featured: false, order: 5, date: '2024-10-14',
+  },
+];
+
 // ── Admin Data ─────────────────────────────────
 
 export const adminData: AdminData = {
@@ -817,6 +937,8 @@ export const adminData: AdminData = {
       amount: 195,
     },
   ],
+  bookings: mockBookings,
+  reviews: mockReviews,
   leads: [
     {
       name: "Camila Torres",

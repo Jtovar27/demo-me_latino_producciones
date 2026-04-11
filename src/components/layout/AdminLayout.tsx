@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { type ReactNode, useState } from 'react';
+import Logo from '@/components/ui/Logo';
+import { logoutAction } from '@/app/actions/auth';
 import {
   LayoutDashboard,
   Calendar,
@@ -14,13 +16,17 @@ import {
   Settings,
   Menu,
   X,
+  Star,
+  BookOpen,
 } from 'lucide-react';
 
 const navItems = [
   { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { label: 'Eventos', href: '/admin/events', icon: Calendar },
+  { label: 'Reservas', href: '/admin/bookings', icon: BookOpen },
   { label: 'Registros', href: '/admin/registrations', icon: Users },
   { label: 'Speakers', href: '/admin/speakers', icon: Mic },
+  { label: 'Reviews', href: '/admin/reviews', icon: Star },
   { label: 'Sponsors', href: '/admin/sponsors', icon: Building2 },
   { label: 'Media', href: '/admin/media', icon: Image },
   { label: 'Leads', href: '/admin/leads', icon: Inbox },
@@ -51,10 +57,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div className="flex h-16 items-center border-b border-[#5B4638]/30 px-6">
         <Link
           href="/admin"
-          className="font-sans text-xs font-semibold uppercase tracking-[0.3em] text-[#F7F3EE] transition-opacity hover:opacity-70"
+          className="transition-opacity hover:opacity-70"
           onClick={() => setSidebarOpen(false)}
+          aria-label="Mónica Espinoza Producciones — Admin"
         >
-          ME Latino
+          <Logo variant="light" size="sm" />
         </Link>
       </div>
 
@@ -88,10 +95,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </nav>
 
       {/* Sidebar footer */}
-      <div className="border-t border-[#5B4638]/30 px-6 py-4">
-        <p className="font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">
-          Admin Panel
-        </p>
+      <div className="border-t border-[#5B4638]/30 px-6 py-4 flex flex-col gap-3">
+        <a href="/" target="_blank" rel="noopener noreferrer"
+          className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:text-[#D7C6B2] transition-colors">
+          ↗ Ver sitio web
+        </a>
+        <form action={logoutAction}>
+          <button type="submit"
+            className="w-full text-left font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:text-[#A56E52] transition-colors">
+            Cerrar sesión
+          </button>
+        </form>
       </div>
     </div>
   );
@@ -155,7 +169,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               className="flex h-8 w-8 items-center justify-center bg-[#2A2421] font-sans text-[10px] font-semibold uppercase tracking-widest text-[#F7F3EE]"
               aria-label="Avatar de usuario"
             >
-              ML
+              MP
             </div>
           </div>
         </header>

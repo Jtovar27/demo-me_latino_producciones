@@ -18,17 +18,18 @@ function SpeakerCard({ speaker, large = false }: { speaker: (typeof speakers)[0]
   const primaryEvent = speakerEvents[0];
 
   return (
-    <article className="group flex flex-col">
+    <article className="card-lift group flex flex-col">
       {/* Speaker portrait */}
       <div className="relative w-full aspect-square overflow-hidden">
         <Image
           src={speaker.image}
           alt={speaker.name}
           fill
-          className="object-cover object-top"
+          className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
           sizes="(max-width: 768px) 50vw, 25vw"
         />
         <div className="absolute inset-0 bg-[#EAE1D6] opacity-0 transition-opacity duration-300 group-hover:opacity-20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#2A2421]/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       </div>
 
       {/* Content */}
@@ -74,19 +75,19 @@ export default function SpeakersPage() {
       <section className="bg-[#FDFAF7] pb-20 pt-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
           <div className="max-w-3xl">
-            <span className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
-              Ponentes e Invitados
+            <span className="hero-label font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
+              Speakers
             </span>
             <div className="mt-2 h-px w-8 bg-[#A56E52]" />
             <h1
-              className="mt-6 font-serif text-5xl font-normal leading-tight text-[#2A2421] md:text-6xl lg:text-7xl"
+              className="hero-h1 mt-6 font-serif text-5xl font-normal leading-tight text-[#2A2421] md:text-6xl lg:text-7xl"
             >
               Voces que
               <br />
               transforman.
             </h1>
             <p className="mt-8 max-w-xl font-sans text-base leading-relaxed text-[#5B4638]">
-              Cada ponente que invitamos lleva una historia que amplía lo posible. Nuestra filosofía de selección es simple: buscamos voces que desafíen, sanen, inspiren y arraiguen — voces enraizadas en la experiencia latina que llegan mucho más allá.
+              Cada speaker que invitamos lleva una historia que amplía lo posible. Nuestra filosofía de selección es simple: buscamos voces que desafíen, sanen, inspiren y arraiguen — voces enraizadas en la experiencia latina que llegan mucho más allá.
             </p>
           </div>
         </div>
@@ -102,7 +103,7 @@ export default function SpeakersPage() {
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
           <SectionHeader
             label="Seleccionados"
-            title="Ponentes destacados"
+            title="Speakers destacados"
             subtitle="Las voces en el centro de nuestros escenarios más transformadores."
             className="mb-8 md:mb-16"
           />
@@ -129,7 +130,7 @@ export default function SpeakersPage() {
       <section className="bg-[#EAE1D6] py-12 md:py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
           <SectionHeader
-            label="Todos los ponentes"
+            label="Todos los speakers"
             title="La comunidad de voces"
             subtitle="Desde conferenciantes visionarios hasta facilitadores de talleres íntimos — cada uno elegido cuidadosamente."
             className="mb-8 md:mb-16"
@@ -157,7 +158,7 @@ export default function SpeakersPage() {
           <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:items-center">
             <div>
               <span className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
-                Aplica como Ponente
+                Aplica como Speaker
               </span>
               <div className="mt-2 h-px w-8 bg-[#A56E52]" />
               <h2

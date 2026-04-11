@@ -3,13 +3,14 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Button from '@/components/ui/Button';
+import Logo from '@/components/ui/Logo';
 
 const navLinks = [
   { label: 'Inicio', href: '/' },
   { label: 'Nosotros', href: '/about' },
   { label: 'Experiencias', href: '/experiences' },
   { label: 'Eventos', href: '/events' },
-  { label: 'Ponentes', href: '/speakers' },
+  { label: 'Speakers', href: '/speakers' },
   { label: 'Galería', href: '/gallery' },
   { label: 'Contacto', href: '/contact' },
 ];
@@ -45,10 +46,10 @@ export default function Header() {
           {/* Wordmark */}
           <Link
             href="/"
-            className="font-sans text-xs font-semibold uppercase tracking-[0.3em] text-[#2A2421] transition-opacity hover:opacity-70"
-            aria-label="ME Latino Producciones — Home"
+            className="transition-opacity hover:opacity-70"
+            aria-label="Mónica Espinoza Producciones — Inicio"
           >
-            ME Latino
+            <Logo variant="dark" size="md" />
           </Link>
 
           {/* Desktop nav */}
@@ -57,7 +58,7 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="font-sans text-[11px] font-medium uppercase tracking-widest text-[#5B4638] transition-colors duration-200 hover:text-[#A56E52]"
+                className="nav-underline font-sans text-[11px] font-medium uppercase tracking-widest text-[#5B4638] transition-colors duration-200 hover:text-[#A56E52]"
               >
                 {link.label}
               </Link>
@@ -111,9 +112,10 @@ export default function Header() {
           <Link
             href="/"
             onClick={() => setMenuOpen(false)}
-            className="font-sans text-[10px] font-semibold uppercase tracking-[0.3em] text-[#2A2421]"
+            className="transition-opacity hover:opacity-70"
+            aria-label="Mónica Espinoza Producciones — Inicio"
           >
-            ME Latino
+            <Logo variant="dark" size="sm" />
           </Link>
 
           {/* Close — animated X */}

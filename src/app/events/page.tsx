@@ -9,11 +9,11 @@ export default function EventsPage() {
     <PublicLayout>
 
       {/* ── A. HERO ──────────────────────────────────────────────── */}
-      <section className="bg-[#F7F3EE] pt-32 pb-20 px-6 md:px-12 lg:px-20">
+      <section className="bg-[#F7F3EE] pt-32 pb-20 px-6 md:px-12 lg:px-20 overflow-hidden">
         <div className="max-w-[1400px] mx-auto flex flex-col gap-12">
 
           {/* Label */}
-          <div className="flex flex-col gap-2">
+          <div className="hero-label flex flex-col gap-2">
             <span className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
               Próximos Eventos
             </span>
@@ -24,8 +24,7 @@ export default function EventsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-end">
             {/* H1 */}
             <h1
-              className="font-serif text-4xl md:text-5xl lg:text-6xl font-normal leading-tight text-[#2A2421]"
-
+              className="hero-h1 font-serif text-4xl md:text-5xl lg:text-6xl font-normal leading-tight text-[#2A2421]"
             >
               Cada experiencia, una oportunidad de transformación.
             </h1>
@@ -33,7 +32,7 @@ export default function EventsPage() {
             {/* Intro + quick stats */}
             <div className="flex flex-col gap-8">
               <p className="font-sans text-base leading-relaxed text-[#5B4638] max-w-lg">
-                Desde Miami hasta Chicago, ME Latino Producciones produce eventos que combinan
+                Desde Miami hasta Chicago, ME Producciones produce eventos que combinan
                 propósito editorial, comunidad auténtica y producción de clase mundial. Encuentra
                 la experiencia diseñada para este momento de tu vida.
               </p>

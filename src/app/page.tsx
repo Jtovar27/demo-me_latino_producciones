@@ -49,27 +49,26 @@ export default function HomePage() {
 
             {/* Left — editorial text */}
             <div className="flex flex-col gap-7 md:gap-10">
-              <div className="flex flex-col gap-3">
+              <div className="hero-label flex flex-col gap-3">
                 <span className="font-sans text-[11px] font-medium uppercase tracking-[0.25em] text-[#A56E52]">
-                  ME Latino Producciones
+                  Mónica Espinoza Producciones
                 </span>
                 <div className="h-px w-8 bg-[#A56E52]" />
               </div>
 
               <h1
-                className="font-serif text-4xl md:text-6xl lg:text-7xl font-normal leading-[1.05] text-[#2A2421]"
-
+                className="hero-h1 font-serif text-4xl md:text-6xl lg:text-7xl font-normal leading-[1.05] text-[#2A2421]"
               >
                 Experiencias
                 <br />
                 <span className="italic">que transforman.</span>
               </h1>
 
-              <p className="font-sans text-base md:text-lg leading-relaxed text-[#5B4638] max-w-md">
+              <p className="hero-body font-sans text-base md:text-lg leading-relaxed text-[#5B4638] max-w-md">
                 Producimos experiencias de clase mundial para la comunidad Latina — diseñadas con propósito, ejecutadas con precisión, y construidas para transformar vidas.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-2">
+              <div className="hero-cta flex flex-col sm:flex-row gap-4 pt-2">
                 <Button href="/experiences" variant="primary" size="lg">
                   Explorar experiencias
                 </Button>
@@ -79,7 +78,7 @@ export default function HomePage() {
               </div>
 
               {/* Subtle stat strip */}
-              <div className="flex gap-10 pt-6 border-t border-[#D7C6B2]">
+              <div className="hero-stats flex gap-10 pt-6 border-t border-[#D7C6B2]">
                 <div>
                   <p className="font-serif text-2xl text-[#2A2421]">
                     {stats.totalAttendees.toLocaleString()}+
@@ -102,7 +101,7 @@ export default function HomePage() {
             </div>
 
             {/* Right — image composition */}
-            <div className="relative hidden lg:flex flex-col gap-4 items-end">
+            <div className="hero-image relative hidden lg:flex flex-col gap-4 items-end">
               {/* Main large image */}
               <div className="relative w-full h-[560px] overflow-hidden">
                 <Image
@@ -282,7 +281,7 @@ export default function HomePage() {
                 <Link
                   key={exp.id}
                   href="/experiences"
-                  className="group flex flex-col overflow-hidden bg-[#FDFAF7] transition-colors duration-300 hover:bg-[#EAE1D6]"
+                  className="card-lift group flex flex-col overflow-hidden bg-[#FDFAF7] transition-colors duration-300 hover:bg-[#EAE1D6]"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <Image
