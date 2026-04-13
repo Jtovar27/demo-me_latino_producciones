@@ -67,9 +67,6 @@ export default async function HomePage() {
             {/* Left — editorial text */}
             <div className="flex flex-col gap-7 md:gap-10">
               <div className="hero-label flex flex-col gap-3">
-                <span className="font-sans text-[11px] font-medium uppercase tracking-[0.25em] text-[#A56E52]">
-                  ME Producciones · Summit III · 2026
-                </span>
                 <div className="h-px w-8 bg-[#A56E52]" />
               </div>
 
