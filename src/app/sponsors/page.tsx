@@ -157,7 +157,6 @@ function TierPill({ tier }: { tier: SponsorTier }) {
 function SponsorCard({ sponsor, tier }: { sponsor: DBSponsor; tier: SponsorTier }) {
   const { borderClass, logoH, cardBg } = TIER_META[tier];
   const isPlatinum = tier === 'platinum';
-  const isGold = tier === 'gold';
 
   const inner = (
     <div
@@ -189,7 +188,7 @@ function SponsorCard({ sponsor, tier }: { sponsor: DBSponsor; tier: SponsorTier 
             <p
               className={[
                 'font-serif font-normal text-[#2A2421] text-center leading-tight px-6',
-                isPlatinum ? 'text-2xl' : isGold ? 'text-xl' : 'text-base',
+                isPlatinum ? 'text-2xl' : 'text-base',
               ].join(' ')}
             >
               {sponsor.name}
@@ -232,8 +231,8 @@ function SponsorCard({ sponsor, tier }: { sponsor: DBSponsor; tier: SponsorTier 
         </p>
       )}
 
-      {/* Description — platinum & gold only */}
-      {sponsor.description && (isPlatinum || isGold) && (
+      {/* Description — platinum only */}
+      {sponsor.description && isPlatinum && (
         <p className="font-sans text-xs leading-relaxed text-[#5B4638]">
           {sponsor.description}
         </p>
