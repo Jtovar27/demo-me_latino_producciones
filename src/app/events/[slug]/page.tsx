@@ -1,0 +1,266 @@
+import { notFound } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
+import PublicLayout from '@/components/layout/PublicLayout';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { getPublishedReviews } from '@/app/actions/reviews';
+import ReviewSubmitForm from './ReviewSubmitForm';
+import type { DBReview } from '@/types/supabase';
+
+export const revalidate = 0;
+
+// ── Helpers ───────────────────────────────────────────────────────
+
+function formatFullDate(dateStr: string) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('es-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function categoryLabel(cat: string) {
+  const map: Record<string, string> = {
+    flagship: 'Flagship', wellness: 'Wellness', summit: 'Summit',
+    community: 'Community', branded: 'Branded',
+  };
+  return map[cat] ?? cat;
+}
+
+function statusConfig(status: string) {
+  if (status === 'upcoming') return { label: 'Próximo',     styles: 'border-[#A56E52] text-[#A56E52]' };
+  if (status === 'sold-out') return { label: 'Agotado',     styles: 'border-[#2A2421] text-[#F7F3EE] bg-[#2A2421]' };
+  return                            { label: 'Finalizado',  styles: 'border-[#D7C6B2] text-[#5B4638]' };
+}
+
+function StarRow({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <svg key={n} width="10" height="10" viewBox="0 0 24 24" fill={n <= rating ? '#A56E52' : 'none'}
+          stroke="#A56E52" strokeWidth="1.5">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+// ── Page ─────────────────────────────────────────────────────────
+
+interface Props {
+  params: Promise<{ slug: string }>;
+}
+
+export default async function EventDetailPage({ params }: Props) {
+  const { slug } = await params;
+
+  const client = createAdminClient();
+  const { data: event, error } = await client
+    .from('events')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
+  if (error || !event) notFound();
+
+  // Fetch published reviews for this event
+  const { data: allReviews } = await getPublishedReviews(50);
+  const eventReviews: DBReview[] = allReviews.filter(
+    (r) => r.event_name?.toLowerCase() === event.title.toLowerCase()
+  );
+
+  const sc = statusConfig(event.status);
+
+  const WA_NUMBER = '13055252555';
+  const waText = encodeURIComponent(
+    `Hola! Me interesa comprar tickets para "${event.title}" el ${formatFullDate(event.date)} en ${event.city}, ${event.state}. ¿Cómo puedo pagar con Zelle?`
+  );
+
+  return (
+    <PublicLayout>
+
+      {/* ── BACK LINK ──────────────────────────────────────────── */}
+      <div className="bg-[#F7F3EE] pt-28 pb-0 px-6 md:px-12 lg:px-20">
+        <div className="max-w-[1400px] mx-auto">
+          <Link href="/events"
+            className="inline-flex items-center gap-2 font-sans text-[10px] uppercase tracking-widest text-[#A56E52] hover:text-[#2A2421] transition-colors">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Todos los eventos
+          </Link>
+        </div>
+      </div>
+
+      {/* ── HERO ───────────────────────────────────────────────── */}
+      <section className="bg-[#F7F3EE] pt-8 pb-16 px-6 md:px-12 lg:px-20">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+
+            {/* Left — info */}
+            <div className="flex flex-col gap-6 order-2 lg:order-1">
+              {/* Badges */}
+              <div className="flex flex-wrap gap-2">
+                <span className={`border px-3 py-1 font-sans text-[9px] uppercase tracking-widest ${sc.styles}`}>
+                  {sc.label}
+                </span>
+                <span className="border border-[#EAE1D6] px-3 py-1 font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">
+                  {categoryLabel(event.category)}
+                </span>
+                {event.featured && (
+                  <span className="border border-[#A56E52] px-3 py-1 font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">
+                    Destacado
+                  </span>
+                )}
+              </div>
+
+              <h1 className="font-serif text-4xl md:text-5xl font-normal leading-tight text-[#2A2421]">
+                {event.title}
+              </h1>
+
+              {/* Date / venue strip */}
+              <div className="flex flex-col gap-3 border-l-2 border-[#A56E52] pl-5">
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">Fecha</span>
+                  <span className="font-sans text-sm text-[#2A2421] capitalize">{formatFullDate(event.date)}</span>
+                  {event.end_date && event.end_date !== event.date && (
+                    <span className="font-sans text-xs text-[#5B4638]">al {formatFullDate(event.end_date)}</span>
+                  )}
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">Lugar</span>
+                  <span className="font-sans text-sm text-[#2A2421]">{event.venue}</span>
+                  <span className="font-sans text-xs text-[#5B4638]">{event.city}, {event.state}</span>
+                </div>
+                {event.price > 0 && (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">Precio</span>
+                    <span className="font-serif text-2xl text-[#2A2421]">${event.price}</span>
+                    <span className="font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">por persona</span>
+                  </div>
+                )}
+                {event.price === 0 && (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">Precio</span>
+                    <span className="font-serif text-xl text-[#2A2421]">Entrada libre</span>
+                  </div>
+                )}
+              </div>
+
+              {event.description && (
+                <p className="font-sans text-base leading-relaxed text-[#5B4638]">
+                  {event.description}
+                </p>
+              )}
+
+              {event.tags && event.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {event.tags.map((tag) => (
+                    <span key={tag} className="border border-[#D7C6B2] px-3 py-1 font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* CTA buttons */}
+              {event.status !== 'past' && (
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <a
+                    href={`https://wa.me/${WA_NUMBER}?text=${waText}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 border border-[#2A2421] bg-[#2A2421] px-8 py-4 font-sans text-[10px] uppercase tracking-widest text-[#F7F3EE] hover:bg-[#5B4638] transition-colors"
+                  >
+                    {event.status === 'sold-out' ? 'Lista de espera (WhatsApp)' : 'Comprar tickets — WhatsApp'}
+                  </a>
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center justify-center gap-2 border border-[#D7C6B2] px-8 py-4 font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors"
+                  >
+                    Contactar al equipo
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Right — image */}
+            <div className="relative order-1 lg:order-2">
+              <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#EAE1D6]">
+                {event.image_url ? (
+                  <Image
+                    src={event.image_url}
+                    alt={event.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="font-serif text-6xl text-[#D7C6B2]">ME</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── REVIEWS SECTION ────────────────────────────────────── */}
+      {eventReviews.length > 0 && (
+        <section className="bg-[#EAE1D6] py-16 px-6 md:px-12 lg:px-20">
+          <div className="max-w-[1400px] mx-auto flex flex-col gap-10">
+            <div className="flex flex-col gap-2">
+              <span className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
+                Testimonios
+              </span>
+              <div className="h-px w-8 bg-[#A56E52]" />
+              <h2 className="font-serif text-2xl md:text-3xl font-normal text-[#2A2421] mt-2">
+                Lo que dicen quienes vivieron este evento.
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-[#C4B09A]">
+              {eventReviews.map((r) => (
+                <div key={r.id} className="bg-[#FDFAF7] p-8 flex flex-col gap-4">
+                  <StarRow rating={r.rating ?? 5} />
+                  {r.text && (
+                    <p className="font-sans text-sm leading-relaxed text-[#5B4638] italic">
+                      &ldquo;{r.text}&rdquo;
+                    </p>
+                  )}
+                  <div className="mt-auto pt-2 border-t border-[#EAE1D6]">
+                    <p className="font-sans text-sm font-medium text-[#2A2421]">{r.name}</p>
+                    {r.role && <p className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] mt-0.5">{r.role}</p>}
+                    {r.company && <p className="font-sans text-[10px] text-[#5B4638]">{r.company}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── REVIEW SUBMISSION FORM ─────────────────────────────── */}
+      <section className="bg-[#F7F3EE] py-16 px-6 md:px-12 lg:px-20">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="max-w-2xl">
+            <div className="flex flex-col gap-2 mb-10">
+              <span className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
+                Tu experiencia
+              </span>
+              <div className="h-px w-8 bg-[#A56E52]" />
+              <h2 className="font-serif text-2xl md:text-3xl font-normal text-[#2A2421] mt-2">
+                Comparte tu testimonio.
+              </h2>
+              <p className="font-sans text-sm leading-relaxed text-[#5B4638] mt-1">
+                Tu experiencia inspira a otros a dar el primer paso. Cuéntanos cómo fue.
+              </p>
+            </div>
+            <ReviewSubmitForm eventName={event.title} />
+          </div>
+        </div>
+      </section>
+
+    </PublicLayout>
+  );
+}

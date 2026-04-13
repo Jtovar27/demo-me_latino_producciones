@@ -30,7 +30,7 @@ const categoryLabels: Record<string, string> = {
 const emptyForm = {
   title: '', slug: '', date: '', end_date: '', city: '', state: '',
   venue: '', category: 'flagship', capacity: '', status: 'upcoming', price: '',
-  description: '', featured: 'false', image_url: '',
+  description: '', featured: 'false', image_url: '', tags: '',
 };
 
 type FormState = typeof emptyForm;
@@ -85,6 +85,7 @@ export default function AdminEventsPage() {
       description: ev.description ?? '',
       featured:    String(ev.featured),
       image_url:   ev.image_url ?? '',
+      tags:        (ev.tags ?? []).join(', '),
     });
     setModalOpen(true);
   }
@@ -102,33 +103,40 @@ export default function AdminEventsPage() {
 
   async function handleSave() {
     setSaving(true);
-    const fd = new FormData();
-    if (editEvent) fd.append('id', editEvent.id);
-    fd.append('title',       form.title);
-    fd.append('slug',        form.slug);
-    fd.append('date',        form.date);
-    fd.append('end_date',    form.end_date);
-    fd.append('city',        form.city);
-    fd.append('state',       form.state);
-    fd.append('venue',       form.venue);
-    fd.append('category',    form.category);
-    fd.append('capacity',    form.capacity);
-    fd.append('status',      form.status);
-    fd.append('price',       form.price);
-    fd.append('description', form.description);
-    fd.append('featured',    form.featured);
-    fd.append('image_url',   form.image_url);
+    try {
+      const fd = new FormData();
+      if (editEvent) fd.append('id', editEvent.id);
+      fd.append('title',       form.title);
+      fd.append('slug',        form.slug);
+      fd.append('date',        form.date);
+      fd.append('end_date',    form.end_date);
+      fd.append('city',        form.city);
+      fd.append('state',       form.state);
+      fd.append('venue',       form.venue);
+      fd.append('category',    form.category);
+      fd.append('capacity',    form.capacity);
+      fd.append('status',      form.status);
+      fd.append('price',       form.price);
+      fd.append('description', form.description);
+      fd.append('featured',    form.featured);
+      fd.append('image_url',   form.image_url);
+      fd.append('tags',        form.tags);
 
-    const result = await upsertEvent(fd);
-    if (result?.error) {
-      showToast('Error al guardar');
-    } else {
-      const { data } = await getEvents();
-      setEvents(data as DBEvent[]);
-      showToast(editEvent ? 'Evento actualizado' : 'Evento creado');
-      setModalOpen(false);
+      const result = await upsertEvent(fd);
+      if (result?.error) {
+        showToast(`Error: ${result.error}`);
+      } else {
+        const { data } = await getEvents();
+        setEvents(data as DBEvent[]);
+        showToast(editEvent ? 'Evento actualizado' : 'Evento creado');
+        setModalOpen(false);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      showToast(`Excepción: ${msg}`);
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   }
 
   async function handleDelete(id: string) {
@@ -195,8 +203,7 @@ export default function AdminEventsPage() {
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <p className="font-sans text-sm font-medium text-[#2A2421] leading-snug">{ev.title}</p>
                   {ev.featured && (
-                    <span className="inline-block px-1.5 py-0.5 font-sans text-[8px] font-semibold uppercase tracking-widest text-white"
-                      style={{ background: 'linear-gradient(90deg, #D91B94, #9B157A)' }}>
+                    <span className="inline-block px-1.5 py-0.5 font-sans text-[8px] font-semibold uppercase tracking-widest text-white bg-[#A56E52]">
                       Popup
                     </span>
                   )}
@@ -209,7 +216,7 @@ export default function AdminEventsPage() {
             <div className="flex flex-wrap gap-2">
               <button onClick={() => handleFeature(ev.id)}
                 className={['flex-1 border py-2.5 font-sans text-[9px] uppercase tracking-widest transition-colors',
-                  ev.featured ? 'border-[#D91B94] text-[#D91B94] bg-[#D91B94]/5' : 'border-[#D7C6B2] text-[#5B4638] hover:border-[#D91B94] hover:text-[#D91B94]'].join(' ')}>
+                  ev.featured ? 'border-[#A56E52] text-[#A56E52] bg-[#A56E52]/5' : 'border-[#D7C6B2] text-[#5B4638] hover:border-[#A56E52] hover:text-[#A56E52]'].join(' ')}>
                 {ev.featured ? '★ Popup' : '☆ Popup'}
               </button>
               <button onClick={() => openEdit(ev)}
@@ -270,8 +277,7 @@ export default function AdminEventsPage() {
                         <div className="flex items-center gap-1.5">
                           <p className="font-sans text-sm text-[#2A2421] font-medium">{ev.title}</p>
                           {ev.featured && (
-                            <span className="shrink-0 inline-block px-1.5 py-0.5 font-sans text-[8px] font-semibold uppercase tracking-widest text-white"
-                              style={{ background: 'linear-gradient(90deg, #D91B94, #9B157A)' }}>
+                            <span className="shrink-0 inline-block px-1.5 py-0.5 font-sans text-[8px] font-semibold uppercase tracking-widest text-white bg-[#A56E52]">
                               Popup
                             </span>
                           )}
@@ -304,7 +310,7 @@ export default function AdminEventsPage() {
                     <div className="flex items-center justify-end gap-2">
                       <button onClick={() => handleFeature(ev.id)} title={ev.featured ? 'Quitar del popup' : 'Destacar en popup'}
                         className={['border px-3 py-1.5 font-sans text-[9px] uppercase tracking-widest transition-colors',
-                          ev.featured ? 'border-[#D91B94] text-[#D91B94] bg-[#D91B94]/5' : 'border-[#D7C6B2] text-[#5B4638] hover:border-[#D91B94] hover:text-[#D91B94]'].join(' ')}>
+                          ev.featured ? 'border-[#A56E52] text-[#A56E52] bg-[#A56E52]/5' : 'border-[#D7C6B2] text-[#5B4638] hover:border-[#A56E52] hover:text-[#A56E52]'].join(' ')}>
                         {ev.featured ? '★ Popup' : '☆ Popup'}
                       </button>
                       <Button variant="ghost" size="sm" onClick={() => openEdit(ev)}>Editar</Button>
@@ -407,13 +413,20 @@ export default function AdminEventsPage() {
                     className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors resize-none" />
                 </div>
 
+                <div className="sm:col-span-2">
+                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Etiquetas (separadas por coma)</label>
+                  <input type="text" value={form.tags} onChange={(e) => updateForm('tags', e.target.value)}
+                    placeholder="wellness, latinx, miami, summit"
+                    className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
+                </div>
+
                 {/* Popup toggle */}
                 <div className="sm:col-span-2 border border-[#EAE1D6] bg-[#F7F3EE] px-5 py-4">
                   <button type="button"
                     onClick={() => updateForm('featured', form.featured === 'true' ? 'false' : 'true')}
                     className="flex items-center gap-4 w-full text-left">
                     <div className="relative shrink-0 w-10 h-5 rounded-full transition-colors duration-200"
-                      style={{ background: form.featured === 'true' ? '#D91B94' : '#D7C6B2' }}>
+                      style={{ background: form.featured === 'true' ? '#A56E52' : '#D7C6B2' }}>
                       <div className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-200"
                         style={{ transform: form.featured === 'true' ? 'translateX(20px)' : 'translateX(0)' }} />
                     </div>

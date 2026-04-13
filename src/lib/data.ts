@@ -59,7 +59,7 @@ export interface Experience {
   tags: string[];
 }
 
-export type SponsorTier = "platinum" | "gold" | "silver" | "partner";
+export type SponsorTier = "platinum" | "silver" | "blue" | "pink";
 
 export interface Sponsor {
   id: string;
@@ -103,84 +103,6 @@ export interface Stats {
   satisfaction: number;
 }
 
-export type RegistrationStatus = "confirmed" | "pending" | "cancelled";
-export type LeadStatus = "new" | "contacted" | "qualified" | "converted";
-
-export interface Registration {
-  name: string;
-  email: string;
-  event: string;
-  date: string;
-  status: RegistrationStatus;
-  amount: number;
-}
-
-export interface Lead {
-  name: string;
-  email: string;
-  phone: string;
-  interest: string;
-  status: LeadStatus;
-  date: string;
-}
-
-export interface DashboardMetrics {
-  totalRevenue: number;
-  revenueGrowth: number;
-  activeRegistrations: number;
-  registrationGrowth: number;
-  upcomingEvents: number;
-  openLeads: number;
-  conversionRate: number;
-  avgTicketValue: number;
-}
-
-export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'attended';
-export type BookingSource = 'web' | 'email' | 'instagram' | 'referral' | 'otro';
-
-export interface Booking {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  eventId: string;
-  eventName: string;
-  guests: number;
-  bookingType: string;
-  notes: string;
-  internalNotes: string;
-  status: BookingStatus;
-  source: BookingSource;
-  submittedAt: string;
-  followUp: boolean;
-}
-
-export type ReviewStatus = 'published' | 'hidden' | 'pending';
-
-export interface Review {
-  id: string;
-  name: string;
-  role: string;
-  company: string;
-  quote: string;
-  rating: number;
-  eventId: string;
-  eventName: string;
-  status: ReviewStatus;
-  featured: boolean;
-  order: number;
-  date: string;
-  photoUrl?: string;
-}
-
-export interface AdminData {
-  dashboardMetrics: DashboardMetrics;
-  recentRegistrations: Registration[];
-  leads: Lead[];
-  bookings: Booking[];
-  reviews: Review[];
-  mediaItems: GalleryItem[];
-}
 
 // ── Events ─────────────────────────────────────
 
@@ -277,7 +199,7 @@ export const events: Event[] = [
     category: "branded",
     status: "upcoming",
     description:
-      "An exclusive curated evening blending art, culture, and brand storytelling. ME Latino Producciones partners with leading brands to create an unforgettable sensory experience for 400 tastemakers.",
+      "An exclusive curated evening blending art, culture, and brand storytelling. ME Producciones partners with leading brands to create an unforgettable sensory experience for 400 tastemakers.",
     image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1400&q=80",
     capacity: 400,
     registered: 278,
@@ -557,7 +479,7 @@ export const experiences: Experience[] = [
     category: "wellness",
     shortDesc: "Tailored workshops for teams seeking cultural intelligence, belonging, and performance.",
     description:
-      "ME Latino Producciones brings its signature energy into corporate settings. Our facilitated workshops help teams build cultural intelligence, explore inclusion with authenticity, and create the psychological safety that drives high performance. Custom designed for each client.",
+      "ME Producciones brings its signature energy into corporate settings. Our facilitated workshops help teams build cultural intelligence, explore inclusion with authenticity, and create the psychological safety that drives high performance. Custom designed for each client.",
     image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80",
     featured: false,
     tags: ["corporate", "DEI", "workshops", "teams", "culture"],
@@ -588,7 +510,7 @@ export const sponsors: Sponsor[] = [
   {
     id: "spo-003",
     name: "Univision Communications",
-    tier: "gold",
+    tier: "blue",
     website: "https://univision.com",
     logo: "/images/sponsor-univision.png",
     description:
@@ -597,7 +519,7 @@ export const sponsors: Sponsor[] = [
   {
     id: "spo-004",
     name: "Salud Health Systems",
-    tier: "gold",
+    tier: "blue",
     website: "https://saludhealth.com",
     logo: "/images/sponsor-salud.png",
     description:
@@ -606,7 +528,7 @@ export const sponsors: Sponsor[] = [
   {
     id: "spo-005",
     name: "Raíz Tequila",
-    tier: "gold",
+    tier: "blue",
     website: "https://raiztequila.com",
     logo: "/images/sponsor-raiz.png",
     description:
@@ -633,7 +555,7 @@ export const sponsors: Sponsor[] = [
   {
     id: "spo-008",
     name: "Cultura Collective",
-    tier: "partner",
+    tier: "pink",
     website: "https://culturacollective.org",
     logo: "/images/sponsor-cultura.png",
     description:
@@ -680,7 +602,7 @@ export const testimonials: Testimonial[] = [
     id: "tst-005",
     name: "Daniela Rios",
     title: "Brand Strategist, New York",
-    text: "Visión Nocturna was gorgeous — the aesthetics, the energy, the curation. But what surprised me was how meaningful the conversations were. ME Latino creates spaces where beauty and depth coexist. That's rare.",
+    text: "Visión Nocturna was gorgeous — the aesthetics, the energy, the curation. But what surprised me was how meaningful the conversations were. ME Producciones creates spaces where beauty and depth coexist. That's rare.",
     event: "Elevar: A Branded Evening — Miami 2024",
     avatar: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=200&q=80",
   },
@@ -688,7 +610,7 @@ export const testimonials: Testimonial[] = [
     id: "tst-006",
     name: "Andrés Castillo",
     title: "Therapist & Author, Houston",
-    text: "I've attended three ME Latino events now. Each time, the production quality improves, but what stays constant is the soul. You can feel how much the team cares. That care transmits to every person in the room.",
+    text: "I've attended three ME Producciones events now. Each time, the production quality improves, but what stays constant is the soul. You can feel how much the team cares. That care transmits to every person in the room.",
     event: "The Real Happiness — Miami 2025",
     avatar: "https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=200&q=80",
   },
@@ -794,216 +716,4 @@ export const stats: Stats = {
   satisfaction: 97,
 };
 
-// ── Admin Bookings ─────────────────────────────
-
-export const mockBookings: Booking[] = [
-  {
-    id: 'bkg-001', name: 'Alejandra Moreno', email: 'alejandra@gmail.com',
-    phone: '+1 305 555 0101', eventId: 'evt-001',
-    eventName: 'The Real Happiness — Miami 2025',
-    guests: 2, bookingType: 'General', notes: 'Quiero información sobre descuento para grupo.',
-    internalNotes: '', status: 'confirmed', source: 'web',
-    submittedAt: '2025-09-10', followUp: false,
-  },
-  {
-    id: 'bkg-002', name: 'Miguel Torres', email: 'mtorres@empresa.com',
-    phone: '+1 212 555 0202', eventId: 'evt-002',
-    eventName: 'Raíces Summit: Latino Leadership Forum',
-    guests: 1, bookingType: 'VIP', notes: 'Interesado en mesa corporativa.',
-    internalNotes: 'Contactar para cotización grupal', status: 'pending', source: 'email',
-    submittedAt: '2025-06-20', followUp: true,
-  },
-  {
-    id: 'bkg-003', name: 'Laura Quintero', email: 'lquintero@mail.com',
-    phone: '+1 323 555 0303', eventId: 'evt-003',
-    eventName: 'Bienestar Wellness Retreat',
-    guests: 1, bookingType: 'General', notes: '',
-    internalNotes: '', status: 'confirmed', source: 'instagram',
-    submittedAt: '2025-07-15', followUp: false,
-  },
-  {
-    id: 'bkg-004', name: 'Roberto Sánchez', email: 'rsanchez@corp.com',
-    phone: '+1 713 555 0404', eventId: 'evt-004',
-    eventName: 'Comunidad en Acción',
-    guests: 4, bookingType: 'Familia', notes: 'Venimos 4 adultos y 2 niños.',
-    internalNotes: '', status: 'attended', source: 'referral',
-    submittedAt: '2025-08-01', followUp: false,
-  },
-  {
-    id: 'bkg-005', name: 'Patricia Vega', email: 'pvega@outlook.com',
-    phone: '+1 305 555 0505', eventId: 'evt-001',
-    eventName: 'The Real Happiness — Miami 2025',
-    guests: 1, bookingType: 'General', notes: '',
-    internalNotes: 'No respondió al email de confirmación', status: 'cancelled', source: 'web',
-    submittedAt: '2025-09-05', followUp: false,
-  },
-];
-
-// ── Admin Reviews ──────────────────────────────
-
-export const mockReviews: Review[] = [
-  {
-    id: 'rev-001', name: 'Daniela Herrera', role: 'Directora de Marketing', company: 'Vive Foods',
-    quote: 'The Real Happiness cambió la manera en que entiendo el liderazgo. Vine buscando claridad y encontré comunidad. El nivel de producción fue impecable.',
-    rating: 5, eventId: 'evt-001', eventName: 'The Real Happiness — Miami 2025',
-    status: 'published', featured: true, order: 1, date: '2025-10-20',
-  },
-  {
-    id: 'rev-002', name: 'Carlos Mendoza', role: 'Founder & CEO', company: 'Mendoza Capital',
-    quote: 'El Raíces Summit superó mis expectativas. Las conversaciones fueron profundas y el networking fue genuino — no el típico intercambio de tarjetas.',
-    rating: 5, eventId: 'evt-002', eventName: 'Raíces Summit: Latino Leadership Forum',
-    status: 'published', featured: true, order: 2, date: '2025-07-15',
-  },
-  {
-    id: 'rev-003', name: 'Valentina Cruz', role: 'Psicóloga Clínica', company: 'Consultorio Privado',
-    quote: 'El retiro de bienestar fue una experiencia de restauración profunda. Los facilitadores son extraordinarios y el entorno fue cuidado hasta el último detalle.',
-    rating: 5, eventId: 'evt-003', eventName: 'Bienestar Wellness Retreat',
-    status: 'published', featured: false, order: 3, date: '2025-08-26',
-  },
-  {
-    id: 'rev-004', name: 'Jorge Ramírez', role: 'Empresario', company: 'Ramírez Logistics',
-    quote: 'Asistí escéptico y salí transformado. El equipo de ME Producciones entiende cómo crear experiencias que realmente impactan.',
-    rating: 4, eventId: 'evt-001', eventName: 'The Real Happiness — Miami 2025',
-    status: 'hidden', featured: false, order: 4, date: '2025-10-21',
-  },
-  {
-    id: 'rev-005', name: 'Sofía Castillo', role: 'Coach Ejecutiva', company: 'Castillo Coaching',
-    quote: 'La energía en sala fue incomparable. Los speakers fueron seleccionados con mucho criterio. Ya estoy inscrita para el próximo año.',
-    rating: 5, eventId: 'evt-006', eventName: 'The Real Happiness — LA 2024',
-    status: 'pending', featured: false, order: 5, date: '2024-10-14',
-  },
-];
-
-// ── Admin Data ─────────────────────────────────
-
-export const adminData: AdminData = {
-  dashboardMetrics: {
-    totalRevenue: 1_240_800,
-    revenueGrowth: 34,
-    activeRegistrations: 3788,
-    registrationGrowth: 22,
-    upcomingEvents: 5,
-    openLeads: 47,
-    conversionRate: 68,
-    avgTicketValue: 327,
-  },
-  recentRegistrations: [
-    {
-      name: "Lucía Fernández",
-      email: "lucia.fernandez@email.com",
-      event: "The Real Happiness — Miami 2025",
-      date: "2025-04-01",
-      status: "confirmed",
-      amount: 397,
-    },
-    {
-      name: "Jorge Martínez",
-      email: "jorge.m@email.com",
-      event: "Raíces Summit — New York 2025",
-      date: "2025-04-01",
-      status: "confirmed",
-      amount: 195,
-    },
-    {
-      name: "Paola Ruíz",
-      email: "paola.ruiz@email.com",
-      event: "The Real Happiness — Miami 2025",
-      date: "2025-03-31",
-      status: "pending",
-      amount: 397,
-    },
-    {
-      name: "Emilio Vargas",
-      email: "e.vargas@email.com",
-      event: "Visión Nocturna — Chicago 2025",
-      date: "2025-03-30",
-      status: "confirmed",
-      amount: 150,
-    },
-    {
-      name: "Natalia Soto",
-      email: "nsoto@email.com",
-      event: "Bienestar Wellness Retreat — LA 2025",
-      date: "2025-03-30",
-      status: "confirmed",
-      amount: 595,
-    },
-    {
-      name: "Diego Herrera",
-      email: "diego.herrera@email.com",
-      event: "Raíces Summit — New York 2025",
-      date: "2025-03-29",
-      status: "cancelled",
-      amount: 195,
-    },
-  ],
-  bookings: mockBookings,
-  reviews: mockReviews,
-  leads: [
-    {
-      name: "Camila Torres",
-      email: "camila.t@email.com",
-      phone: "+1 (305) 712-4482",
-      interest: "The Real Happiness — Miami 2025",
-      status: "new",
-      date: "2025-04-02",
-    },
-    {
-      name: "Raúl Espinoza",
-      email: "raul.e@email.com",
-      phone: "+1 (212) 883-1190",
-      interest: "Raíces Summit — New York 2025",
-      status: "contacted",
-      date: "2025-04-01",
-    },
-    {
-      name: "Sandra Lozano",
-      email: "slozano@email.com",
-      phone: "+1 (713) 559-3274",
-      interest: "Corporate Workshop",
-      status: "qualified",
-      date: "2025-03-29",
-    },
-    {
-      name: "Sebastián Morales",
-      email: "sebastian.m@email.com",
-      phone: "+1 (323) 445-9901",
-      interest: "Bienestar Wellness Retreat",
-      status: "converted",
-      date: "2025-03-28",
-    },
-    {
-      name: "Gabriela Núñez",
-      email: "gnunez@email.com",
-      phone: "+1 (312) 667-4433",
-      interest: "Branded Experience — Chicago",
-      status: "new",
-      date: "2025-03-27",
-    },
-    {
-      name: "Alejandro Reyes",
-      email: "a.reyes@email.com",
-      phone: "+1 (786) 220-5577",
-      interest: "The Real Happiness — Miami 2025",
-      status: "contacted",
-      date: "2025-03-26",
-    },
-    {
-      name: "Mónica Gutiérrez",
-      email: "m.gutierrez@email.com",
-      phone: "+1 (646) 338-8812",
-      interest: "Raíces Summit — New York 2025",
-      status: "qualified",
-      date: "2025-03-25",
-    },
-    {
-      name: "Felipe Ávila",
-      email: "favila@email.com",
-      phone: "+1 (415) 772-6619",
-      interest: "Sponsorship Inquiry",
-      status: "contacted",
-      date: "2025-03-24",
-    },
-  ],
-  mediaItems: galleryItems,
-};
+// ── (mock admin data removed — use Supabase actions instead) ──

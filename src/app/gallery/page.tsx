@@ -28,7 +28,7 @@ export default async function GalleryPage() {
             </div>
             <div className="pb-2">
               <p className="font-sans text-base leading-relaxed text-[#5B4638]">
-                Cada imagen aquí es el registro de algo real — un momento de conexión, transformación o belleza que ocurrió dentro de una experiencia de ME Latino Producciones. Desde los preparativos tras bambalinas hasta la energía plena de una sala viva de propósito, esta galería es nuestra historia más honesta.
+                Cada imagen aquí es el registro de algo real — un momento de conexión, transformación o belleza que ocurrió dentro de una experiencia de ME Producciones. Desde los preparativos tras bambalinas hasta la energía plena de una sala viva de propósito, esta galería es nuestra historia más honesta.
               </p>
               <p className="mt-4 font-sans text-sm leading-relaxed text-[#A56E52]">
                 Explora por categoría o ve todo de una vez.

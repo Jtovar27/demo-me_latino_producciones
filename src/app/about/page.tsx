@@ -37,22 +37,10 @@ const philosophyPillars = [
 
 const leadershipTeam = [
   {
-    name: 'Mariana Ríos Delgado',
+    name: 'Mónica Espinoza',
     title: 'Founder & CEO',
-    bio: 'Mariana fundó ME Latino Producciones en 2021 después de 15 años produciendo eventos en Latinoamérica y los Estados Unidos. Su visión de crear experiencias con propósito real para la comunidad latina dio origen a The Real Happiness y continúa impulsando cada nuevo proyecto.',
+    bio: 'Mónica Espinoza es la fundadora y CEO de ME Producciones, LLC. Con más de una década de experiencia en la industria del entretenimiento y eventos corporativos, ha llevado su agencia a convertirse en una fuerza líder en la creación de experiencias significativas para la comunidad latina en Estados Unidos y Ecuador. Su camino comenzó en Ecuador, pasó por México y se consolidó en Miami — siempre con la misma convicción: crear eventos con propósito genuino que inspiren, transformen y dejen una huella positiva.',
     image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    name: 'Santiago Pérez',
-    title: 'Director de Producción',
-    bio: 'Santiago lidera la producción técnica y logística de cada evento, garantizando que la visión creativa se materialice con la más alta calidad. Su experiencia en producción de gran escala asegura resultados que superan las expectativas.',
-    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    name: 'Valeria Mondragón',
-    title: 'Directora de Experiencias',
-    bio: 'Valeria diseña el arco emocional de cada evento, desde la bienvenida hasta el cierre. Su enfoque en la experiencia del asistente convierte los momentos ordinarios en memorias duraderas que las personas llevan consigo mucho después del evento.',
-    image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=600&q=80',
   },
 ];
 
@@ -104,9 +92,10 @@ export default function AboutPage() {
               Quiénes somos y por qué existimos
             </h1>
             <p className="mt-6 max-w-2xl font-sans text-lg leading-relaxed text-[#D7C6B2]">
-              ME Latino Producciones nació de la convicción de que los eventos más poderosos no
-              solo entretienen — transforman. Somos la empresa de producción de eventos premium
-              para la comunidad latina en los Estados Unidos.
+              ME Producciones nació de una convicción profunda: la comunidad latina merece eventos
+              que no solo entretengan, sino que inspiren, conecten y transformen. Somos la agencia
+              de producción de experiencias con propósito para la comunidad latina en Estados Unidos
+              y Latinoamérica.
             </p>
           </div>
         </div>
@@ -128,7 +117,7 @@ export default function AboutPage() {
                   transforman.&rdquo;
                 </blockquote>
                 <cite className="mt-6 block font-sans text-xs font-medium uppercase tracking-widest text-[#A56E52] not-italic">
-                  Mariana Ríos Delgado, Founder &amp; CEO
+                  Mónica Espinoza, Founder &amp; CEO
                 </cite>
               </div>
             </div>
@@ -136,24 +125,24 @@ export default function AboutPage() {
             {/* Story text */}
             <div className="flex flex-col gap-6">
               <p className="font-sans text-base leading-relaxed text-[#5B4638]">
-                ME Latino Producciones fue fundada en 2021 por Mariana Ríos Delgado, después de
-                más de 15 años produciendo eventos de gran escala en Latinoamérica y los Estados
-                Unidos. A lo largo de su carrera, Mariana trabajó con organizaciones culturales,
-                marcas multinacionales y comunidades locales, e identificó una brecha persistente:
-                los eventos de alta calidad raramente estaban diseñados con la comunidad latina
-                en mente.
+                ME Producciones fue fundada por Mónica Espinoza, una emprendedora ecuatoriana cuyo
+                camino pasó por Ecuador, México y finalmente Miami. Con más de una década de
+                experiencia en entretenimiento y eventos corporativos, Mónica identificó una brecha
+                que nadie estaba llenando: la comunidad latina necesitaba eventos de alta calidad
+                diseñados con propósito real — no producciones genéricas, sino experiencias nacidas
+                desde adentro.
               </p>
               <p className="font-sans text-base leading-relaxed text-[#5B4638]">
-                La visión era clara desde el principio: crear eventos que no solo convocaran a la
-                comunidad latina, sino que la celebraran, la retaran y la transformaran. No
-                producciones genéricas con traducción al español, sino experiencias nacidas desde
-                adentro — desde la cultura, los valores, y las historias reales de millones de
-                latinos construyendo una vida en este país.
+                La misión es clara: apoyar a la comunidad latina en cualquier área de su vida —
+                personal, empresarial, cultural — a través de eventos que entretengan, inspiren y
+                generen impacto colectivo. Desde el Stand Up Latin Tour en Ecuador hasta el Doral
+                Latino Art Festival y The Real Happiness MasterClass, cada proyecto lleva la misma
+                firma: + Talentos, + Experiencias, + Conexiones.
               </p>
               <p className="font-sans text-base leading-relaxed text-[#5B4638]">
-                Hoy, ME Latino Producciones opera en cinco ciudades, ha producido{' '}
-                {stats.totalEvents} eventos y ha conectado a más de{' '}
-                {stats.totalAttendees.toLocaleString()} personas. Cada evento lleva la misma
+                Hoy, ME Producciones opera en Estados Unidos y Ecuador, y ha conectado a más de{' '}
+                {stats.totalAttendees.toLocaleString()} personas a través de experiencias que
+                transforman perspectivas y construyen comunidad. Cada evento lleva la misma
                 promesa: calidad sin excusas y propósito sin concesiones.
               </p>
             </div>
@@ -222,7 +211,7 @@ export default function AboutPage() {
                 The Real Happiness
               </h2>
               <p className="mb-5 font-sans text-base leading-relaxed text-[#D7C6B2]">
-                The Real Happiness surgió como la primera expresión de la filosofía ME Latino —
+                The Real Happiness surgió como la primera expresión de la filosofía ME Producciones —
                 no simplemente un evento, sino una prueba de concepto de lo que significa producir
                 con propósito real. Antes de ser una marca, fue una pregunta: ¿puede un evento
                 cambiar verdaderamente la vida de las personas que asisten?
@@ -239,15 +228,20 @@ export default function AboutPage() {
               </Button>
             </div>
 
-            {/* Image */}
-            <div className="relative aspect-video w-full overflow-hidden">
-              <Image
-                fill
-                src={editorialImages.aboutTheRealHappiness.src}
-                alt={editorialImages.aboutTheRealHappiness.alt}
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
+            {/* Video placeholder */}
+            <div className="relative aspect-video w-full overflow-hidden bg-[#1A1410] flex flex-col items-center justify-center gap-4 border border-[#5B4638]/40">
+              <div className="flex h-14 w-14 items-center justify-center border border-[#A56E52] rounded-full">
+                <svg className="w-6 h-6 text-[#A56E52] ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+              <p className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#5B4638]">
+                Video promocional — Próximamente
+              </p>
+              <p className="font-serif text-sm text-[#D7C6B2] text-center px-8 leading-relaxed">
+                The Real Happiness MasterClass · Summit III<br />
+                Doral · Samborondón · Orlando · 2026
+              </p>
             </div>
 
           </div>
@@ -281,7 +275,7 @@ export default function AboutPage() {
           </div>
 
           {/* Desktop grid */}
-          <div className="hidden md:grid grid-cols-3 gap-10">
+          <div className="hidden md:grid grid-cols-2 gap-16 max-w-3xl">
             {leadershipTeam.map((person) => (
               <div key={person.name} className="flex flex-col">
                 <div className="relative mb-6 aspect-square w-full overflow-hidden">

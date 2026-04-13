@@ -25,9 +25,6 @@ const CATEGORY_LABELS: Record<GalleryCategory, string> = {
   details: 'Detalles',
 };
 
-// Alternate aspect ratios for visual rhythm
-const ASPECT_CLASSES = ['aspect-video', 'aspect-square', 'aspect-square', 'aspect-video', 'aspect-square', 'aspect-video'];
-
 // Background color variants for placeholder variety
 const BG_VARIANTS = [
   'bg-[#D7C6B2]',
@@ -80,7 +77,6 @@ export default function GalleryGrid({ galleryItems }: GalleryGridProps) {
         }}
       >
         {filtered.map((item, index) => {
-          const aspectClass = ASPECT_CLASSES[index % ASPECT_CLASSES.length];
           const bgClass = BG_VARIANTS[index % BG_VARIANTS.length];
           const catLabel = item.category
             ? (CATEGORY_LABELS[item.category as GalleryCategory] ?? item.category)
@@ -92,9 +88,9 @@ export default function GalleryGrid({ galleryItems }: GalleryGridProps) {
               className="group relative mb-4 break-inside-avoid overflow-hidden"
             >
               {/* Image or Video */}
-              <div className={`relative w-full ${aspectClass} overflow-hidden ${bgClass}`}>
+              <div className={`relative w-full overflow-hidden ${bgClass}`}>
                 {item.media_type === 'video' ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                  <div className="aspect-video w-full flex flex-col items-center justify-center gap-2">
                     <Video size={32} className="text-[#A56E52]" />
                     <span className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">Video</span>
                   </div>
@@ -102,9 +98,10 @@ export default function GalleryGrid({ galleryItems }: GalleryGridProps) {
                   <Image
                     src={item.public_url}
                     alt={item.alt ?? ''}
-                    fill
-                    className="object-cover"
+                    width={0}
+                    height={0}
                     sizes="(max-width: 768px) 50vw, 25vw"
+                    className="w-full h-auto block"
                     unoptimized
                   />
                 )}

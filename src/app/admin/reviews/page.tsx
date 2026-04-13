@@ -333,16 +333,16 @@ export default function AdminReviewsPage() {
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
           <div className="absolute inset-0 bg-[#2A2421]/60 backdrop-blur-sm" onClick={() => setModalOpen(false)} />
-          <div className="relative z-10 w-full max-w-lg border border-[#EAE1D6] bg-[#FDFAF7] shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="border-b border-[#EAE1D6] px-8 py-6 flex items-center justify-between">
+          <div className="relative z-10 w-full sm:max-w-lg border border-[#EAE1D6] bg-[#FDFAF7] shadow-2xl mx-0 sm:mx-4 max-h-[92vh] overflow-y-auto rounded-t-lg sm:rounded-none">
+            <div className="border-b border-[#EAE1D6] px-6 py-5 flex items-center justify-between">
               <p className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">
                 {editReview ? 'Editar Review' : 'Agregar Review'}
               </p>
-              <button onClick={() => setModalOpen(false)} className="text-[#5B4638] hover:text-[#2A2421] text-xl leading-none">×</button>
+              <button onClick={() => setModalOpen(false)} className="font-sans text-[#5B4638] hover:text-[#2A2421] transition-colors text-xl leading-none p-1">×</button>
             </div>
-            <div className="px-8 py-7 space-y-5">
+            <div className="px-6 py-6 space-y-5">
               {[
                 { field: 'name',      label: 'Nombre completo',    placeholder: 'Ana García' },
                 { field: 'role',      label: 'Cargo / Rol',        placeholder: 'CEO, Directora...' },
@@ -404,7 +404,7 @@ export default function AdminReviewsPage() {
                 <span className="font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Destacar este review</span>
               </label>
             </div>
-            <div className="border-t border-[#EAE1D6] px-8 py-5 flex items-center justify-end gap-3">
+            <div className="border-t border-[#EAE1D6] px-6 py-5 flex items-center justify-end gap-3">
               <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>Cancelar</Button>
               <Button variant="primary" size="sm" onClick={handleSave} loading={saving}>Guardar</Button>
             </div>

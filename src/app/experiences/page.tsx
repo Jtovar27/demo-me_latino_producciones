@@ -3,8 +3,10 @@ import PublicLayout from '@/components/layout/PublicLayout';
 import SectionHeader from '@/components/ui/SectionHeader';
 import Button from '@/components/ui/Button';
 import MobileCarousel from '@/components/ui/MobileCarousel';
-import { experiences } from '@/lib/data';
+import { getExperiences } from '@/app/actions/experiences';
 import { editorialImages } from '@/lib/media';
+
+export const revalidate = 0;
 
 const categoryLabels: Record<string, string> = {
   flagship: 'Experiencia Insignia',
@@ -41,7 +43,10 @@ const processSteps = [
   },
 ];
 
-export default function ExperiencesPage() {
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80';
+
+export default async function ExperiencesPage() {
+  const { data: experiences } = await getExperiences();
   const flagshipExperience = experiences.find((e) => e.slug === 'the-real-happiness');
 
   return (
@@ -54,16 +59,13 @@ export default function ExperiencesPage() {
               Nuestras Experiencias
             </span>
             <div className="h-px w-8 bg-[#A56E52] mt-2 mb-8" />
-            <h1
-              className="font-serif text-5xl md:text-6xl lg:text-7xl font-normal leading-none text-[#2A2421] mb-8"
-
-            >
+            <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl font-normal leading-none text-[#2A2421] mb-8">
               Cada experiencia,
               <br />
               una transformación.
             </h1>
             <p className="font-sans text-lg leading-relaxed text-[#5B4638] max-w-xl">
-              En ME Latino Producciones no producimos eventos. Diseñamos experiencias que marcan un
+              En ME Producciones no producimos eventos. Diseñamos experiencias que marcan un
               antes y un después en la vida de quienes las viven.
             </p>
           </div>
@@ -71,99 +73,103 @@ export default function ExperiencesPage() {
       </section>
 
       {/* ── Experience Categories Grid ─────────────── */}
-      <section className="bg-[#FDFAF7] py-12 md:py-24 px-6">
-        <div className="max-w-6xl mx-auto">
-          <SectionHeader
-            label="Lo que hacemos"
-            title="Nuestro universo de experiencias"
-            subtitle="Seis formatos. Un propósito: crear momentos que importan para la comunidad latina."
-            className="mb-8 md:mb-16"
-          />
+      {experiences.length > 0 && (
+        <section className="bg-[#FDFAF7] py-12 md:py-24 px-6">
+          <div className="max-w-6xl mx-auto">
+            <SectionHeader
+              label="Lo que hacemos"
+              title="Nuestro universo de experiencias"
+              subtitle="Seis formatos. Un propósito: crear momentos que importan para la comunidad latina."
+              className="mb-8 md:mb-16"
+            />
 
-          {/* Mobile carousel */}
-          <div className="md:hidden -mx-6 px-6">
-            <MobileCarousel itemWidth="w-[78vw]" interval={4000}>
+            {/* Mobile carousel */}
+            <div className="md:hidden -mx-6 px-6">
+              <MobileCarousel itemWidth="w-[78vw]" interval={4000}>
+                {experiences.map((experience) => (
+                  <article
+                    key={experience.id}
+                    className="group bg-[#F7F3EE] border border-[#EAE1D6] flex flex-col h-full"
+                  >
+                    <div className="relative aspect-[4/3] w-full overflow-hidden">
+                      <Image
+                        fill
+                        src={experience.image_url ?? FALLBACK_IMAGE}
+                        alt={experience.title}
+                        className="object-cover"
+                        sizes="80vw"
+                        unoptimized={!!experience.image_url}
+                      />
+                    </div>
+                    <div className="flex flex-col flex-1 p-5 gap-3">
+                      <span className="font-sans text-[10px] font-medium uppercase tracking-widest text-[#A56E52]">
+                        {categoryLabels[experience.category] ?? experience.category}
+                      </span>
+                      <h3 className="font-serif text-lg font-normal text-[#2A2421] leading-snug">
+                        {experience.title}
+                      </h3>
+                      <p className="font-sans text-sm leading-relaxed text-[#5B4638] line-clamp-2">
+                        {experience.short_desc}
+                      </p>
+                      <div className="mt-auto pt-1">
+                        <Button variant="ghost" size="sm" href={`/experiences/${experience.slug}`}
+                          className="p-0 border-none hover:bg-transparent text-[#A56E52] uppercase text-[10px] tracking-widest">
+                          Conocer más →
+                        </Button>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </MobileCarousel>
+            </div>
+
+            {/* Desktop grid */}
+            <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6">
               {experiences.map((experience) => (
                 <article
                   key={experience.id}
-                  className="group bg-[#F7F3EE] border border-[#EAE1D6] flex flex-col h-full"
+                  className="group bg-[#F7F3EE] border border-[#EAE1D6] transition-all duration-300 hover:border-[#A56E52] hover:shadow-[0_8px_32px_rgba(42,36,33,0.08)] flex flex-col"
                 >
                   <div className="relative aspect-[4/3] w-full overflow-hidden">
                     <Image
                       fill
-                      src={experience.image}
+                      src={experience.image_url ?? FALLBACK_IMAGE}
                       alt={experience.title}
                       className="object-cover"
-                      sizes="80vw"
+                      sizes="(max-width: 1024px) 50vw, 33vw"
+                      unoptimized={!!experience.image_url}
                     />
+                    <div className="absolute inset-0 flex items-end p-4">
+                      <span className="font-sans text-[10px] font-medium uppercase tracking-widest text-[#F7F3EE]/70">
+                        {categoryLabels[experience.category] ?? experience.category}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex flex-col flex-1 p-5 gap-3">
-                    <span className="font-sans text-[10px] font-medium uppercase tracking-widest text-[#A56E52]">
-                      {categoryLabels[experience.category]}
-                    </span>
-                    <h3 className="font-serif text-lg font-normal text-[#2A2421] leading-snug">
-                      {experience.title}
-                    </h3>
-                    <p className="font-sans text-sm leading-relaxed text-[#5B4638] line-clamp-2">
-                      {experience.shortDesc}
-                    </p>
-                    <div className="mt-auto pt-1">
+                  <div className="flex flex-col flex-1 p-6 gap-4">
+                    <div>
+                      <span className="font-sans text-[10px] font-medium uppercase tracking-widest text-[#A56E52] mb-2 block">
+                        {categoryLabels[experience.category] ?? experience.category}
+                      </span>
+                      <h3 className="font-serif text-xl font-normal text-[#2A2421] leading-snug mb-3">
+                        {experience.title}
+                      </h3>
+                      <p className="font-sans text-sm leading-relaxed text-[#5B4638]">
+                        {experience.short_desc}
+                      </p>
+                    </div>
+                    <div className="mt-auto pt-2">
                       <Button variant="ghost" size="sm" href={`/experiences/${experience.slug}`}
-                        className="p-0 border-none hover:bg-transparent text-[#A56E52] uppercase text-[10px] tracking-widest">
-                        Conocer más →
+                        className="p-0 border-none hover:bg-transparent text-[#A56E52] hover:text-[#5B4638] uppercase text-[10px] tracking-widest">
+                        Conocer más &rarr;
                       </Button>
                     </div>
                   </div>
                 </article>
               ))}
-            </MobileCarousel>
+            </div>
           </div>
-
-          {/* Desktop grid */}
-          <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6">
-            {experiences.map((experience) => (
-              <article
-                key={experience.id}
-                className="group bg-[#F7F3EE] border border-[#EAE1D6] transition-all duration-300 hover:border-[#A56E52] hover:shadow-[0_8px_32px_rgba(42,36,33,0.08)] flex flex-col"
-              >
-                <div className="relative aspect-[4/3] w-full overflow-hidden">
-                  <Image
-                    fill
-                    src={experience.image}
-                    alt={experience.title}
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 50vw, 33vw"
-                  />
-                  <div className="absolute inset-0 flex items-end p-4">
-                    <span className="font-sans text-[10px] font-medium uppercase tracking-widest text-[#F7F3EE]/70">
-                      {categoryLabels[experience.category]}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-col flex-1 p-6 gap-4">
-                  <div>
-                    <span className="font-sans text-[10px] font-medium uppercase tracking-widest text-[#A56E52] mb-2 block">
-                      {categoryLabels[experience.category]}
-                    </span>
-                    <h3 className="font-serif text-xl font-normal text-[#2A2421] leading-snug mb-3">
-                      {experience.title}
-                    </h3>
-                    <p className="font-sans text-sm leading-relaxed text-[#5B4638]">
-                      {experience.shortDesc}
-                    </p>
-                  </div>
-                  <div className="mt-auto pt-2">
-                    <Button variant="ghost" size="sm" href={`/experiences/${experience.slug}`}
-                      className="p-0 border-none hover:bg-transparent text-[#A56E52] hover:text-[#5B4638] uppercase text-[10px] tracking-widest">
-                      Conocer más &rarr;
-                    </Button>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── The Real Happiness Featured Block ─────── */}
       {flagshipExperience && (
@@ -174,10 +180,11 @@ export default function ExperiencesPage() {
               <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[480px] overflow-hidden">
                 <Image
                   fill
-                  src={editorialImages.experiencesFlagship.src}
-                  alt={editorialImages.experiencesFlagship.alt}
+                  src={flagshipExperience.image_url ?? editorialImages.experiencesFlagship.src}
+                  alt={flagshipExperience.title}
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 50vw"
+                  unoptimized={!!flagshipExperience.image_url}
                 />
               </div>
 
@@ -189,10 +196,7 @@ export default function ExperiencesPage() {
                   </span>
                   <div className="h-px w-8 bg-[#A56E52] mt-2 mb-6" />
                 </div>
-                <h2
-                  className="font-serif text-4xl lg:text-5xl font-normal leading-tight text-[#F7F3EE]"
-
-                >
+                <h2 className="font-serif text-4xl lg:text-5xl font-normal leading-tight text-[#F7F3EE]">
                   The Real Happiness
                 </h2>
                 <p className="font-sans text-base leading-relaxed text-[#D7C6B2]">
@@ -229,7 +233,7 @@ export default function ExperiencesPage() {
             />
           </div>
 
-          {/* Mobile: 4 steps horizontal carousel, one at a time */}
+          {/* Mobile: 4 steps horizontal carousel */}
           <div className="md:hidden -mx-6 px-6">
             <MobileCarousel itemWidth="w-[82vw]" interval={4000} autoPlay>
               {processSteps.map((step) => (
@@ -283,10 +287,7 @@ export default function ExperiencesPage() {
             Trabajemos juntos
           </span>
           <div className="h-px w-8 bg-[#A56E52] mt-2 mb-8 mx-auto" />
-          <h2
-            className="font-serif text-4xl md:text-5xl font-normal text-[#2A2421] mb-6 max-w-2xl mx-auto leading-tight"
-
-          >
+          <h2 className="font-serif text-4xl md:text-5xl font-normal text-[#2A2421] mb-6 max-w-2xl mx-auto leading-tight">
             Tiene una visión. Nosotros la hacemos realidad.
           </h2>
           <p className="font-sans text-base leading-relaxed text-[#5B4638] max-w-lg mx-auto mb-10">

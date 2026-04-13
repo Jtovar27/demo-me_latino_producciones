@@ -4,9 +4,9 @@ type BadgeVariant =
   | 'sold-out'
   | 'past'
   | 'platinum'
-  | 'gold'
   | 'silver'
-  | 'partner';
+  | 'blue'
+  | 'pink';
 
 interface BadgeProps {
   variant: BadgeVariant;
@@ -34,17 +34,17 @@ const variantConfig: Record<BadgeVariant, { label: string; styles: string }> = {
     label: 'Platinum',
     styles: 'border-[#2A2421] text-[#2A2421] bg-transparent',
   },
-  gold: {
-    label: 'Gold',
-    styles: 'border-[#A56E52] text-[#A56E52] bg-transparent',
-  },
   silver: {
     label: 'Silver',
     styles: 'border-[#5B4638] text-[#5B4638] bg-transparent',
   },
-  partner: {
-    label: 'Partner',
-    styles: 'border-[#D7C6B2] text-[#5B4638] bg-[#EAE1D6]',
+  blue: {
+    label: 'Blue',
+    styles: 'border-[#4A7FA5] text-[#4A7FA5] bg-transparent',
+  },
+  pink: {
+    label: 'Pink',
+    styles: 'border-[#C4758A] text-[#C4758A] bg-transparent',
   },
 };
 

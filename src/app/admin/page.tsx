@@ -2,9 +2,8 @@ import AdminLayout from '@/components/layout/AdminLayout';
 import { createAdminClient } from '@/lib/supabase/admin';
 import Link from 'next/link';
 
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
-}
+export const dynamic = 'force-dynamic';
+
 
 const mockBars = [42, 68, 55, 80, 63, 90, 74, 58, 85, 70, 95, 82];
 

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { Upload, X, Check, Image as ImageIcon, Video, Search, AlertCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -29,7 +30,10 @@ export default function MediaPicker({
   const [uploadCat, setUploadCat] = useState('moments');
   const [toastMsg, setToastMsg]   = useState('');
   const [toastErr, setToastErr]   = useState(false);
+  const [mounted,  setMounted]    = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { setMounted(true); }, []);
 
   function showToast(msg: string, isError = false) {
     setToastMsg(msg);
@@ -134,7 +138,7 @@ export default function MediaPicker({
                   src={value}
                   alt="preview"
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   sizes="96px"
                   unoptimized
                 />
@@ -175,7 +179,7 @@ export default function MediaPicker({
       </div>
 
       {/* ── Picker modal ──────────────────────────────────────── */}
-      {open && (
+      {open && mounted && createPortal(
         <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
           <div
             className="absolute inset-0 bg-charcoal/70 backdrop-blur-sm"
@@ -283,7 +287,7 @@ export default function MediaPicker({
                               src={item.public_url}
                               alt={item.alt ?? ''}
                               fill
-                              className="object-cover"
+                              className="object-contain"
                               sizes="120px"
                               unoptimized
                             />
@@ -374,7 +378,7 @@ export default function MediaPicker({
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
     </>
   );
 }

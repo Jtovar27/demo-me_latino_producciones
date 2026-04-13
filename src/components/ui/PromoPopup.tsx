@@ -205,7 +205,7 @@ export default function PromoPopup() {
             ) : (
               <div
                 className="absolute inset-0"
-                style={{ background: 'linear-gradient(135deg, #D91B94 0%, #7B1578 100%)' }}
+                style={{ background: 'linear-gradient(135deg, #A56E52 0%, #5B4638 100%)' }}
               />
             )}
             {/* Gradient overlay */}
@@ -215,7 +215,7 @@ export default function PromoPopup() {
             <div className="absolute bottom-4 left-5">
               <span
                 className="font-sans text-[9px] font-semibold uppercase tracking-[0.22em] text-white px-3 py-1.5"
-                style={{ background: 'linear-gradient(90deg, #D91B94, #9B157A)' }}
+                style={{ background: '#A56E52' }}
               >
                 Evento Destacado
               </span>
@@ -236,7 +236,7 @@ export default function PromoPopup() {
             {event.price > 0 && (
               <p
                 className="font-sans text-sm font-semibold mt-1.5"
-                style={{ color: '#D91B94' }}
+                style={{ color: '#A56E52' }}
               >
                 Desde ${event.price.toLocaleString('en-US')}
               </p>
@@ -254,7 +254,7 @@ export default function PromoPopup() {
                   icon={<TicketIcon />}
                   label="Comprar en línea — Opción 1"
                   sub="Pago con tarjeta de crédito"
-                  accentColor="#D91B94"
+                  accentColor="#A56E52"
                   disabled={TICKET_LINK_1 === '#'}
                 />
                 <TicketRow
@@ -262,7 +262,7 @@ export default function PromoPopup() {
                   icon={<TicketIcon />}
                   label="Comprar en línea — Opción 2"
                   sub="Pago alternativo"
-                  accentColor="#D91B94"
+                  accentColor="#A56E52"
                   disabled={TICKET_LINK_2 === '#'}
                 />
                 <TicketRow

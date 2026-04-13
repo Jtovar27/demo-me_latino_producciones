@@ -118,30 +118,36 @@ export default function EventsFilter({ events }: EventsFilterProps) {
   const [ticketEvent, setTicketEvent] = useState<DBEvent | null>(null);
   const [ticketShow, setTicketShow] = useState(false);
 
+  // Manage body scroll lock via effect — avoids direct DOM mutation in handlers
+  useEffect(() => {
+    if (ticketShow) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [ticketShow]);
+
   function openTickets(event: DBEvent) {
     setTicketEvent(event);
-    document.body.style.overflow = 'hidden';
     requestAnimationFrame(() => requestAnimationFrame(() => setTicketShow(true)));
   }
 
   function closeTickets() {
     setTicketShow(false);
-    setTimeout(() => {
-      setTicketEvent(null);
-      document.body.style.overflow = '';
-    }, 480);
+    setTimeout(() => setTicketEvent(null), 480);
   }
 
-  // Animate grid on filter change
+  // Animate grid on filter change — schedule both state updates asynchronously
   useEffect(() => {
     const prev = prevFilters.current;
     if (prev.category !== selectedCategory || prev.status !== selectedStatus) {
-      setVisible(false);
-      const timer = setTimeout(() => {
+      const hideTimer = setTimeout(() => setVisible(false), 0);
+      const showTimer = setTimeout(() => {
         setVisible(true);
         prevFilters.current = { category: selectedCategory, status: selectedStatus };
       }, 150);
-      return () => clearTimeout(timer);
+      return () => { clearTimeout(hideTimer); clearTimeout(showTimer); };
     }
   }, [selectedCategory, selectedStatus]);
 
@@ -322,22 +328,19 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                       </p>
 
                       {/* CTA buttons */}
-                      <div className="mt-auto pt-2 flex flex-col gap-2">
-                        {event.status !== 'past' && (
+                      <div className="mt-auto pt-2">
+                        {event.status !== 'past' ? (
                           <button
                             onClick={() => openTickets(event)}
-                            className="block w-full px-4 py-3 text-center font-sans text-[10px] font-semibold uppercase tracking-widest text-white transition-opacity hover:opacity-90"
-                            style={{ background: 'linear-gradient(90deg, #D91B94, #9B157A)' }}
+                            className="block w-full px-4 py-3 text-center font-sans text-[10px] font-semibold uppercase tracking-widest text-[#F7F3EE] bg-[#2A2421] hover:bg-[#5B4638] transition-colors"
                           >
                             {event.status === 'sold-out' ? 'Lista de espera' : 'Comprar Tickets'}
                           </button>
+                        ) : (
+                          <div className="w-full px-4 py-3 text-center font-sans text-[10px] uppercase tracking-widest text-[#5B4638] border border-[#D7C6B2]">
+                            Finalizado
+                          </div>
                         )}
-                        <a
-                          href={`/events/${event.slug}`}
-                          className="block w-full border border-[#D7C6B2] bg-transparent px-4 py-3 text-center font-sans text-[10px] font-medium uppercase tracking-widest text-[#5B4638] transition-all duration-150 hover:border-[#2A2421] hover:text-[#2A2421]"
-                        >
-                          Ver detalles
-                        </a>
                       </div>
                     </div>
                   </article>
@@ -413,7 +416,7 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                 {/* Option 1 */}
                 {TICKET_LINK_1 === '#' ? (
                   <div className="flex items-center gap-3 px-4 py-4 border border-[#EAE1D6] opacity-40">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#D91B94]/10 text-[#D91B94]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#A56E52]/10 text-[#A56E52]">
                       <TicketSVG />
                     </span>
                     <div>
@@ -426,22 +429,22 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                   </div>
                 ) : (
                   <a href={TICKET_LINK_1} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-4 py-4 border border-[#D7C6B2] hover:border-[#D91B94] transition-colors group">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#D91B94]/10 text-[#D91B94]">
+                    className="flex items-center gap-3 px-4 py-4 border border-[#D7C6B2] hover:border-[#A56E52] transition-colors group">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#A56E52]/10 text-[#A56E52]">
                       <TicketSVG />
                     </span>
                     <div className="flex-1">
                       <p className="font-sans text-xs font-medium text-[#2A2421]">Comprar en línea — Opción 1</p>
                       <p className="font-sans text-[10px] text-[#5B4638]">Pago con tarjeta de crédito</p>
                     </div>
-                    <ArrowSVG className="text-[#D91B94] shrink-0" />
+                    <ArrowSVG className="text-[#A56E52] shrink-0" />
                   </a>
                 )}
 
                 {/* Option 2 */}
                 {TICKET_LINK_2 === '#' ? (
                   <div className="flex items-center gap-3 px-4 py-4 border border-[#EAE1D6] opacity-40">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#D91B94]/10 text-[#D91B94]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#A56E52]/10 text-[#A56E52]">
                       <TicketSVG />
                     </span>
                     <div>
@@ -454,15 +457,15 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                   </div>
                 ) : (
                   <a href={TICKET_LINK_2} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-4 py-4 border border-[#D7C6B2] hover:border-[#D91B94] transition-colors group">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#D91B94]/10 text-[#D91B94]">
+                    className="flex items-center gap-3 px-4 py-4 border border-[#D7C6B2] hover:border-[#A56E52] transition-colors group">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#A56E52]/10 text-[#A56E52]">
                       <TicketSVG />
                     </span>
                     <div className="flex-1">
                       <p className="font-sans text-xs font-medium text-[#2A2421]">Comprar en línea — Opción 2</p>
                       <p className="font-sans text-[10px] text-[#5B4638]">Pago alternativo</p>
                     </div>
-                    <ArrowSVG className="text-[#D91B94] shrink-0" />
+                    <ArrowSVG className="text-[#A56E52] shrink-0" />
                   </a>
                 )}
 

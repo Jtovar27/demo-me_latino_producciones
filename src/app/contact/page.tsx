@@ -1,5 +1,6 @@
 import PublicLayout from '@/components/layout/PublicLayout';
 import ContactForm from '@/components/contact/ContactForm';
+import { getUpcomingEvents } from '@/app/actions/events';
 
 // ── Inquiry types ────────────────────────────────
 
@@ -22,13 +23,14 @@ const INQUIRY_PATHS = [
   {
     label: 'Producción',
     description:
-      'Comisiona a ME Latino Producciones para producir tu evento corporativo, reunión cultural o experiencia de marca.',
+      'Comisiona a ME Producciones para producir tu evento corporativo, reunión cultural o experiencia de marca.',
   },
 ];
 
 // ── Page ────────────────────────────────────────
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const { data: upcomingEvents } = await getUpcomingEvents();
   return (
     <PublicLayout>
 
@@ -68,24 +70,22 @@ export default function ContactPage() {
                     Email
                   </span>
                   <a
-                    href="mailto:hola@melatinopr.com"
+                    href="mailto:melatinoevents@gmail.com"
                     className="font-serif text-lg font-normal text-[#2A2421] transition-colors hover:text-[#A56E52]"
-
                   >
-                    hola@melatinopr.com
+                    melatinoevents@gmail.com
                   </a>
                 </div>
 
                 <div className="flex flex-col gap-1.5">
                   <span className="font-sans text-[11px] font-medium uppercase tracking-widest text-[#A56E52]">
-                    Teléfono
+                    Teléfono / WhatsApp
                   </span>
                   <a
-                    href="tel:+13058000001"
+                    href="tel:+13055252555"
                     className="font-serif text-lg font-normal text-[#2A2421] transition-colors hover:text-[#A56E52]"
-
                   >
-                    +1 (305) 800-0001
+                    +1 (305) 525-2555
                   </a>
                 </div>
 
@@ -142,7 +142,7 @@ export default function ContactPage() {
                   Cuéntanos más.
                 </h2>
               </div>
-              <ContactForm />
+              <ContactForm upcomingEvents={upcomingEvents} />
             </div>
 
           </div>
@@ -157,7 +157,7 @@ export default function ContactPage() {
               className="font-serif text-xl font-normal text-[#2A2421] md:text-2xl"
 
             >
-              Miami, FL — New York, NY — Los Angeles, CA
+              Miami, FL — Orlando, FL — Ecuador
             </p>
           </div>
         </div>

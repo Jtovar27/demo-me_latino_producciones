@@ -36,6 +36,7 @@ export async function upsertSponsor(formData: FormData) {
 
   revalidatePath('/admin/sponsors');
   revalidatePath('/sponsors');
+  revalidatePath('/');
   return { success: true };
 }
 
@@ -45,5 +46,6 @@ export async function deleteSponsor(id: string) {
   if (error) return { error: error.message };
   revalidatePath('/admin/sponsors');
   revalidatePath('/sponsors');
+  revalidatePath('/');
   return { success: true };
 }

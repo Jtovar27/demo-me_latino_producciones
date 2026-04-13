@@ -9,27 +9,27 @@ import MediaPicker from '@/components/admin/MediaPicker';
 import { getSponsors, upsertSponsor, deleteSponsor } from '@/app/actions/sponsors';
 import type { DBSponsor } from '@/types/supabase';
 
-type SponsorTier = 'platinum' | 'gold' | 'silver' | 'partner';
+type SponsorTier = 'platinum' | 'silver' | 'blue' | 'pink';
 
-const tierOrder: SponsorTier[] = ['platinum', 'gold', 'silver', 'partner'];
+const tierOrder: SponsorTier[] = ['platinum', 'silver', 'blue', 'pink'];
 
 const tierSectionLabel: Record<SponsorTier, string> = {
   platinum: 'Platinum',
-  gold:     'Gold',
   silver:   'Silver',
-  partner:  'Partner',
+  blue:     'Blue',
+  pink:     'Pink',
 };
 
 const tierBadgeVariant: Record<SponsorTier, SponsorTier> = {
   platinum: 'platinum',
-  gold:     'gold',
   silver:   'silver',
-  partner:  'partner',
+  blue:     'blue',
+  pink:     'pink',
 };
 
 const emptyForm = {
   name:        '',
-  tier:        'silver' as SponsorTier,
+  tier:        'pink' as SponsorTier,
   website:     '',
   description: '',
   logo_url:    '',
@@ -41,7 +41,7 @@ function initials(name: string) {
 }
 
 function safeTier(t: string): SponsorTier {
-  return tierOrder.includes(t as SponsorTier) ? (t as SponsorTier) : 'partner';
+  return tierOrder.includes(t as SponsorTier) ? (t as SponsorTier) : 'pink';
 }
 
 export default function AdminSponsorsPage() {

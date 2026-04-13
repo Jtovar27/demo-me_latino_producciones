@@ -10,12 +10,15 @@ export async function GET() {
       .eq('featured', true)
       .eq('status', 'upcoming')
       .order('date', { ascending: true })
-      .limit(1)
-      .single();
+      .limit(1);
 
-    if (error || !data) return NextResponse.json(null);
-    return NextResponse.json(data);
-  } catch {
-    return NextResponse.json(null);
+    if (error) {
+      console.error('[featured-event] DB error:', error.message);
+      return NextResponse.json(null, { status: 500 });
+    }
+    return NextResponse.json(data?.[0] ?? null);
+  } catch (err) {
+    console.error('[featured-event] Unexpected error:', err);
+    return NextResponse.json(null, { status: 500 });
   }
 }

@@ -18,11 +18,13 @@ import {
   X,
   Star,
   BookOpen,
+  Sparkles,
 } from 'lucide-react';
 
 const navItems = [
   { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { label: 'Eventos', href: '/admin/events', icon: Calendar },
+  { label: 'Experiencias', href: '/admin/experiences', icon: Sparkles },
   { label: 'Reservas', href: '/admin/bookings', icon: BookOpen },
   { label: 'Registros', href: '/admin/registrations', icon: Users },
   { label: 'Speakers', href: '/admin/speakers', icon: Mic },
@@ -36,29 +38,25 @@ const navItems = [
 function pageTitleFromPath(pathname: string): string {
   const match = navItems.find((item) => item.href === pathname);
   if (match) return match.label;
-  // Fallback: derive from last segment
   const segment = pathname.split('/').filter(Boolean).pop() ?? 'Dashboard';
   return segment.charAt(0).toUpperCase() + segment.slice(1);
 }
 
-interface AdminLayoutProps {
-  children: ReactNode;
-}
-
-export default function AdminLayout({ children }: AdminLayoutProps) {
+/**
+ * Defined outside AdminLayout so the component identity is stable across renders.
+ * Creating components inside render resets their state on every parent re-render.
+ */
+function SidebarContent({ onClose }: { onClose: () => void }) {
   const pathname = usePathname();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const pageTitle = pageTitleFromPath(pathname);
-
-  const SidebarContent = () => (
+  return (
     <div className="flex h-full flex-col">
       {/* Logo */}
       <div className="flex h-16 items-center border-b border-[#5B4638]/30 px-6">
         <Link
           href="/admin"
           className="transition-opacity hover:opacity-70"
-          onClick={() => setSidebarOpen(false)}
+          onClick={onClose}
           aria-label="Mónica Espinoza Producciones — Admin"
         >
           <Logo variant="light" size="sm" />
@@ -74,7 +72,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <Link
               key={href}
               href={href}
-              onClick={() => setSidebarOpen(false)}
+              onClick={onClose}
               className={[
                 'group flex items-center gap-3 rounded-none px-3 py-2.5 font-sans text-[11px] font-medium uppercase tracking-widest transition-colors duration-150',
                 isActive
@@ -96,32 +94,50 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Sidebar footer */}
       <div className="border-t border-[#5B4638]/30 px-6 py-4 flex flex-col gap-3">
-        <a href="/" target="_blank" rel="noopener noreferrer"
-          className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:text-[#D7C6B2] transition-colors">
+        <a
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:text-[#D7C6B2] transition-colors"
+        >
           ↗ Ver sitio web
         </a>
         <form action={logoutAction}>
-          <button type="submit"
-            className="w-full text-left font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:text-[#A56E52] transition-colors">
+          <button
+            type="submit"
+            className="w-full text-left font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:text-[#A56E52] transition-colors"
+          >
             Cerrar sesión
           </button>
         </form>
       </div>
     </div>
   );
+}
+
+interface AdminLayoutProps {
+  children: ReactNode;
+}
+
+export default function AdminLayout({ children }: AdminLayoutProps) {
+  const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const pageTitle = pageTitleFromPath(pathname);
+  const closeSidebar = () => setSidebarOpen(false);
 
   return (
     <div className="flex min-h-screen bg-[#FDFAF7]">
       {/* Desktop sidebar */}
       <aside className="hidden w-56 shrink-0 bg-[#2A2421] lg:flex lg:flex-col">
-        <SidebarContent />
+        <SidebarContent onClose={closeSidebar} />
       </aside>
 
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
+          onClick={closeSidebar}
           aria-hidden="true"
         />
       )}
@@ -136,12 +152,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       >
         <button
           className="absolute right-4 top-4 p-1 text-[#D7C6B2] hover:text-[#F7F3EE]"
-          onClick={() => setSidebarOpen(false)}
+          onClick={closeSidebar}
           aria-label="Cerrar menú"
         >
           <X size={16} strokeWidth={1.5} />
         </button>
-        <SidebarContent />
+        <SidebarContent onClose={closeSidebar} />
       </aside>
 
       {/* Main content area */}
@@ -149,7 +165,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         {/* Top bar */}
         <header className="flex h-16 items-center justify-between border-b border-[#EAE1D6] bg-[#FDFAF7] px-6 lg:px-8">
           <div className="flex items-center gap-4">
-            {/* Mobile hamburger */}
             <button
               className="p-1 text-[#5B4638] hover:text-[#2A2421] lg:hidden"
               onClick={() => setSidebarOpen(true)}
@@ -157,13 +172,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             >
               <Menu size={18} strokeWidth={1.5} />
             </button>
-
             <h1 className="font-sans text-sm font-medium uppercase tracking-widest text-[#2A2421]">
               {pageTitle}
             </h1>
           </div>
 
-          {/* Avatar placeholder */}
           <div className="flex items-center gap-3">
             <div
               className="flex h-8 w-8 items-center justify-center bg-[#2A2421] font-sans text-[10px] font-semibold uppercase tracking-widest text-[#F7F3EE]"

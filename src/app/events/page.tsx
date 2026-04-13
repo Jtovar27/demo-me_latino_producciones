@@ -1,5 +1,4 @@
 import PublicLayout from '@/components/layout/PublicLayout';
-import SectionHeader from '@/components/ui/SectionHeader';
 import Button from '@/components/ui/Button';
 import EventsFilter from '@/components/events/EventsFilter';
 import { getEvents } from '@/app/actions/events';

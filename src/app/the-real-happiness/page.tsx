@@ -107,7 +107,7 @@ const tickets = [
     name: 'Círculo Fundadores',
     price: '$1,497',
     popular: false,
-    description: 'Para quienes quieren una relación profunda con ME Latino.',
+    description: 'Para quienes quieren una relación profunda con ME Producciones.',
     includes: [
       'Todo en Experiencia VIP',
       'Cena privada con los fundadores',

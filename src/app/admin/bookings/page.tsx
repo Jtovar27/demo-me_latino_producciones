@@ -115,7 +115,7 @@ export default function AdminBookingsPage() {
       {detail && (
         <>
           <div className="fixed inset-0 z-40 bg-[#2A2421]/30" onClick={() => setDetail(null)} />
-          <div className="fixed right-0 top-0 z-50 h-full w-80 bg-[#FDFAF7] shadow-2xl border-l border-[#EAE1D6] overflow-y-auto">
+          <div className="fixed right-0 top-0 z-50 h-full w-full max-w-[320px] bg-[#FDFAF7] shadow-2xl border-l border-[#EAE1D6] overflow-y-auto">
             <div className="border-b border-[#EAE1D6] px-6 py-5 flex items-center justify-between">
               <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-[#2A2421]">Detalle Reserva</p>
               <button onClick={() => setDetail(null)} className="text-[#5B4638] hover:text-[#2A2421] text-xl leading-none">×</button>
