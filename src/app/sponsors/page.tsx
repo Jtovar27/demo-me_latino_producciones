@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import PublicLayout from '@/components/layout/PublicLayout';
 import Button from '@/components/ui/Button';
+import SponsorPackagesSection from '@/components/sponsors/SponsorPackagesSection';
 import { getSponsors } from '@/app/actions/sponsors';
 import type { DBSponsor } from '@/types/supabase';
 
@@ -96,48 +97,6 @@ const WHY_PARTNER = [
     number: '04',
     title: 'Impacto medible',
     body: 'Cada socio recibe un reporte de impacto post-evento: alcance, impresiones, sentimiento y retroalimentación cualitativa de la comunidad. Métricas claras, no suposiciones.',
-  },
-];
-
-const TIER_PACKAGES = [
-  {
-    tier: 'platinum' as SponsorTier,
-    price: '$5,000',
-    benefits: [
-      'Presencia completa en todos los eventos de la temporada',
-      'Tiempo en escena (introducción de keynote o segmento de marca)',
-      'Espacio de activación exclusivo',
-      'Logotipo en todo el material del evento',
-      'Campaña digital co-brandada (redes + email)',
-      'Acceso VIP para 10 personas (todos los eventos)',
-      'Oportunidad de speaker o panel',
-      'Reporte de impacto post-evento',
-    ],
-    highlight: true,
-  },
-  {
-    tier: 'silver' as SponsorTier,
-    price: '$2,500',
-    benefits: [
-      'Patrocinador nombrado para un evento o track específico',
-      'Señalización en escenario',
-      'Stand o booth premium',
-      '20 entradas de acceso general',
-      'Co-promoción en redes sociales (3 publicaciones)',
-      'Reporte de impacto post-evento',
-    ],
-    highlight: false,
-  },
-  {
-    tier: 'blue' as SponsorTier,
-    price: '$1,000',
-    benefits: [
-      'Logotipo en programa del evento y materiales digitales',
-      'Mención en redes sociales (1 publicación)',
-      '10 entradas de acceso general',
-      'Listado en directorio de patrocinadores',
-    ],
-    highlight: false,
   },
 ];
 
@@ -432,95 +391,7 @@ export default async function SponsorsPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            {TIER_PACKAGES.map((pkg) => {
-              const meta = TIER_META[pkg.tier];
-              const isDark = pkg.highlight;
-
-              return (
-                <div
-                  key={pkg.tier}
-                  className={[
-                    'flex flex-col gap-8 p-8 md:p-10',
-                    isDark
-                      ? 'bg-[#2A2421]'
-                      : `border ${meta.borderClass} ${meta.cardBg}`,
-                  ].join(' ')}
-                >
-                  {/* Header */}
-                  <div className="flex flex-col gap-3">
-                    <TierPill tier={pkg.tier} />
-                    <p
-                      className={[
-                        'font-serif text-4xl font-normal',
-                        isDark ? 'text-[#F7F3EE]' : 'text-[#2A2421]',
-                      ].join(' ')}
-                    >
-                      {pkg.price}
-                    </p>
-                    <p
-                      className={[
-                        'font-sans text-[10px] uppercase tracking-widest',
-                        isDark ? 'text-[#D7C6B2]' : 'text-[#5B4638]',
-                      ].join(' ')}
-                    >
-                      Inversión inicial
-                    </p>
-                  </div>
-
-                  {/* Benefits */}
-                  <ul className="flex flex-col gap-3 flex-1">
-                    {pkg.benefits.map((b) => (
-                      <li key={b} className="flex items-start gap-3">
-                        <span
-                          className={[
-                            'mt-[7px] h-1 w-1 shrink-0 rounded-full',
-                            isDark ? 'bg-[#A56E52]' : 'bg-[#A56E52]',
-                          ].join(' ')}
-                        />
-                        <span
-                          className={[
-                            'font-sans text-sm leading-relaxed',
-                            isDark ? 'text-[#D7C6B2]' : 'text-[#5B4638]',
-                          ].join(' ')}
-                        >
-                          {b}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* CTA */}
-                  <div className="pt-2">
-                    <Button
-                      href="/contact"
-                      variant={isDark ? 'terracotta' : 'secondary'}
-                      size="md"
-                      className="w-full justify-center"
-                    >
-                      Solicitar info — {meta.label}
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Pink tier note */}
-          <div className="mt-8 border border-[#EAE1D6] bg-[#F7F3EE] p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <TierPill tier="pink" />
-              <p className="mt-2 font-sans text-sm text-[#5B4638] leading-relaxed">
-                ¿Buscas una colaboración más pequeña o a medida? El nivel Pink ($500) está disponible
-                para organizaciones con objetivos específicos.
-              </p>
-            </div>
-            <div className="shrink-0">
-              <Button href="/contact" variant="secondary" size="sm">
-                Conversemos
-              </Button>
-            </div>
-          </div>
+          <SponsorPackagesSection />
         </div>
       </section>
 

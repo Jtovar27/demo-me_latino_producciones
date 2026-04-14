@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
 import PromoPopup from "@/components/ui/PromoPopup";
+import { LanguageProvider } from "@/lib/i18n/LanguageContext";
+import { getLang } from "@/lib/i18n/getLang";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -81,19 +83,23 @@ export const viewport: Viewport = {
   themeColor: "#2A2421",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const lang = await getLang();
+
   return (
     <html
-      lang="es"
+      lang={lang}
       className={`${cormorant.variable} ${jost.variable} h-full scroll-smooth`}
     >
       <body className="min-h-full flex flex-col antialiased bg-[#FDFAF7] text-[#2A2421]">
-        <PromoPopup />
-        {children}
+        <LanguageProvider initialLang={lang}>
+          <PromoPopup />
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

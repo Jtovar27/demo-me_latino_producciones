@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface LogoProps {
   variant?: 'dark' | 'light';
   size?: 'sm' | 'md' | 'lg';
@@ -14,13 +16,14 @@ export default function Logo({ variant = 'dark', size = 'md', className }: LogoP
   const s = sizes[size];
 
   return (
-    <img
+    <Image
       src="/logo.png"
       alt="Mónica Espinoza Producciones"
       width={s.width}
       height={s.height}
       className={className}
       style={variant === 'light' ? { filter: 'brightness(0) invert(1)' } : undefined}
+      priority
     />
   );
 }

@@ -49,3 +49,49 @@ export async function deleteSponsor(id: string) {
   revalidatePath('/');
   return { success: true };
 }
+
+/**
+ * Saves a sponsor inquiry to the leads table (public client, subject to RLS).
+ * Returns the Stripe payment URL for the requested tier so the client can redirect.
+ */
+export async function submitSponsorLead(formData: FormData) {
+  const { createPublicClient } = await import('@/lib/supabase/public');
+  const client = createPublicClient();
+
+  const name  = (formData.get('name')  as string)?.trim();
+  const email = (formData.get('email') as string)?.trim();
+
+  if (!name || name.length > 200) return { error: 'Nombre requerido.' };
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { error: 'Email inválido.' };
+  }
+
+  const tier    = (formData.get('tier')    as string)?.trim() || 'pink';
+  const phone   = (formData.get('phone')   as string)?.trim() || null;
+  const company = (formData.get('company') as string)?.trim() || null;
+  const message = (formData.get('message') as string)?.trim() || null;
+
+  const { error } = await client.from('leads').insert({
+    name,
+    email,
+    phone,
+    interest: `sponsor-${tier}`,
+    message: [company ? `Empresa: ${company}` : null, message].filter(Boolean).join(' | ') || null,
+    source: 'sponsor-page',
+    status: 'new',
+  });
+
+  if (error) return { error: error.message };
+
+  // Stripe payment links per tier — replace with real URLs from Stripe dashboard
+  const STRIPE_LINKS: Record<string, string> = {
+    platinum: process.env.NEXT_PUBLIC_STRIPE_PLATINUM ?? '/contact',
+    silver:   process.env.NEXT_PUBLIC_STRIPE_SILVER   ?? '/contact',
+    blue:     process.env.NEXT_PUBLIC_STRIPE_BLUE     ?? '/contact',
+    pink:     process.env.NEXT_PUBLIC_STRIPE_PINK     ?? '/contact',
+  };
+
+  const redirectUrl = STRIPE_LINKS[tier] ?? '/contact';
+  revalidatePath('/admin/leads');
+  return { success: true, redirectUrl };
+}
