@@ -11,11 +11,12 @@ interface Props {
   tier: SponsorTier;
   tierLabel: string;
   price: string;
-  open: boolean;
   onClose: () => void;
 }
 
-export default function SponsorInquiryModal({ tier, tierLabel, price, open, onClose }: Props) {
+// This component is only mounted when the modal is open (parent renders it conditionally).
+// Unmounting on close resets all form state automatically — no need for state reset in effects.
+export default function SponsorInquiryModal({ tier, tierLabel, price, onClose }: Props) {
   const { lang } = useLanguage();
   const tf = t.sponsorForm;
 
@@ -31,19 +32,12 @@ export default function SponsorInquiryModal({ tier, tierLabel, price, open, onCl
 
   const firstInputRef = useRef<HTMLInputElement>(null);
 
-  // Focus first input when opened
+  // Lock body scroll while mounted; focus first input on mount.
   useEffect(() => {
-    if (open) {
-      setTimeout(() => firstInputRef.current?.focus(), 80);
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-      // Reset on close
-      setName(''); setEmail(''); setPhone(''); setCompany('');
-      setMessage(''); setError(''); setLoading(false); setSuccess(false);
-    }
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => firstInputRef.current?.focus(), 80);
     return () => { document.body.style.overflow = ''; };
-  }, [open]);
+  }, []);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -77,8 +71,6 @@ export default function SponsorInquiryModal({ tier, tierLabel, price, open, onCl
       window.location.href = result.redirectUrl ?? '/contact';
     }, 2000);
   }
-
-  if (!open) return null;
 
   const labelClass = 'block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2';
   const inputClass = 'w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors';

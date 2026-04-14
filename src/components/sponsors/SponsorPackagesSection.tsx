@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Button from '@/components/ui/Button';
 import SponsorInquiryModal from './SponsorInquiryModal';
 
 type SponsorTier = 'platinum' | 'silver' | 'blue' | 'pink';
@@ -174,13 +173,14 @@ export default function SponsorPackagesSection() {
         </div>
       </div>
 
-      <SponsorInquiryModal
-        tier={modalTier}
-        tierLabel={activeMeta.label}
-        price={activePkg?.price ?? ''}
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
+      {modalOpen && (
+        <SponsorInquiryModal
+          tier={modalTier}
+          tierLabel={activeMeta.label}
+          price={activePkg?.price ?? ''}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </>
   );
 }

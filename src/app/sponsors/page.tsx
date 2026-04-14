@@ -25,15 +25,9 @@ const TIER_META: Record<
   {
     label: string;
     description: string;
-    /** card border + accent */
     borderClass: string;
-    /** tier label pill */
     pillClass: string;
-    /** logo container height (Tailwind) */
-    logoH: string;
-    /** columns at various breakpoints */
     gridClass: string;
-    /** card background */
     cardBg: string;
   }
 > = {
@@ -43,7 +37,6 @@ const TIER_META: Record<
       'Nuestros aliados más comprometidos — presentes en cada punto de contacto de la experiencia ME Producciones.',
     borderClass: 'border-[#2A2421]',
     pillClass: 'bg-[#2A2421] text-[#F7F3EE]',
-    logoH: 'aspect-[4/3]',
     gridClass: 'grid-cols-2 sm:grid-cols-2',
     cardBg: 'bg-[#FDFAF7]',
   },
@@ -52,7 +45,6 @@ const TIER_META: Record<
     description: 'Socios integrales que amplifican nuestros eventos y valores compartidos a gran escala.',
     borderClass: 'border-[#D7C6B2]',
     pillClass: 'bg-[#EAE1D6] text-[#5B4638]',
-    logoH: 'aspect-[4/3]',
     gridClass: 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3',
     cardBg: 'bg-[#FDFAF7]',
   },
@@ -61,7 +53,6 @@ const TIER_META: Record<
     description: 'Socios emergentes que aportan experiencia, alcance y comunidad.',
     borderClass: 'border-[#4A7FA5]',
     pillClass: 'bg-[#E8F1F7] text-[#4A7FA5]',
-    logoH: 'aspect-[4/3]',
     gridClass: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
     cardBg: 'bg-[#F7F3EE]',
   },
@@ -71,7 +62,6 @@ const TIER_META: Record<
       'Organizaciones alineadas con nuestra misión de celebración cultural e impacto colectivo.',
     borderClass: 'border-[#C4758A]',
     pillClass: 'bg-[#FAF0F3] text-[#C4758A]',
-    logoH: 'aspect-[4/3]',
     gridClass: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
     cardBg: 'bg-[#F7F3EE]',
   },
@@ -114,7 +104,7 @@ function TierPill({ tier }: { tier: SponsorTier }) {
 }
 
 function SponsorCard({ sponsor, tier }: { sponsor: DBSponsor; tier: SponsorTier }) {
-  const { borderClass, logoH, cardBg } = TIER_META[tier];
+  const { borderClass, cardBg } = TIER_META[tier];
   const isPlatinum = tier === 'platinum';
 
   const inner = (
