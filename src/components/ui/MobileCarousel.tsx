@@ -21,6 +21,7 @@ export default function MobileCarousel({
   const trackRef = useRef<HTMLDivElement>(null);
   const pausedRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const goTo = useCallback((index: number) => {
     const track = trackRef.current;
@@ -49,10 +50,11 @@ export default function MobileCarousel({
   // Detect snap position after user scrolls
   const handleScroll = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
     pausedRef.current = true;
 
-    // Resume after 3s of inactivity
-    const resumeTimer = setTimeout(() => {
+    // Resume after 500ms of scroll inactivity
+    resumeTimerRef.current = setTimeout(() => {
       pausedRef.current = false;
       const track = trackRef.current;
       if (!track) return;
@@ -68,8 +70,6 @@ export default function MobileCarousel({
       });
       setCurrent(closest);
     }, 500);
-
-    return () => clearTimeout(resumeTimer);
   }, []);
 
   if (items.length === 0) return null;

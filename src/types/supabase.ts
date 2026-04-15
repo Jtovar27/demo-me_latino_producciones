@@ -55,11 +55,64 @@ type ReviewRow = {
 };
 
 type SiteConfigRow = {
-  id: number; total_events: number; total_attendees: number; total_speakers: number;
-  cities_reached: number; years_active: number; satisfaction: number;
-  site_name: string; site_tagline: string | null; contact_email: string | null;
-  instagram_url: string | null; linkedin_url: string | null; facebook_url: string | null;
+  id: number;
+  // Stats
+  total_events: number;
+  total_attendees: number;
+  total_speakers: number;
+  cities_reached: number;
+  years_active: number;
+  satisfaction: number;
+  // Identity
+  site_name: string;
+  site_tagline: string | null;
+  contact_email: string | null;
+  // Social links
+  instagram_url: string | null;
+  linkedin_url:  string | null;
+  facebook_url:  string | null;
+  twitter_url:   string | null;
+  youtube_url:   string | null;
+  whatsapp_url:  string | null;
+  tiktok_url:    string | null;
+  // Hero content (bilingual)
+  hero_badge_es:              string | null;
+  hero_badge_en:              string | null;
+  hero_headline_es:           string | null;
+  hero_headline_en:           string | null;
+  hero_body_es:               string | null;
+  hero_body_en:               string | null;
+  hero_cta_primary_label_es:  string | null;
+  hero_cta_primary_label_en:  string | null;
+  hero_cta_primary_href:      string | null;
+  hero_cta_secondary_label_es: string | null;
+  hero_cta_secondary_label_en: string | null;
+  hero_cta_secondary_href:    string | null;
+  // Brand statement (bilingual)
+  brand_quote_es: string | null;
+  brand_quote_en: string | null;
+  brand_body_es:  string | null;
+  brand_body_en:  string | null;
   updated_at: string;
+};
+
+type HeroSlideRow = {
+  id: string;
+  image_url:    string;
+  alt_es:       string;
+  alt_en:       string;
+  category_es:  string;
+  category_en:  string;
+  title_es:     string;
+  title_en:     string;
+  location:     string;
+  cta_label_es: string | null;
+  cta_label_en: string | null;
+  cta_href:     string | null;
+  sort_order:   number;
+  active:       boolean;
+  created_at:   string;
+  updated_at:   string;
 };
 
 export interface Database {
@@ -121,17 +174,24 @@ export interface Database {
         Update: Partial<SiteConfigRow>;
         Relationships: [];
       };
+      hero_slides: {
+        Row: HeroSlideRow;
+        Insert: Partial<HeroSlideRow>;
+        Update: Partial<HeroSlideRow>;
+        Relationships: [];
+      };
     };
   };
 }
 
 // Convenience row types
-export type DBEvent = EventRow;
-export type DBSpeaker = SpeakerRow;
-export type DBExperience = ExperienceRow;
-export type DBSponsor = SponsorRow;
+export type DBEvent       = EventRow;
+export type DBSpeaker     = SpeakerRow;
+export type DBExperience  = ExperienceRow;
+export type DBSponsor     = SponsorRow;
 export type DBGalleryItem = GalleryItemRow;
-export type DBLead = LeadRow;
-export type DBBooking = BookingRow;
-export type DBReview = ReviewRow;
-export type DBSiteConfig = SiteConfigRow;
+export type DBLead        = LeadRow;
+export type DBBooking     = BookingRow;
+export type DBReview      = ReviewRow;
+export type DBSiteConfig  = SiteConfigRow;
+export type DBHeroSlide   = HeroSlideRow;

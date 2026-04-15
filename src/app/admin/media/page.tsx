@@ -243,6 +243,8 @@ export default function AdminMediaPage() {
               {/* Preview or picker zone */}
               {preview ? (
                 <div className="relative w-full overflow-hidden rounded-sm border border-[#D7C6B2]">
+                  {/* blob: URL preview — next/image cannot handle blob URLs, suppress intentionally */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={preview} alt="Vista previa" className="w-full max-h-48 object-cover" />
                   <button
                     type="button"

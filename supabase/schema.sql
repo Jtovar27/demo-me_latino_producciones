@@ -182,6 +182,10 @@ create policy "public insert leads" on public.leads for insert with check (true)
 create policy "public insert bookings" on public.bookings for insert with check (true);
 create policy "public insert reviews" on public.reviews for insert with check (true);
 
+-- ── HERO SLIDES ──────────────────────────────────────────────
+-- See migrations/001_cms_expansion.sql for full creation + seed.
+-- Listed here for reference only.
+
 -- ── Storage Bucket ───────────────────────────────────────────
 -- Run this in Supabase SQL editor (Storage section):
 insert into storage.buckets (id, name, public)

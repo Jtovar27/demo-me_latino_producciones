@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Logo from '@/components/ui/Logo';
 import { getSiteConfig } from '@/app/actions/settings';
+import { getLang } from '@/lib/i18n/getLang';
 
 const navLinks = [
   { label: 'Inicio', href: '/' },
@@ -21,7 +22,7 @@ const experienciasLinks = [
 
 export default async function Footer() {
   const year = new Date().getFullYear();
-  const { data: config } = await getSiteConfig();
+  const [{ data: config }, lang] = await Promise.all([getSiteConfig(), getLang()]);
 
   const email        = config?.contact_email || 'hola@melatinopr.com';
   const instagramUrl = config?.instagram_url  || null;
@@ -54,14 +55,16 @@ export default async function Footer() {
               ))}
             </p>
             <p className="font-sans text-xs leading-relaxed text-[#5B4638]">
-              Apoyamos a la comunidad latina en cada etapa de su crecimiento — personal, empresarial y cultural — a través de experiencias que inspiran y conectan.
+              {lang === 'en'
+                ? 'We support the Latino community at every stage of growth — personal, business, and cultural — through experiences that inspire and connect.'
+                : 'Apoyamos a la comunidad latina en cada etapa de su crecimiento — personal, empresarial y cultural — a través de experiencias que inspiran y conectan.'}
             </p>
           </div>
 
           {/* Column 2 — Navigation */}
           <div className="flex flex-col gap-5">
             <p className="font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
-              Navegación
+              {lang === 'en' ? 'Navigation' : 'Navegación'}
             </p>
             <nav className="flex flex-col gap-3" aria-label="Footer navigation">
               {navLinks.map((link) => (
@@ -97,7 +100,7 @@ export default async function Footer() {
           {/* Column 4 — Contacto */}
           <div className="flex flex-col gap-5">
             <p className="font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
-              Contacto
+              {lang === 'en' ? 'Contact' : 'Contacto'}
             </p>
             <div className="flex flex-col gap-3">
               <a
@@ -110,7 +113,7 @@ export default async function Footer() {
               {(instagramUrl || linkedinUrl || facebookUrl) && (
                 <div className="mt-2 flex flex-col gap-2">
                   <p className="font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">
-                    Redes Sociales
+                    {lang === 'en' ? 'Social Media' : 'Redes Sociales'}
                   </p>
                   <div className="flex flex-col gap-2">
                     {instagramUrl && (
@@ -159,7 +162,7 @@ export default async function Footer() {
         <div className="h-px bg-[#5B4638]/40" />
         <div className="flex flex-col items-center justify-between gap-4 py-6 md:flex-row">
           <p className="font-sans text-[11px] text-[#5B4638]">
-            &copy; {year} ME Producciones. Todos los derechos reservados.
+            &copy; {year} ME Producciones. {lang === 'en' ? 'All rights reserved.' : 'Todos los derechos reservados.'}
           </p>
           <div className="flex items-center gap-6">
             <p className="font-sans text-[11px] uppercase tracking-widest text-[#5B4638]">

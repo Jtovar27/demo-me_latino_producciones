@@ -5,15 +5,18 @@ import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import SectionHeader from '@/components/ui/SectionHeader';
 import MobileCarousel from '@/components/ui/MobileCarousel';
-import { stats } from '@/lib/data';
 import { editorialImages } from '@/lib/media';
 import { getEvents } from '@/app/actions/events';
 import { getSpeakers } from '@/app/actions/speakers';
 import { getPublishedReviews } from '@/app/actions/reviews';
 import { getSponsors } from '@/app/actions/sponsors';
 import { getExperiences } from '@/app/actions/experiences';
+import { getSiteConfig } from '@/app/actions/settings';
+import { getActiveHeroSlides } from '@/app/actions/hero';
+import { getLang } from '@/lib/i18n/getLang';
 import type { DBReview, DBSponsor } from '@/types/supabase';
 import ReviewSubmitForm from '@/components/reviews/ReviewSubmitForm';
+import HeroCarousel from '@/components/ui/HeroCarousel';
 
 export const revalidate = 0;
 
@@ -43,105 +46,111 @@ function categoryLabel(cat: string) {
 // ── Page ───────────────────────────────────────
 
 export default async function HomePage() {
-  const [{ data: allEvents }, { data: allSpeakers }, { data: publishedReviews }, { data: activeSponsors }, { data: allExperiences }] = await Promise.all([
+  const lang = await getLang();
+
+  const [
+    { data: allEvents },
+    { data: allSpeakers },
+    { data: publishedReviews },
+    { data: activeSponsors },
+    { data: allExperiences },
+    { data: cfg },
+    { data: heroSlides },
+  ] = await Promise.all([
     getEvents(),
     getSpeakers(),
     getPublishedReviews(6),
     getSponsors(),
     getExperiences(),
+    getSiteConfig(),
+    getActiveHeroSlides(),
   ]);
+
+  // Typed helpers — pick correct language variant with safe fallbacks
+  const t = (es: string | null | undefined, en: string | null | undefined, fallback = '') =>
+    (lang === 'en' ? en : es) || fallback;
 
   const upcomingEvents = allEvents.filter((e) => e.status === 'upcoming').slice(0, 3);
   const featuredSpeakers = allSpeakers.filter((s) => s.featured).slice(0, 4);
-  const featuredExperience = allExperiences.find((e) => e.slug === 'the-real-happiness');
   const experienceCategories = allExperiences.filter((e) => e.slug !== 'the-real-happiness').slice(0, 4);
 
   return (
     <PublicLayout>
 
       {/* ── A. HERO ─────────────────────────────── */}
-      <section className="bg-[#FDFAF7] flex items-center">
-        <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 items-center py-14 md:py-24 lg:py-32">
+      {/*
+        pt-16 = 64px clearance for the fixed header (h-16).
+        Layout: badge → carousel → headline / copy+CTAs
+        This order ensures visual impact first, explanation second.
+      */}
+      <section className="bg-[#FDFAF7] overflow-hidden pt-16">
+        <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20 py-8 md:py-10 lg:py-12">
 
-            {/* Left — editorial text */}
-            <div className="flex flex-col gap-7 md:gap-10">
-              <div className="hero-label flex flex-col gap-3">
-                <div className="h-px w-8 bg-[#A56E52]" />
-              </div>
+          {/* ① Eyebrow badge */}
+          <div className="flex items-center gap-3 mb-6 md:mb-7">
+            <div className="h-px w-8 bg-[#A56E52] shrink-0" />
+            <span className="font-sans text-[11px] font-medium uppercase tracking-[0.25em] text-[#A56E52]">
+              {t(cfg?.hero_badge_es, cfg?.hero_badge_en, 'Productora de experiencias · Desde 2019')}
+            </span>
+          </div>
 
-              <h1
-                className="hero-h1 font-serif text-4xl md:text-6xl lg:text-7xl font-normal leading-[1.05] text-[#2A2421]"
-              >
-                The Real
-                <br />
-                <span className="italic">Happiness</span>
-                <br />
-                MasterClass
-              </h1>
+          {/* ② Hero Carousel — full-width, contained, no nav overlap */}
+          <div className="relative w-full h-[200px] sm:h-[320px] lg:h-[400px] mb-8 md:mb-10 lg:mb-12 overflow-hidden">
+            <HeroCarousel slides={heroSlides ?? []} lang={lang} />
+          </div>
 
-              <p className="hero-body font-sans text-base md:text-lg leading-relaxed text-[#5B4638] max-w-md">
-                Tres ciudades. Un movimiento. Elige ser feliz — speakers internacionales, herramientas reales y una comunidad de líderes, emprendedores y visionarios listos para transformar su vida y su negocio.
+          {/* ③ Headline + copy + CTAs — two columns on desktop */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 items-start">
+
+            {/* Left: large headline */}
+            <h1 className="hero-h1 font-serif text-3xl md:text-4xl lg:text-5xl font-normal leading-[1.05] text-[#2A2421]">
+              {t(cfg?.hero_headline_es, cfg?.hero_headline_en, 'Producimos experiencias que transforman.')}
+            </h1>
+
+            {/* Right: description + CTAs + stats */}
+            <div className="flex flex-col gap-6">
+              <p className="hero-body font-sans text-base md:text-lg leading-relaxed text-[#5B4638]">
+                {t(
+                  cfg?.hero_body_es,
+                  cfg?.hero_body_en,
+                  'Somos ME Producciones — la empresa detrás de los eventos que mueven comunidades. Speakers internacionales, herramientas reales y escenarios diseñados para transformar tu vida y tu negocio.',
+                )}
               </p>
 
-              <div className="hero-cta flex flex-col sm:flex-row gap-4 pt-2">
-                <Button href="/events" variant="primary" size="lg">
-                  Reservar mi lugar
+              <div className="hero-cta flex flex-col sm:flex-row gap-4">
+                <Button
+                  href={cfg?.hero_cta_primary_href ?? '/experiences'}
+                  variant="primary"
+                  size="lg"
+                >
+                  {t(cfg?.hero_cta_primary_label_es, cfg?.hero_cta_primary_label_en, 'Ver experiencias')}
                 </Button>
-                <Button href="/experiences" variant="secondary" size="lg">
-                  Conocer el Summit
+                <Button
+                  href={cfg?.hero_cta_secondary_href ?? '/events'}
+                  variant="secondary"
+                  size="lg"
+                >
+                  {t(cfg?.hero_cta_secondary_label_es, cfg?.hero_cta_secondary_label_en, 'Próximos eventos')}
                 </Button>
               </div>
 
-              {/* Subtle stat strip */}
+              {/* Stat strip */}
               <div className="hero-stats flex gap-10 pt-6 border-t border-[#D7C6B2]">
                 <div>
-                  <p className="font-serif text-2xl text-[#2A2421]">
-                    {stats.totalAttendees.toLocaleString()}+
-                  </p>
-                  <p className="font-sans text-[11px] uppercase tracking-widest text-[#A56E52] mt-1">Asistentes</p>
+                  <p className="font-serif text-2xl text-[#2A2421]">{(cfg?.total_attendees ?? 18500).toLocaleString()}+</p>
+                  <p className="font-sans text-[11px] uppercase tracking-widest text-[#A56E52] mt-1">{lang === 'en' ? 'Attendees' : 'Asistentes'}</p>
                 </div>
                 <div>
-                  <p className="font-serif text-2xl text-[#2A2421]">
-                    {stats.citiesReached}
-                  </p>
-                  <p className="font-sans text-[11px] uppercase tracking-widest text-[#A56E52] mt-1">Ciudades</p>
+                  <p className="font-serif text-2xl text-[#2A2421]">{cfg?.cities_reached ?? 8}</p>
+                  <p className="font-sans text-[11px] uppercase tracking-widest text-[#A56E52] mt-1">{lang === 'en' ? 'Cities' : 'Ciudades'}</p>
                 </div>
                 <div>
-                  <p className="font-serif text-2xl text-[#2A2421]">
-                    {stats.totalEvents}+
-                  </p>
-                  <p className="font-sans text-[11px] uppercase tracking-widest text-[#A56E52] mt-1">Eventos</p>
+                  <p className="font-serif text-2xl text-[#2A2421]">{cfg?.total_events ?? 24}+</p>
+                  <p className="font-sans text-[11px] uppercase tracking-widest text-[#A56E52] mt-1">{lang === 'en' ? 'Events' : 'Eventos'}</p>
                 </div>
               </div>
             </div>
 
-            {/* Right — image composition */}
-            <div className="hero-image relative hidden lg:flex flex-col gap-4 items-end">
-              {/* Main large image */}
-              <div className="relative w-full h-[560px] overflow-hidden">
-                <Image
-                  fill
-                  src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1400&q=80"
-                  alt="Main event hero shot — vibrant conference audience"
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-                {/* Decorative text overlay */}
-                <div className="absolute bottom-8 left-8">
-                  <p
-                    className="font-serif text-4xl text-[#EAE1D6] opacity-30 leading-none"
-
-                  >
-                    The Real
-                    <br />Happiness
-                  </p>
-                </div>
-              </div>
-              {/* Small accent image */}
-              <div className="absolute -bottom-6 -left-6 w-48 h-48 bg-[#EAE1D6] border-4 border-[#FDFAF7]" />
-              <div className="absolute top-8 -left-4 w-2 h-32 bg-[#A56E52]" />
-            </div>
           </div>
         </div>
       </section>
@@ -156,12 +165,15 @@ export default async function HomePage() {
             <blockquote
               className="font-serif text-2xl md:text-3xl lg:text-4xl font-normal leading-snug text-[#2A2421]"
             >
-              &ldquo;La felicidad es una habilidad, no un destino.
-              Y este a&ntilde;o la vas a aprender.&rdquo;
+              &ldquo;{t(cfg?.brand_quote_es, cfg?.brand_quote_en, 'No producimos eventos. Producimos posibilidad.')}&rdquo;
             </blockquote>
 
             <p className="font-sans text-base leading-relaxed text-[#5B4638] max-w-2xl">
-              The Real Happiness MasterClass Summit III llega a tres ciudades en 2026 — Doral, Samborondón y Orlando. Un día de herramientas prácticas, speakers internacionales y conexiones que cambian el rumbo de tu vida personal y empresarial. <strong>#HappinessIsAChoice</strong>
+              {t(
+                cfg?.brand_body_es,
+                cfg?.brand_body_en,
+                'ME Producciones nació para crear los escenarios donde ocurre la transformación — summits, masterclasses y experiencias de crecimiento personal y empresarial que conectan líderes, emprendedores y visionarios de toda la región.',
+              )}
             </p>
 
             <div className="h-px w-16 bg-[#A56E52]" />
@@ -176,23 +188,29 @@ export default async function HomePage() {
 
             <div className="flex flex-col gap-3">
               <span className="font-sans text-[11px] font-medium uppercase tracking-[0.25em] text-[#A56E52]">
-                Summit III · 2026
+                {lang === 'en' ? 'Flagship event · ME Producciones' : 'Evento insignia · ME Producciones'}
               </span>
               <div className="h-px w-8 bg-[#A56E52]" />
               <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-normal leading-tight text-[#EAE1D6] max-w-2xl">
-                Tres ciudades.<br />Un movimiento. Elige ser feliz.
+                The Real Happiness<br /><span className="italic">MasterClass</span> Summit III
               </h2>
               <p className="font-sans text-base leading-relaxed text-[#B89E87] max-w-xl mt-2">
-                The Real Happiness MasterClass llega a tres sedes en 2026 — un día de experiencia, herramientas y comunidad que te cambia para siempre.
+                {lang === 'en'
+                  ? 'Our flagship event comes to three venues in 2026 — Miami, Samborondón, and Orlando. One day of experience, tools, and community that changes you forever.'
+                  : 'Nuestro evento insignia llega a tres sedes en 2026 — Miami, Samborondón y Orlando. Un día de experiencia, herramientas y comunidad que te cambia para siempre.'}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#3D342F]">
-              {[
+              {(lang === 'en' ? [
+                { num: '01', date: 'August 29, 2026',    city: 'Miami',        region: 'Florida, USA',  tag: '1st venue' },
+                { num: '02', date: 'September 2026',     city: 'Samborondón',  region: 'Ecuador',       tag: '2nd venue' },
+                { num: '03', date: 'October 11, 2026',   city: 'Orlando',      region: 'Florida, USA',  tag: '3rd venue' },
+              ] : [
                 { num: '01', date: 'Agosto 29, 2026',    city: 'Miami',        region: 'Florida, USA',  tag: 'Primera sede' },
                 { num: '02', date: 'Septiembre 2026',    city: 'Samborondón',  region: 'Ecuador',       tag: 'Segunda sede' },
                 { num: '03', date: 'Octubre 11, 2026',   city: 'Orlando',      region: 'Florida, USA',  tag: 'Tercera sede' },
-              ].map((stop) => (
+              ]).map((stop) => (
                 <div key={stop.num} className="bg-[#2A2421] p-8 md:p-10 flex flex-col gap-5 group hover:bg-[#1A1410] transition-colors duration-300">
                   <span className="font-serif text-5xl font-normal text-[#A56E52] opacity-40 leading-none">{stop.num}</span>
                   <div className="flex flex-col gap-1">
@@ -208,7 +226,7 @@ export default async function HomePage() {
 
             <div>
               <Button href="/events" variant="terracotta" size="lg">
-                Ver todos los eventos
+                {lang === 'en' ? 'View all events' : 'Ver todos los eventos'}
               </Button>
             </div>
           </div>
@@ -220,9 +238,9 @@ export default async function HomePage() {
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
           <div className="flex flex-col gap-8 md:gap-16">
             <SectionHeader
-              label="Nuestros formatos"
-              title="Experiencias diseñadas para cada etapa."
-              subtitle="Cada formato es una puerta diferente hacia el mismo destino: crecimiento, conexión y transformación."
+              label={lang === 'en' ? 'Our formats' : 'Nuestros formatos'}
+              title={lang === 'en' ? 'Experiences designed for every stage.' : 'Experiencias diseñadas para cada etapa.'}
+              subtitle={lang === 'en' ? 'Each format is a different door to the same destination: growth, connection, and transformation.' : 'Cada formato es una puerta diferente hacia el mismo destino: crecimiento, conexión y transformación.'}
             />
 
             {/* Mobile carousel */}
@@ -327,13 +345,13 @@ export default async function HomePage() {
             {/* Header row */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
               <SectionHeader
-                label="Próximos eventos"
-                title="Dónde nos vemos."
-                subtitle="Reserva tu lugar antes de que se agoten. Nuestros eventos se llenan rápido."
+                label={lang === 'en' ? 'Upcoming events' : 'Próximos eventos'}
+                title={lang === 'en' ? 'Where we meet.' : 'Dónde nos vemos.'}
+                subtitle={lang === 'en' ? 'Reserve your spot before they sell out. Our events fill up fast.' : 'Reserva tu lugar antes de que se agoten. Nuestros eventos se llenan rápido.'}
               />
               <div className="shrink-0">
                 <Button href="/events" variant="secondary" size="md">
-                  Ver todos los eventos
+                  {lang === 'en' ? 'View all events' : 'Ver todos los eventos'}
                 </Button>
               </div>
             </div>
@@ -364,11 +382,11 @@ export default async function HomePage() {
                       <div className="px-5 pb-5 flex items-center justify-between">
                         <div className="flex flex-col">
                           {event.price === 0 ? (
-                            <span className="font-serif text-base text-[#2A2421]">Entrada libre</span>
+                            <span className="font-serif text-base text-[#2A2421]">{lang === 'en' ? 'Free entry' : 'Entrada libre'}</span>
                           ) : (
                             <>
                               <span className="font-serif text-xl text-[#2A2421]">${event.price}</span>
-                              <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">por persona</span>
+                              <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'per person' : 'por persona'}</span>
                             </>
                           )}
                         </div>
@@ -432,13 +450,13 @@ export default async function HomePage() {
           <div className="flex flex-col gap-8 md:gap-16">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
               <SectionHeader
-                label="Voces que inspiran"
-                title="Speakers de clase mundial."
-                subtitle="Cada speaker es cuidadosamente seleccionado por su autenticidad, profundidad y capacidad de transformar salas enteras."
+                label={lang === 'en' ? 'Inspiring voices' : 'Voces que inspiran'}
+                title={lang === 'en' ? 'World-class speakers.' : 'Speakers de clase mundial.'}
+                subtitle={lang === 'en' ? 'Each speaker is carefully chosen for their authenticity, depth, and ability to transform entire rooms.' : 'Cada speaker es cuidadosamente seleccionado por su autenticidad, profundidad y capacidad de transformar salas enteras.'}
               />
               <div className="shrink-0">
                 <Button href="/speakers" variant="secondary" size="md">
-                  Ver todos los speakers
+                  {lang === 'en' ? 'View all speakers' : 'Ver todos los speakers'}
                 </Button>
               </div>
             </div>
@@ -541,7 +559,7 @@ export default async function HomePage() {
             <div className="flex flex-col gap-8">
               <div className="flex flex-col gap-3">
                 <span className="font-sans text-[11px] font-medium uppercase tracking-[0.25em] text-[#A56E52]">
-                  Impacto & comunidad
+                  {lang === 'en' ? 'Impact & community' : 'Impacto & comunidad'}
                 </span>
                 <div className="h-px w-8 bg-[#A56E52]" />
               </div>
@@ -550,20 +568,22 @@ export default async function HomePage() {
                 className="font-serif text-4xl md:text-5xl font-normal leading-tight text-[#EAE1D6]"
 
               >
-                Cada sala es un espejo de lo que somos capaces.
+                {lang === 'en' ? 'Every room is a mirror of what we are capable of.' : 'Cada sala es un espejo de lo que somos capaces.'}
               </h2>
 
               <p className="font-sans text-base leading-relaxed text-[#B89E87]">
-                Más de 18,500 personas han cruzado las puertas de nuestros eventos. Han llorado, reído, debatido y celebrado. Han encontrado mentores, socios y amigos de por vida. Han recordado quiénes son y decidido quiénes quieren ser.
+                {lang === 'en'
+                  ? 'More than 18,500 people have walked through the doors of our events. They have cried, laughed, debated, and celebrated. They have found mentors, partners, and lifelong friends. They have remembered who they are and decided who they want to be.'
+                  : 'Más de 18,500 personas han cruzado las puertas de nuestros eventos. Han llorado, reído, debatido y celebrado. Han encontrado mentores, socios y amigos de por vida. Han recordado quiénes son y decidido quiénes quieren ser.'}
               </p>
 
               <p className="font-sans text-base leading-relaxed text-[#B89E87]">
-                Eso es lo que hacemos. No producimos eventos — producimos posibilidad.
+                {lang === 'en' ? "That's what we do. We don't produce events — we produce possibility." : 'Eso es lo que hacemos. No producimos eventos — producimos posibilidad.'}
               </p>
 
               <div className="pt-4">
                 <Button href="/about" variant="secondary" size="lg">
-                  Nuestra historia
+                  {lang === 'en' ? 'Our story' : 'Nuestra historia'}
                 </Button>
               </div>
             </div>
@@ -586,7 +606,7 @@ export default async function HomePage() {
               <div className="absolute -bottom-8 -left-8 w-40 h-40 bg-[#A56E52] opacity-30" />
               {/* Stats overlay */}
               <div className="absolute top-8 right-8 bg-[#2A2421] border border-[#3D342F] px-6 py-5">
-                <p className="font-serif text-3xl text-[#EAE1D6]">{stats.satisfaction}%</p>
+                <p className="font-serif text-3xl text-[#EAE1D6]">{cfg?.satisfaction ?? 97}%</p>
                 <p className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] mt-1">Satisfacción</p>
               </div>
             </div>
@@ -601,19 +621,19 @@ export default async function HomePage() {
           <div className="flex flex-col gap-8 md:gap-16">
             <div className="text-center">
               <span className="font-sans text-[11px] font-medium uppercase tracking-[0.25em] text-[#A56E52]">
-                En números
+                {lang === 'en' ? 'By the numbers' : 'En números'}
               </span>
               <div className="h-px w-8 bg-[#A56E52] mx-auto mt-3" />
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-px bg-[#C4B09A]">
               {[
-                { value: `${stats.totalEvents}+`, label: 'Eventos producidos' },
-                { value: `${(stats.totalAttendees / 1000).toFixed(1)}K+`, label: 'Vidas impactadas' },
-                { value: `${stats.totalSpeakers}+`, label: 'Speakers y facilitadores' },
-                { value: `${stats.citiesReached}`, label: 'Ciudades en EEUU' },
-                { value: `${stats.yearsActive}`, label: 'Años de trayectoria' },
-                { value: `${stats.satisfaction}%`, label: 'Satisfacción general' },
+                { value: `${cfg?.total_events ?? 24}+`, label: lang === 'en' ? 'Events produced' : 'Eventos producidos' },
+                { value: `${((cfg?.total_attendees ?? 18500) / 1000).toFixed(1)}K+`, label: lang === 'en' ? 'Lives impacted' : 'Vidas impactadas' },
+                { value: `${cfg?.total_speakers ?? 72}+`, label: lang === 'en' ? 'Speakers & facilitators' : 'Speakers y facilitadores' },
+                { value: `${cfg?.cities_reached ?? 8}`, label: lang === 'en' ? 'Cities in the US' : 'Ciudades en EEUU' },
+                { value: `${cfg?.years_active ?? 4}`, label: lang === 'en' ? 'Years of track record' : 'Años de trayectoria' },
+                { value: `${cfg?.satisfaction ?? 97}%`, label: lang === 'en' ? 'Overall satisfaction' : 'Satisfacción general' },
               ].map(({ value, label }) => (
                 <div key={label} className="flex flex-col items-center text-center gap-2 bg-[#EAE1D6] px-4 py-7 md:py-10 lg:py-14">
                   <span
@@ -638,9 +658,9 @@ export default async function HomePage() {
           <div className="flex flex-col gap-8 md:gap-16">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
               <SectionHeader
-                label="Testimonios"
-                title="Lo que dice nuestra comunidad."
-                subtitle="Cada historia es prueba de lo que es posible cuando te rodeas de la comunidad correcta."
+                label={lang === 'en' ? 'Testimonials' : 'Testimonios'}
+                title={lang === 'en' ? 'What our community says.' : 'Lo que dice nuestra comunidad.'}
+                subtitle={lang === 'en' ? 'Every story is proof of what is possible when you surround yourself with the right community.' : 'Cada historia es prueba de lo que es posible cuando te rodeas de la comunidad correcta.'}
               />
               <div className="shrink-0">
                 <Button href="/events" variant="secondary" size="md">
@@ -680,13 +700,15 @@ export default async function HomePage() {
             <div className="flex flex-col md:flex-row gap-12 md:gap-20 items-start">
               <div className="md:w-1/3 shrink-0">
                 <p className="font-sans text-[9px] uppercase tracking-[0.3em] text-[#A56E52] mb-3">
-                  Comparte tu experiencia
+                  {lang === 'en' ? 'Share your experience' : 'Comparte tu experiencia'}
                 </p>
                 <p className="font-sans text-2xl font-light text-[#2A2421] leading-snug mb-4">
-                  ¿Asististe a uno de nuestros eventos?
+                  {lang === 'en' ? 'Did you attend one of our events?' : '¿Asististe a uno de nuestros eventos?'}
                 </p>
                 <p className="font-sans text-sm text-[#5B4638] leading-relaxed">
-                  Tu testimonio inspira a otros a dar el siguiente paso. Cuéntanos cómo fue tu experiencia y lo publicaremos en nuestra comunidad.
+                  {lang === 'en'
+                    ? 'Your testimony inspires others to take the next step. Tell us about your experience and we will publish it in our community.'
+                    : 'Tu testimonio inspira a otros a dar el siguiente paso. Cuéntanos cómo fue tu experiencia y lo publicaremos en nuestra comunidad.'}
                 </p>
               </div>
               <div className="flex-1 w-full">
@@ -779,7 +801,7 @@ export default async function HomePage() {
           <div className="max-w-3xl mx-auto flex flex-col items-center text-center gap-6 md:gap-10">
             <div className="flex flex-col gap-3 items-center">
               <span className="font-sans text-[11px] font-medium uppercase tracking-[0.25em] text-[#A56E52]">
-                Tu próximo paso
+                {lang === 'en' ? 'Your next step' : 'Tu próximo paso'}
               </span>
               <div className="h-px w-8 bg-[#A56E52]" />
             </div>
@@ -788,19 +810,21 @@ export default async function HomePage() {
               className="font-serif text-4xl md:text-5xl lg:text-6xl font-normal leading-tight text-[#2A2421]"
 
             >
-              La experiencia que buscabas te está esperando.
+              {lang === 'en' ? 'The experience you were looking for is waiting for you.' : 'La experiencia que buscabas te está esperando.'}
             </h2>
 
             <p className="font-sans text-base leading-relaxed text-[#5B4638] max-w-xl">
-              No importa en qué etapa de tu vida te encuentres — tenemos una experiencia diseñada para ti. El próximo paso siempre empieza con una decisión.
+              {lang === 'en'
+                ? "No matter what stage of life you're in — we have an experience designed for you. The next step always starts with a decision."
+                : 'No importa en qué etapa de tu vida te encuentres — tenemos una experiencia diseñada para ti. El próximo paso siempre empieza con una decisión.'}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Button href="/experiences" variant="primary" size="lg">
-                Explorar experiencias
+                {lang === 'en' ? 'Explore experiences' : 'Explorar experiencias'}
               </Button>
-              <Button href="/the-real-happiness" variant="secondary" size="lg">
-                The Real Happiness
+              <Button href="/events" variant="secondary" size="lg">
+                Próximos eventos
               </Button>
             </div>
           </div>

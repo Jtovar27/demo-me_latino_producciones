@@ -4,19 +4,22 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Button from '@/components/ui/Button';
 import Logo from '@/components/ui/Logo';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
-const navLinks = [
-  { label: 'Inicio', href: '/' },
-  { label: 'Nosotros', href: '/about' },
-  { label: 'Experiencias', href: '/experiences' },
-  { label: 'Eventos', href: '/events' },
-  { label: 'Speakers', href: '/speakers' },
-  { label: 'Galería', href: '/gallery' },
-  { label: 'Sponsors', href: '/sponsors' },
-  { label: 'Contacto', href: '/contact' },
+const NAV = [
+  { es: 'Inicio',       en: 'Home',        href: '/' },
+  { es: 'Nosotros',     en: 'About',       href: '/about' },
+  { es: 'Experiencias', en: 'Experiences', href: '/experiences' },
+  { es: 'Eventos',      en: 'Events',      href: '/events' },
+  { es: 'Speakers',     en: 'Speakers',    href: '/speakers' },
+  { es: 'Galería',      en: 'Gallery',     href: '/gallery' },
+  { es: 'Sponsors',     en: 'Sponsors',    href: '/sponsors' },
+  { es: 'Contacto',     en: 'Contact',     href: '/contact' },
 ];
 
 export default function Header() {
+  const { lang } = useLanguage();
+  const navLinks = NAV.map((n) => ({ label: lang === 'en' ? n.en : n.es, href: n.href }));
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -69,7 +72,7 @@ export default function Header() {
           {/* Desktop CTA */}
           <div className="hidden lg:flex">
             <Button variant="primary" size="sm" href="/contact">
-              Reservar
+              {lang === 'en' ? 'Book Now' : 'Reservar'}
             </Button>
           </div>
 
@@ -183,10 +186,10 @@ export default function Header() {
             onClick={() => setMenuOpen(false)}
             className="w-full justify-center"
           >
-            Reservar experiencia
+            {lang === 'en' ? 'Book experience' : 'Reservar experiencia'}
           </Button>
           <p className="mt-5 font-sans text-[10px] font-medium uppercase tracking-[0.22em] text-[#A56E52]">
-            Eventos que transforman.
+            {lang === 'en' ? 'Events that transform.' : 'Eventos que transforman.'}
           </p>
         </div>
       </div>

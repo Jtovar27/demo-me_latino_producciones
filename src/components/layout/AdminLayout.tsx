@@ -19,20 +19,22 @@ import {
   Star,
   BookOpen,
   Sparkles,
+  GalleryHorizontal,
 } from 'lucide-react';
 
 const navItems = [
-  { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { label: 'Eventos', href: '/admin/events', icon: Calendar },
-  { label: 'Experiencias', href: '/admin/experiences', icon: Sparkles },
-  { label: 'Reservas', href: '/admin/bookings', icon: BookOpen },
-  { label: 'Registros', href: '/admin/registrations', icon: Users },
-  { label: 'Speakers', href: '/admin/speakers', icon: Mic },
-  { label: 'Reviews', href: '/admin/reviews', icon: Star },
-  { label: 'Sponsors', href: '/admin/sponsors', icon: Building2 },
-  { label: 'Media', href: '/admin/media', icon: Image },
-  { label: 'Leads', href: '/admin/leads', icon: Inbox },
-  { label: 'Ajustes', href: '/admin/settings', icon: Settings },
+  { label: 'Dashboard',    href: '/admin',                icon: LayoutDashboard },
+  { label: 'Sitio',        href: '/admin/settings',       icon: Settings },
+  { label: 'Hero',         href: '/admin/hero',           icon: GalleryHorizontal },
+  { label: 'Eventos',      href: '/admin/events',         icon: Calendar },
+  { label: 'Experiencias', href: '/admin/experiences',    icon: Sparkles },
+  { label: 'Reservas',     href: '/admin/bookings',       icon: BookOpen },
+  { label: 'Registros',    href: '/admin/registrations',  icon: Users },
+  { label: 'Speakers',     href: '/admin/speakers',       icon: Mic },
+  { label: 'Reviews',      href: '/admin/reviews',        icon: Star },
+  { label: 'Sponsors',     href: '/admin/sponsors',       icon: Building2 },
+  { label: 'Media',        href: '/admin/media',          icon: Image },
+  { label: 'Leads',        href: '/admin/leads',          icon: Inbox },
 ];
 
 function pageTitleFromPath(pathname: string): string {

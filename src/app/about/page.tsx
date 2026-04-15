@@ -4,7 +4,6 @@ import SectionHeader from '@/components/ui/SectionHeader';
 import Button from '@/components/ui/Button';
 import MobileCarousel from '@/components/ui/MobileCarousel';
 import { stats } from '@/lib/data';
-import { editorialImages } from '@/lib/media';
 
 // ── Editorial data ──────────────────────────────
 
@@ -78,8 +77,8 @@ export default function AboutPage() {
     <PublicLayout>
 
       {/* ── A. PAGE HERO ───────────────────────── */}
-      <section className="bg-[#2A2421] py-24 md:py-32">
-        <div className="mx-auto max-w-7xl px-6 md:px-12">
+      <section className="bg-[#2A2421] pt-24 pb-16 md:pt-28 md:pb-20 lg:pt-32 lg:pb-24">
+        <div className="mx-auto max-w-[1400px] px-6 md:px-12 lg:px-20">
           <div className="max-w-3xl">
             <span className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
               Nuestra Historia
@@ -102,8 +101,8 @@ export default function AboutPage() {
       </section>
 
       {/* ── B. ORIGIN STORY ────────────────────── */}
-      <section className="bg-[#FDFAF7] py-24 md:py-32">
-        <div className="mx-auto max-w-7xl px-6 md:px-12">
+      <section className="bg-[#FDFAF7] py-12 md:py-20 lg:py-28">
+        <div className="mx-auto max-w-[1400px] px-6 md:px-12 lg:px-20">
           <div className="grid grid-cols-1 gap-16 md:grid-cols-2 md:gap-24">
 
             {/* Pull quote */}
@@ -152,8 +151,8 @@ export default function AboutPage() {
       </section>
 
       {/* ── C. VISION & PHILOSOPHY ─────────────── */}
-      <section className="bg-[#F7F3EE] py-12 md:py-28">
-        <div className="mx-auto max-w-7xl px-6 md:px-12">
+      <section className="bg-[#F7F3EE] py-12 md:py-20 lg:py-28">
+        <div className="mx-auto max-w-[1400px] px-6 md:px-12 lg:px-20">
           <SectionHeader
             label="Filosofía"
             title="Una visión diferente del evento."
@@ -194,8 +193,8 @@ export default function AboutPage() {
       </section>
 
       {/* ── D. THE REAL HAPPINESS CONNECTION ──── */}
-      <section className="bg-[#2A2421] py-24 md:py-32">
-        <div className="mx-auto max-w-7xl px-6 md:px-12">
+      <section className="bg-[#2A2421] py-12 md:py-20 lg:py-28">
+        <div className="mx-auto max-w-[1400px] px-6 md:px-12 lg:px-20">
           <div className="grid grid-cols-1 items-center gap-16 md:grid-cols-2 md:gap-20">
 
             {/* Text */}
@@ -249,8 +248,8 @@ export default function AboutPage() {
       </section>
 
       {/* ── E. LEADERSHIP ──────────────────────── */}
-      <section className="bg-[#FDFAF7] py-12 md:py-28">
-        <div className="mx-auto max-w-7xl px-6 md:px-12">
+      <section className="bg-[#FDFAF7] py-12 md:py-20 lg:py-28">
+        <div className="mx-auto max-w-[1400px] px-6 md:px-12 lg:px-20">
           <SectionHeader
             label="Equipo"
             title="Las personas detrás de la experiencia."
@@ -292,8 +291,8 @@ export default function AboutPage() {
       </section>
 
       {/* ── F. VALUES BLOCK ────────────────────── */}
-      <section className="bg-[#EAE1D6] py-12 md:py-28">
-        <div className="mx-auto max-w-7xl px-6 md:px-12">
+      <section className="bg-[#EAE1D6] py-12 md:py-20 lg:py-28">
+        <div className="mx-auto max-w-[1400px] px-6 md:px-12 lg:px-20">
           <SectionHeader
             label="Valores"
             title="Lo que nos mueve."
@@ -327,8 +326,8 @@ export default function AboutPage() {
       </section>
 
       {/* ── G. CLOSING CTA ─────────────────────── */}
-      <section className="bg-[#F7F3EE] py-24 md:py-32">
-        <div className="mx-auto max-w-7xl px-6 md:px-12 text-center">
+      <section className="bg-[#F7F3EE] py-12 md:py-20 lg:py-28">
+        <div className="mx-auto max-w-[1400px] px-6 md:px-12 lg:px-20 text-center">
           <h2
             className="mb-4 font-serif text-3xl font-normal text-[#2A2421] md:text-4xl"
 
