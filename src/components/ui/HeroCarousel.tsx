@@ -137,40 +137,22 @@ export default function HeroCarousel({ slides, lang = 'es' }: HeroCarouselProps)
       {/* Corner accent — top left */}
       <div className="absolute top-4 left-4 z-20 w-5 h-5 border-t border-l border-[#A56E52]/50 pointer-events-none" />
 
-      {/* Prev / Next arrows — only when > 1 slide */}
+      {/* Dot indicators — bottom right */}
       {total > 1 && (
-        <>
-          <button
-            onClick={() => goTo((current - 1 + total) % total)}
-            className="absolute left-5 bottom-[5.75rem] z-20 w-8 h-8 border border-[#EAE1D6]/25 bg-[#2A2421]/50 backdrop-blur-sm flex items-center justify-center text-[#EAE1D6]/60 hover:text-[#EAE1D6] hover:border-[#EAE1D6]/50 transition-all duration-200 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#A56E52]"
-            aria-label="Diapositiva anterior"
-          >
-            ←
-          </button>
-          <button
-            onClick={() => goTo((current + 1) % total)}
-            className="absolute left-[3.75rem] bottom-[5.75rem] z-20 w-8 h-8 border border-[#EAE1D6]/25 bg-[#2A2421]/50 backdrop-blur-sm flex items-center justify-center text-[#EAE1D6]/60 hover:text-[#EAE1D6] hover:border-[#EAE1D6]/50 transition-all duration-200 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#A56E52]"
-            aria-label="Diapositiva siguiente"
-          >
-            →
-          </button>
-
-          {/* Dot indicators — bottom right */}
-          <div className="absolute bottom-[5.75rem] right-5 z-20 flex gap-1.5 items-center">
-            {displaySlides.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => goTo(i)}
-                aria-label={`Ir a diapositiva ${i + 1}`}
-                className={`transition-all duration-300 h-[2px] rounded-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#A56E52] ${
-                  i === current
-                    ? 'w-5 bg-[#A56E52]'
-                    : 'w-2 bg-[#EAE1D6]/35 hover:bg-[#EAE1D6]/55'
-                }`}
-              />
-            ))}
-          </div>
-        </>
+        <div className="absolute bottom-5 right-5 z-20 flex gap-1.5 items-center">
+          {displaySlides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              aria-label={`Ir a diapositiva ${i + 1}`}
+              className={`transition-all duration-300 h-[2px] rounded-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#A56E52] ${
+                i === current
+                  ? 'w-5 bg-[#A56E52]'
+                  : 'w-2 bg-[#EAE1D6]/35 hover:bg-[#EAE1D6]/55'
+              }`}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
