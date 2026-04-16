@@ -4,18 +4,39 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
-
-const mockBars = [42, 68, 55, 80, 63, 90, 74, 58, 85, 70, 95, 82];
-
 export default async function AdminDashboard() {
   const client = createAdminClient();
 
-  const [eventsRes, speakersRes, sponsorsRes, galleryRes] = await Promise.all([
+  // Compute the 12-month window starting from 11 months ago (inclusive of current month)
+  const now = new Date();
+  const activityMonths = Array.from({ length: 12 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - 11 + i, 1);
+    return { year: d.getFullYear(), month: d.getMonth() + 1, date: d };
+  });
+  const windowStart = new Date(
+    activityMonths[0].year, activityMonths[0].month - 1, 1
+  ).toISOString();
+
+  const [eventsRes, speakersRes, sponsorsRes, galleryRes, bookingsRes] = await Promise.all([
     client.from('events').select('id, status, featured'),
     client.from('speakers').select('id, featured'),
     client.from('sponsors').select('id, active'),
     client.from('gallery_items').select('id'),
+    client.from('bookings').select('submitted_at').gte('submitted_at', windowStart),
   ]);
+
+  // Aggregate bookings per calendar month for the activity chart
+  const recentBookings = bookingsRes.data ?? [];
+  const monthlyCounts = activityMonths.map(({ year, month }) =>
+    recentBookings.filter((b) => {
+      const d = new Date(b.submitted_at);
+      return d.getFullYear() === year && d.getMonth() + 1 === month;
+    }).length
+  );
+  const maxCount = Math.max(...monthlyCounts, 1); // avoid divide-by-zero when no bookings
+  const activityBars = monthlyCounts.map((c) => Math.max(5, Math.round((c / maxCount) * 100)));
+  const activityLabelFirst = activityMonths[0].date.toLocaleDateString('es-US', { month: 'short', year: 'numeric' });
+  const activityLabelLast  = activityMonths[11].date.toLocaleDateString('es-US', { month: 'short', year: 'numeric' });
 
   const events = eventsRes.data ?? [];
   const speakers = speakersRes.data ?? [];
@@ -155,7 +176,7 @@ export default async function AdminDashboard() {
           </p>
 
           <div className="flex items-end gap-1.5 h-32">
-            {mockBars.map((h, i) => (
+            {activityBars.map((h, i) => (
               <div
                 key={i}
                 className="flex-1 bg-[#A56E52]/20 hover:bg-[#A56E52]/40 transition-colors relative group"
@@ -170,8 +191,8 @@ export default async function AdminDashboard() {
           </div>
 
           <div className="mt-4 flex justify-between">
-            <p className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">May 2025</p>
-            <p className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">Abr 2026</p>
+            <p className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">{activityLabelFirst}</p>
+            <p className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">{activityLabelLast}</p>
           </div>
 
           <div className="mt-6 border-t border-[#EAE1D6] pt-5 space-y-4">

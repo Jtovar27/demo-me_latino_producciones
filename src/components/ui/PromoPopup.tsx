@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
-// ── Configuración ── Reemplazar los links cuando estén disponibles
+// ── Configuración ── Set NEXT_PUBLIC_TICKET_LINK_1/2 in Vercel env vars to activate ticket buttons.
+// When unset (or '#'), the ticket buttons render as disabled. The WhatsApp/Zelle option always works.
 const WA_NUMBER = '13055252555';
-const TICKET_LINK_1 = '#'; // TODO: Reemplazar con link real
-const TICKET_LINK_2 = '#'; // TODO: Reemplazar con link real
+const TICKET_LINK_1 = process.env.NEXT_PUBLIC_TICKET_LINK_1 || '#';
+const TICKET_LINK_2 = process.env.NEXT_PUBLIC_TICKET_LINK_2 || '#';
 const POPUP_SESSION_KEY = 'me_promo_v1';
 
 interface FeaturedEvent {

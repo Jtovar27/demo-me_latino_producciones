@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { buildSessionToken } from '@/lib/auth/session';
 
 const BUCKET = process.env.NEXT_PUBLIC_STORAGE_BUCKET ?? 'meproducciones-media';
+const SESSION_COOKIE = 'me_admin_session';
 
 export async function POST(req: NextRequest) {
+  const session = req.cookies.get(SESSION_COOKIE);
+  if (!session?.value || session.value !== buildSessionToken()) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const formData = await req.formData();
   const file = formData.get('file') as File | null;
   if (!file) return NextResponse.json({ error: 'No file' }, { status: 400 });

@@ -6,7 +6,7 @@ import MobileCarousel from '@/components/ui/MobileCarousel';
 import { getExperiences } from '@/app/actions/experiences';
 import { editorialImages } from '@/lib/media';
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 const categoryLabels: Record<string, string> = {
   flagship: 'Experiencia Insignia',

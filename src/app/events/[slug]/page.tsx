@@ -3,11 +3,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import PublicLayout from '@/components/layout/PublicLayout';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { getPublishedReviews } from '@/app/actions/reviews';
+import { getPublishedReviewsForEvent } from '@/app/actions/reviews';
 import ReviewSubmitForm from './ReviewSubmitForm';
-import type { DBReview } from '@/types/supabase';
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 // ── Helpers ───────────────────────────────────────────────────────
 
@@ -61,11 +60,8 @@ export default async function EventDetailPage({ params }: Props) {
 
   if (error || !event) notFound();
 
-  // Fetch published reviews for this event
-  const { data: allReviews } = await getPublishedReviews(50);
-  const eventReviews: DBReview[] = allReviews.filter(
-    (r) => r.event_name?.toLowerCase() === event.title.toLowerCase()
-  );
+  // Fetch published reviews for this event — filtered at DB level by event_id or event_name
+  const { data: eventReviews } = await getPublishedReviewsForEvent(event.id, event.title);
 
   const sc = statusConfig(event.status);
 

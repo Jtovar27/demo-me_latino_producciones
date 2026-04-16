@@ -18,7 +18,7 @@ import type { DBReview, DBSponsor } from '@/types/supabase';
 import ReviewSubmitForm from '@/components/reviews/ReviewSubmitForm';
 import HeroCarousel from '@/components/ui/HeroCarousel';
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 // ── Helpers ────────────────────────────────────
 

@@ -94,6 +94,30 @@ export default function AdminBookingsPage() {
     setSaving(false);
   }
 
+  function exportCSV() {
+    const headers = ['Nombre', 'Email', 'Teléfono', 'Evento', 'Tipo', 'Personas', 'Fuente', 'Estado', 'Fecha', 'Notas'];
+    const rows = bookings.map((b) => [
+      b.name,
+      b.email,
+      b.phone ?? '',
+      b.event_name ?? '',
+      b.booking_type ?? '',
+      String(b.guests),
+      b.source ?? '',
+      b.status,
+      new Date(b.submitted_at).toISOString().split('T')[0],
+      (b.notes ?? '').replace(/"/g, '""'),
+    ].map((v) => `"${v}"`).join(','));
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reservas-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   async function toggleFollowUp(id: string) {
     const booking = bookings.find((b) => b.id === id);
     if (!booking) return;
@@ -193,7 +217,7 @@ export default function AdminBookingsPage() {
             {loading ? 'Cargando...' : `${bookings.length} reservas en total`}
           </p>
         </div>
-        <Button variant="ghost" size="sm">Exportar CSV</Button>
+        <Button variant="ghost" size="sm" onClick={exportCSV}>Exportar CSV</Button>
       </div>
 
       {/* Stat cards */}

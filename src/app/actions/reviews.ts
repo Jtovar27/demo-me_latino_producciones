@@ -18,6 +18,7 @@ export async function upsertReview(formData: FormData) {
     name,
     role: (formData.get('role') as string) || null,
     company: (formData.get('company') as string) || null,
+    event_id: (formData.get('event_id') as string) || null,
     event_name: (formData.get('eventName') as string) || null,
     text: (formData.get('quote') as string) || null,
     rating,
@@ -64,6 +65,28 @@ export async function getPublishedReviews(limit = 12) {
     .from('reviews')
     .select('*')
     .eq('status', 'published')
+    .order('featured', { ascending: false })
+    .order('submitted_at', { ascending: false })
+    .limit(limit);
+  return { data: data ?? [], error: error?.message ?? null };
+}
+
+/**
+ * Fetches published reviews for a specific event.
+ * Matches by event_id (FK) when available; falls back to event_name for
+ * legacy reviews that predate the event_id column.
+ */
+export async function getPublishedReviewsForEvent(
+  eventId: string,
+  eventTitle: string,
+  limit = 50,
+) {
+  const client = createPublicClient();
+  const { data, error } = await client
+    .from('reviews')
+    .select('*')
+    .eq('status', 'published')
+    .or(`event_id.eq.${eventId},event_name.ilike.${eventTitle}`)
     .order('featured', { ascending: false })
     .order('submitted_at', { ascending: false })
     .limit(limit);

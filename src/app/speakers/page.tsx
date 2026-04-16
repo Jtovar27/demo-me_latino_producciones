@@ -6,7 +6,7 @@ import MobileCarousel from '@/components/ui/MobileCarousel';
 import { getSpeakers } from '@/app/actions/speakers';
 import type { DBSpeaker } from '@/types/supabase';
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 function ExpertiseTag({ label }: { label: string }) {
   return (

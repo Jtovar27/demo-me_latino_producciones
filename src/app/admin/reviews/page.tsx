@@ -19,8 +19,8 @@ const statusConfig: Record<ReviewStatus, { label: string; styles: string }> = {
 
 const emptyForm = {
   name: '', role: '', company: '', quote: '',
-  rating: '5', eventName: '', status: 'pending' as ReviewStatus,
-  featured: false,
+  rating: '5', eventName: '', eventId: '',
+  status: 'pending' as ReviewStatus, featured: false,
 };
 
 type FormState = typeof emptyForm;
@@ -95,6 +95,7 @@ export default function AdminReviewsPage() {
       quote: r.text ?? '',
       rating: String(r.rating ?? 5),
       eventName: r.event_name ?? '',
+      eventId: r.event_id ?? '',
       status: (r.status as ReviewStatus) || 'pending',
       featured: r.featured,
     });
@@ -111,6 +112,7 @@ export default function AdminReviewsPage() {
     fd.append('quote', form.quote);
     fd.append('rating', form.rating);
     fd.append('eventName', form.eventName);
+    if (form.eventId) fd.append('event_id', form.eventId);
     fd.append('status', form.status);
     fd.append('featured', String(form.featured));
 

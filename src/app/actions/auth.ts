@@ -11,10 +11,10 @@ export async function loginAction(formData: FormData) {
   const username = (formData.get('username') as string)?.trim();
   const password = formData.get('password') as string;
 
-  const expectedUser = process.env.ADMIN_USERNAME ?? 'admin';
-  const expectedPass = process.env.ADMIN_PASSWORD ?? '';
+  const expectedUser = process.env.ADMIN_USERNAME;
+  const expectedPass = process.env.ADMIN_PASSWORD;
 
-  if (!username || !password || username !== expectedUser || password !== expectedPass) {
+  if (!expectedUser || !expectedPass || !username || !password || username !== expectedUser || password !== expectedPass) {
     return { error: 'Credenciales incorrectas.' };
   }
 

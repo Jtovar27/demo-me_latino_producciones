@@ -3,7 +3,7 @@ import Button from '@/components/ui/Button';
 import EventsFilter from '@/components/events/EventsFilter';
 import { getEvents } from '@/app/actions/events';
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 export default async function EventsPage() {
   const { data: events } = await getEvents();

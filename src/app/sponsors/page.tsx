@@ -6,7 +6,7 @@ import SponsorPackagesSection from '@/components/sponsors/SponsorPackagesSection
 import { getSponsors } from '@/app/actions/sponsors';
 import type { DBSponsor } from '@/types/supabase';
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 // ── Types & constants ───────────────────────────────────
 

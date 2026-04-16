@@ -45,8 +45,7 @@ describe('updateSiteConfig', () => {
 
   it('updates site config successfully', async () => {
     mockClient._fromFn.mockReturnValue({
-      update: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockResolvedValue({ error: null }),
+      upsert: vi.fn().mockResolvedValue({ error: null }),
     });
     const { updateSiteConfig } = await getActions();
     const fd = new FormData();
@@ -57,28 +56,23 @@ describe('updateSiteConfig', () => {
   });
 
   it('always targets id=1 (single-row config)', async () => {
-    const eqFn = vi.fn().mockResolvedValue({ error: null });
-    mockClient._fromFn.mockReturnValue({
-      update: vi.fn().mockReturnThis(),
-      eq: eqFn,
-    });
+    const upsertFn = vi.fn().mockResolvedValue({ error: null });
+    mockClient._fromFn.mockReturnValue({ upsert: upsertFn });
     const { updateSiteConfig } = await getActions();
     await updateSiteConfig(new FormData());
-    expect(eqFn).toHaveBeenCalledWith('id', 1);
+    expect(upsertFn).toHaveBeenCalledWith(expect.objectContaining({ id: 1 }));
   });
 
   it('skips empty fields (undefined not sent to DB)', async () => {
-    const updateFn = vi.fn().mockReturnThis();
-    mockClient._fromFn.mockReturnValue({
-      update: updateFn,
-      eq: vi.fn().mockResolvedValue({ error: null }),
-    });
+    const upsertFn = vi.fn().mockResolvedValue({ error: null });
+    mockClient._fromFn.mockReturnValue({ upsert: upsertFn });
     const { updateSiteConfig } = await getActions();
     const fd = new FormData();
-    // Only site_name provided — others should be undefined
+    // Only site_name provided — others should be undefined (stripped by clean filter)
     fd.append('site_name', 'Test Name');
     await updateSiteConfig(fd);
-    const payload = updateFn.mock.calls[0][0];
+    const payload = upsertFn.mock.calls[0][0];
+    expect(payload.id).toBe(1);
     expect(payload.site_name).toBe('Test Name');
     expect(payload.contact_email).toBeUndefined();
     expect(payload.instagram_url).toBeUndefined();
@@ -86,8 +80,7 @@ describe('updateSiteConfig', () => {
 
   it('returns error on DB failure', async () => {
     mockClient._fromFn.mockReturnValue({
-      update: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockResolvedValue({ error: { message: 'Update failed' } }),
+      upsert: vi.fn().mockResolvedValue({ error: { message: 'Update failed' } }),
     });
     const { updateSiteConfig } = await getActions();
     const result = await updateSiteConfig(new FormData());

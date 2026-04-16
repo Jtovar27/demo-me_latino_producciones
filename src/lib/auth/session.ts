@@ -4,7 +4,11 @@
  * Keeps the two in sync — a divergence would lock all users out.
  */
 export function buildSessionToken(): string {
-  const raw = `${process.env.ADMIN_USERNAME ?? 'admin'}:${process.env.ADMIN_PASSWORD ?? ''}`;
+  const username = process.env.ADMIN_USERNAME;
+  const password = process.env.ADMIN_PASSWORD;
+  // If credentials are not configured, return a sentinel that can never match a real cookie.
+  if (!username || !password) return 'unconfigured';
+  const raw = `${username}:${password}`;
   let h1 = 5381;
   let h2 = 0x811c9dc5;
   for (let i = 0; i < raw.length; i++) {

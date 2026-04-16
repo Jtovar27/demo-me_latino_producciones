@@ -2,7 +2,7 @@ import PublicLayout from '@/components/layout/PublicLayout';
 import GalleryGrid from '@/components/gallery/GalleryGrid';
 import { getGalleryItems } from '@/app/actions/gallery';
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 export default async function GalleryPage() {
   const { data: galleryItems } = await getGalleryItems();
