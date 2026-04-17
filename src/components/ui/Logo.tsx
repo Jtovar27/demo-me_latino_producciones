@@ -17,7 +17,7 @@ export default function Logo({ variant = 'dark', size = 'md', className }: LogoP
 
   return (
     <Image
-      src="/logo.png"
+      src="/logo-me.png"
       alt="Mónica Espinoza Producciones"
       width={s.width}
       height={s.height}
