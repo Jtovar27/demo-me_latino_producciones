@@ -10,46 +10,56 @@ type BadgeVariant =
 
 interface BadgeProps {
   variant: BadgeVariant;
+  lang?: 'es' | 'en';
   className?: string;
 }
 
-const variantConfig: Record<BadgeVariant, { label: string; styles: string }> = {
+const variantConfig: Record<BadgeVariant, { es: string; en: string; styles: string }> = {
   upcoming: {
-    label: 'Próximo',
+    es: 'Próximo',
+    en: 'Upcoming',
     styles: 'border-[#A56E52] text-[#A56E52] bg-transparent',
   },
   active: {
-    label: 'Activo',
+    es: 'Activo',
+    en: 'Active',
     styles: 'border-[#5B4638] text-[#5B4638] bg-[#EAE1D6]',
   },
   'sold-out': {
-    label: 'Agotado',
+    es: 'Agotado',
+    en: 'Sold Out',
     styles: 'border-[#2A2421] text-[#F7F3EE] bg-[#2A2421]',
   },
   past: {
-    label: 'Finalizado',
+    es: 'Finalizado',
+    en: 'Past',
     styles: 'border-[#D7C6B2] text-[#5B4638] bg-transparent',
   },
   platinum: {
-    label: 'Platinum',
+    es: 'Platinum',
+    en: 'Platinum',
     styles: 'border-[#2A2421] text-[#2A2421] bg-transparent',
   },
   silver: {
-    label: 'Silver',
+    es: 'Silver',
+    en: 'Silver',
     styles: 'border-[#5B4638] text-[#5B4638] bg-transparent',
   },
   blue: {
-    label: 'Blue',
+    es: 'Blue',
+    en: 'Blue',
     styles: 'border-[#4A7FA5] text-[#4A7FA5] bg-transparent',
   },
   pink: {
-    label: 'Pink',
+    es: 'Pink',
+    en: 'Pink',
     styles: 'border-[#C4758A] text-[#C4758A] bg-transparent',
   },
 };
 
-export default function Badge({ variant, className = '' }: BadgeProps) {
-  const { label, styles } = variantConfig[variant];
+export default function Badge({ variant, lang = 'es', className = '' }: BadgeProps) {
+  const { es, en, styles } = variantConfig[variant];
+  const label = lang === 'en' ? en : es;
 
   return (
     <span

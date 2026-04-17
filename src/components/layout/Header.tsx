@@ -17,6 +17,31 @@ const NAV = [
   { es: 'Contacto',     en: 'Contact',     href: '/contact' },
 ];
 
+function LangToggle({ className = '' }: { className?: string }) {
+  const { lang, setLang } = useLanguage();
+  return (
+    <div className={`flex items-center gap-1 font-sans text-[10px] font-medium uppercase tracking-widest ${className}`}>
+      <button
+        onClick={() => setLang('es')}
+        aria-label="Cambiar a español"
+        aria-pressed={lang === 'es'}
+        className={`transition-colors duration-200 ${lang === 'es' ? 'text-[#2A2421] font-semibold' : 'text-[#B89E87] hover:text-[#A56E52]'}`}
+      >
+        ES
+      </button>
+      <span className="text-[#D7C6B2] select-none">|</span>
+      <button
+        onClick={() => setLang('en')}
+        aria-label="Switch to English"
+        aria-pressed={lang === 'en'}
+        className={`transition-colors duration-200 ${lang === 'en' ? 'text-[#2A2421] font-semibold' : 'text-[#B89E87] hover:text-[#A56E52]'}`}
+      >
+        EN
+      </button>
+    </div>
+  );
+}
+
 export default function Header() {
   const { lang } = useLanguage();
   const navLinks = NAV.map((n) => ({ label: lang === 'en' ? n.en : n.es, href: n.href }));
@@ -69,8 +94,9 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Desktop CTA */}
-          <div className="hidden lg:flex">
+          {/* Desktop lang toggle + CTA */}
+          <div className="hidden lg:flex items-center gap-5">
+            <LangToggle />
             <Button variant="primary" size="sm" href="/contact">
               {lang === 'en' ? 'Book Now' : 'Reservar'}
             </Button>
@@ -188,9 +214,12 @@ export default function Header() {
           >
             {lang === 'en' ? 'Book experience' : 'Reservar experiencia'}
           </Button>
-          <p className="mt-5 font-sans text-[10px] font-medium uppercase tracking-[0.22em] text-[#A56E52]">
-            {lang === 'en' ? 'Events that transform.' : 'Eventos que transforman.'}
-          </p>
+          <div className="mt-5 flex items-center justify-between">
+            <p className="font-sans text-[10px] font-medium uppercase tracking-[0.22em] text-[#A56E52]">
+              {lang === 'en' ? 'Events that transform.' : 'Eventos que transforman.'}
+            </p>
+            <LangToggle />
+          </div>
         </div>
       </div>
     </>

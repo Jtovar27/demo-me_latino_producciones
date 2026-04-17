@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { submitPublicReview } from '@/app/actions/reviews';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function ReviewSubmitForm() {
+  const { lang } = useLanguage();
   const [rating, setRating] = useState(5);
   const [hovered, setHovered] = useState(0);
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
@@ -30,10 +32,12 @@ export default function ReviewSubmitForm() {
     return (
       <div className="border border-[#A56E52] bg-[#FDFAF7] px-8 py-10 text-center">
         <p className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#A56E52] mb-3">
-          Gracias por tu testimonio
+          {lang === 'en' ? 'Thank you for your testimonial' : 'Gracias por tu testimonio'}
         </p>
         <p className="font-sans text-sm text-[#5B4638]">
-          Tu review fue recibido y será publicado una vez aprobado por nuestro equipo.
+          {lang === 'en'
+            ? 'Your review was received and will be published once approved by our team.'
+            : 'Tu review fue recibido y será publicado una vez aprobado por nuestro equipo.'}
         </p>
       </div>
     );
@@ -44,7 +48,7 @@ export default function ReviewSubmitForm() {
       {/* Star rating */}
       <div>
         <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-3">
-          Tu calificación
+          {lang === 'en' ? 'Your rating' : 'Tu calificación'}
         </label>
         <div className="flex gap-2">
           {[1, 2, 3, 4, 5].map((n) => {
@@ -57,7 +61,7 @@ export default function ReviewSubmitForm() {
                 onMouseEnter={() => setHovered(n)}
                 onMouseLeave={() => setHovered(0)}
                 className="transition-transform hover:scale-110 focus:outline-none"
-                aria-label={`${n} estrella${n !== 1 ? 's' : ''}`}
+                aria-label={lang === 'en' ? `${n} star${n !== 1 ? 's' : ''}` : `${n} estrella${n !== 1 ? 's' : ''}`}
               >
                 <svg width="24" height="24" viewBox="0 0 24 24">
                   <polygon
@@ -77,14 +81,14 @@ export default function ReviewSubmitForm() {
       {/* Name */}
       <div>
         <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">
-          Nombre completo <span className="text-[#A56E52]">*</span>
+          {lang === 'en' ? 'Full name' : 'Nombre completo'} <span className="text-[#A56E52]">*</span>
         </label>
         <input
           name="name"
           type="text"
           required
           maxLength={200}
-          placeholder="Tu nombre"
+          placeholder={lang === 'en' ? 'Your name' : 'Tu nombre'}
           className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors placeholder:text-[#D7C6B2]"
         />
       </div>
@@ -93,25 +97,25 @@ export default function ReviewSubmitForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">
-            Cargo / Rol
+            {lang === 'en' ? 'Title / Role' : 'Cargo / Rol'}
           </label>
           <input
             name="role"
             type="text"
             maxLength={200}
-            placeholder="CEO, Emprendedor..."
+            placeholder={lang === 'en' ? 'CEO, Entrepreneur...' : 'CEO, Emprendedor...'}
             className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors placeholder:text-[#D7C6B2]"
           />
         </div>
         <div>
           <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">
-            Empresa
+            {lang === 'en' ? 'Company' : 'Empresa'}
           </label>
           <input
             name="company"
             type="text"
             maxLength={200}
-            placeholder="Tu empresa"
+            placeholder={lang === 'en' ? 'Your company' : 'Tu empresa'}
             className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors placeholder:text-[#D7C6B2]"
           />
         </div>
@@ -120,7 +124,7 @@ export default function ReviewSubmitForm() {
       {/* Event name */}
       <div>
         <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">
-          Evento al que asististe
+          {lang === 'en' ? 'Event you attended' : 'Evento al que asististe'}
         </label>
         <input
           name="event_name"
@@ -134,13 +138,15 @@ export default function ReviewSubmitForm() {
       {/* Review text */}
       <div>
         <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">
-          Tu testimonio
+          {lang === 'en' ? 'Your testimonial' : 'Tu testimonio'}
         </label>
         <textarea
           name="text"
           rows={4}
           maxLength={2000}
-          placeholder="Comparte tu experiencia con nuestra comunidad..."
+          placeholder={lang === 'en'
+            ? 'Share your experience with our community...'
+            : 'Comparte tu experiencia con nuestra comunidad...'}
           className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors resize-none placeholder:text-[#D7C6B2]"
         />
       </div>
@@ -154,7 +160,9 @@ export default function ReviewSubmitForm() {
         disabled={status === 'sending'}
         className="self-start border border-[#2A2421] bg-[#2A2421] px-8 py-3 font-sans text-[10px] uppercase tracking-widest text-[#F7F3EE] transition-colors hover:bg-[#A56E52] hover:border-[#A56E52] disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {status === 'sending' ? 'Enviando...' : 'Enviar testimonio'}
+        {status === 'sending'
+          ? (lang === 'en' ? 'Sending...' : 'Enviando...')
+          : (lang === 'en' ? 'Submit testimonial' : 'Enviar testimonio')}
       </button>
     </form>
   );

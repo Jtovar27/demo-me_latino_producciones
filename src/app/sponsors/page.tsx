@@ -4,6 +4,7 @@ import PublicLayout from '@/components/layout/PublicLayout';
 import Button from '@/components/ui/Button';
 import SponsorPackagesSection from '@/components/sponsors/SponsorPackagesSection';
 import { getSponsors } from '@/app/actions/sponsors';
+import { getLang } from '@/lib/i18n/getLang';
 import type { DBSponsor } from '@/types/supabase';
 
 export const revalidate = 60;
@@ -20,79 +21,63 @@ function safeTier(t: string): SponsorTier {
     : 'pink';
 }
 
-const TIER_META: Record<
-  SponsorTier,
-  {
-    label: string;
-    description: string;
-    borderClass: string;
-    pillClass: string;
-    gridClass: string;
-    cardBg: string;
-  }
-> = {
-  platinum: {
-    label: 'Platinum',
-    description:
-      'Nuestros aliados más comprometidos — presentes en cada punto de contacto de la experiencia ME Producciones.',
-    borderClass: 'border-[#2A2421]',
-    pillClass: 'bg-[#2A2421] text-[#F7F3EE]',
-    gridClass: 'grid-cols-2 sm:grid-cols-2',
-    cardBg: 'bg-[#FDFAF7]',
-  },
-  silver: {
-    label: 'Silver',
-    description: 'Socios integrales que amplifican nuestros eventos y valores compartidos a gran escala.',
-    borderClass: 'border-[#D7C6B2]',
-    pillClass: 'bg-[#EAE1D6] text-[#5B4638]',
-    gridClass: 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3',
-    cardBg: 'bg-[#FDFAF7]',
-  },
-  blue: {
-    label: 'Blue',
-    description: 'Socios emergentes que aportan experiencia, alcance y comunidad.',
-    borderClass: 'border-[#4A7FA5]',
-    pillClass: 'bg-[#E8F1F7] text-[#4A7FA5]',
-    gridClass: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
-    cardBg: 'bg-[#F7F3EE]',
-  },
-  pink: {
-    label: 'Pink',
-    description:
-      'Organizaciones alineadas con nuestra misión de celebración cultural e impacto colectivo.',
-    borderClass: 'border-[#C4758A]',
-    pillClass: 'bg-[#FAF0F3] text-[#C4758A]',
-    gridClass: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
-    cardBg: 'bg-[#F7F3EE]',
-  },
+type TierMeta = {
+  label: string;
+  description: string;
+  borderClass: string;
+  pillClass: string;
+  gridClass: string;
+  cardBg: string;
 };
 
-const WHY_PARTNER = [
-  {
-    number: '01',
-    title: 'Alcance premium',
-    body: 'Acceso directo a más de 18,500 consumidores latinos premium — profesionales, fundadores, creativos y líderes comunitarios con alto poder adquisitivo e influencia.',
-  },
-  {
-    number: '02',
-    title: 'Alineación de marca',
-    body: 'La asociación con ME Producciones comunica un compromiso genuino con la cultura latina. Nuestra comunidad reconoce y premia la alineación auténtica de marca.',
-  },
-  {
-    number: '03',
-    title: 'Presencia editorial',
-    body: 'Tu marca aparece en contenido de calidad editorial — antes, durante y después de cada evento — en redes sociales, email y nuestra creciente presencia en medios.',
-  },
-  {
-    number: '04',
-    title: 'Impacto medible',
-    body: 'Cada socio recibe un reporte de impacto post-evento: alcance, impresiones, sentimiento y retroalimentación cualitativa de la comunidad. Métricas claras, no suposiciones.',
-  },
-];
+function getTierMeta(lang: 'es' | 'en'): Record<SponsorTier, TierMeta> {
+  return {
+    platinum: {
+      label: 'Platinum',
+      description: lang === 'en'
+        ? 'Our most committed allies — present at every touchpoint of the ME Producciones experience.'
+        : 'Nuestros aliados más comprometidos — presentes en cada punto de contacto de la experiencia ME Producciones.',
+      borderClass: 'border-[#2A2421]',
+      pillClass: 'bg-[#2A2421] text-[#F7F3EE]',
+      gridClass: 'grid-cols-2 sm:grid-cols-2',
+      cardBg: 'bg-[#FDFAF7]',
+    },
+    silver: {
+      label: 'Silver',
+      description: lang === 'en'
+        ? 'Integral partners who amplify our events and shared values at scale.'
+        : 'Socios integrales que amplifican nuestros eventos y valores compartidos a gran escala.',
+      borderClass: 'border-[#D7C6B2]',
+      pillClass: 'bg-[#EAE1D6] text-[#5B4638]',
+      gridClass: 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3',
+      cardBg: 'bg-[#FDFAF7]',
+    },
+    blue: {
+      label: 'Blue',
+      description: lang === 'en'
+        ? 'Emerging partners who bring expertise, reach, and community.'
+        : 'Socios emergentes que aportan experiencia, alcance y comunidad.',
+      borderClass: 'border-[#4A7FA5]',
+      pillClass: 'bg-[#E8F1F7] text-[#4A7FA5]',
+      gridClass: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
+      cardBg: 'bg-[#F7F3EE]',
+    },
+    pink: {
+      label: 'Pink',
+      description: lang === 'en'
+        ? 'Organizations aligned with our mission of cultural celebration and collective impact.'
+        : 'Organizaciones alineadas con nuestra misión de celebración cultural e impacto colectivo.',
+      borderClass: 'border-[#C4758A]',
+      pillClass: 'bg-[#FAF0F3] text-[#C4758A]',
+      gridClass: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
+      cardBg: 'bg-[#F7F3EE]',
+    },
+  };
+}
 
 // ── Sub-components ───────────────────────────────────────
 
-function TierPill({ tier }: { tier: SponsorTier }) {
+function TierPill({ tier, TIER_META }: { tier: SponsorTier; TIER_META: Record<SponsorTier, TierMeta> }) {
   const { label, pillClass } = TIER_META[tier];
   return (
     <span
@@ -103,7 +88,7 @@ function TierPill({ tier }: { tier: SponsorTier }) {
   );
 }
 
-function SponsorCard({ sponsor, tier }: { sponsor: DBSponsor; tier: SponsorTier }) {
+function SponsorCard({ sponsor, tier, TIER_META }: { sponsor: DBSponsor; tier: SponsorTier; TIER_META: Record<SponsorTier, TierMeta> }) {
   const { borderClass, cardBg } = TIER_META[tier];
   const isPlatinum = tier === 'platinum';
 
@@ -150,7 +135,7 @@ function SponsorCard({ sponsor, tier }: { sponsor: DBSponsor; tier: SponsorTier 
       <div className={`flex flex-col gap-2 ${isPlatinum ? 'p-4 sm:p-8' : 'p-3 sm:p-5'}`}>
       {/* Tier + link icon */}
       <div className="flex items-center justify-between gap-2">
-        <TierPill tier={tier} />
+        <TierPill tier={tier} TIER_META={TIER_META} />
         {sponsor.website && (
           <svg
             className="w-3.5 h-3.5 text-[#D7C6B2] group-hover:text-[#A56E52] transition-colors shrink-0"
@@ -196,7 +181,7 @@ function SponsorCard({ sponsor, tier }: { sponsor: DBSponsor; tier: SponsorTier 
         href={sponsor.website}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`Visitar sitio web de ${sponsor.name}`}
+        aria-label={`Visit ${sponsor.name} website`}
         className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A56E52]"
       >
         {inner}
@@ -210,6 +195,8 @@ function SponsorCard({ sponsor, tier }: { sponsor: DBSponsor; tier: SponsorTier 
 // ── Page ─────────────────────────────────────────────────
 
 export default async function SponsorsPage() {
+  const lang = await getLang();
+  const TIER_META = getTierMeta(lang);
   const { data: allSponsors } = await getSponsors();
   const activeSponsors = allSponsors.filter((s) => s.active !== false);
 
@@ -223,6 +210,20 @@ export default async function SponsorsPage() {
 
   const hasAnySponsors = activeSponsors.length > 0;
 
+  const whyPartner = lang === 'en'
+    ? [
+        { number: '01', title: 'Premium reach',       body: 'Direct access to over 18,500 premium Latino consumers — professionals, founders, creatives, and community leaders with high purchasing power and influence.' },
+        { number: '02', title: 'Brand alignment',     body: 'Association with ME Producciones communicates a genuine commitment to Latino culture. Our community recognizes and rewards authentic brand alignment.' },
+        { number: '03', title: 'Editorial presence',  body: 'Your brand appears in editorial-quality content — before, during, and after each event — across social media, email, and our growing media presence.' },
+        { number: '04', title: 'Measurable impact',   body: 'Every partner receives a post-event impact report: reach, impressions, sentiment, and qualitative community feedback. Clear metrics, not assumptions.' },
+      ]
+    : [
+        { number: '01', title: 'Alcance premium',      body: 'Acceso directo a más de 18,500 consumidores latinos premium — profesionales, fundadores, creativos y líderes comunitarios con alto poder adquisitivo e influencia.' },
+        { number: '02', title: 'Alineación de marca',  body: 'La asociación con ME Producciones comunica un compromiso genuino con la cultura latina. Nuestra comunidad reconoce y premia la alineación auténtica de marca.' },
+        { number: '03', title: 'Presencia editorial',  body: 'Tu marca aparece en contenido de calidad editorial — antes, durante y después de cada evento — en redes sociales, email y nuestra creciente presencia en medios.' },
+        { number: '04', title: 'Impacto medible',      body: 'Cada socio recibe un reporte de impacto post-evento: alcance, impresiones, sentimiento y retroalimentación cualitativa de la comunidad. Métricas claras, no suposiciones.' },
+      ];
+
   return (
     <PublicLayout>
 
@@ -235,19 +236,21 @@ export default async function SponsorsPage() {
             </span>
             <div className="mt-3 mb-8 h-px w-8 bg-[#A56E52]" />
             <h1 className="font-serif text-4xl font-normal leading-[1.1] text-[#2A2421] md:text-5xl lg:text-6xl">
-              Una comunidad de marcas con propósito
+              {lang === 'en'
+                ? 'A community of purpose-driven brands'
+                : 'Una comunidad de marcas con propósito'}
             </h1>
             <p className="mt-6 max-w-2xl font-sans text-base leading-relaxed text-[#5B4638]">
-              Nuestros patrocinadores no son vendedores — son aliados invertidos en construir algo
-              que perdura. Compartimos audiencia, valores y la convicción de que la comunidad
-              latina merece lo mejor.
+              {lang === 'en'
+                ? 'Our sponsors are not vendors — they are allies invested in building something that endures. We share audience, values, and the conviction that the Latino community deserves the best.'
+                : 'Nuestros patrocinadores no son vendedores — son aliados invertidos en construir algo que perdura. Compartimos audiencia, valores y la convicción de que la comunidad latina merece lo mejor.'}
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Button href="/contact" variant="primary" size="md">
-                Convertirme en sponsor
+                {lang === 'en' ? 'Become a sponsor' : 'Convertirme en sponsor'}
               </Button>
               <Button href="#paquetes" variant="secondary" size="md">
-                Ver paquetes
+                {lang === 'en' ? 'View packages' : 'Ver paquetes'}
               </Button>
             </div>
           </div>
@@ -263,11 +266,11 @@ export default async function SponsorsPage() {
 
           <div className="mb-16 flex flex-col gap-2">
             <span className="font-sans text-[11px] font-medium uppercase tracking-[0.22em] text-[#A56E52]">
-              Patrocinadores actuales
+              {lang === 'en' ? 'Current sponsors' : 'Patrocinadores actuales'}
             </span>
             <div className="mt-1 h-px w-8 bg-[#A56E52]" />
             <h2 className="mt-4 font-serif text-3xl font-normal text-[#2A2421] md:text-4xl">
-              Quienes nos acompañan
+              {lang === 'en' ? 'Those who accompany us' : 'Quienes nos acompañan'}
             </h2>
           </div>
 
@@ -283,7 +286,7 @@ export default async function SponsorsPage() {
                     {/* Tier header row */}
                     <div className="mb-8 flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-10 border-t border-[#EAE1D6] pt-8">
                       <div className="shrink-0">
-                        <TierPill tier={tier} />
+                        <TierPill tier={tier} TIER_META={TIER_META} />
                         <p className="mt-2 font-serif text-lg font-normal text-[#2A2421]">
                           {label}
                         </p>
@@ -296,7 +299,7 @@ export default async function SponsorsPage() {
                     {/* Sponsor cards */}
                     <div className={`grid gap-4 ${gridClass}`}>
                       {sponsors.map((sponsor) => (
-                        <SponsorCard key={sponsor.id} sponsor={sponsor} tier={tier} />
+                        <SponsorCard key={sponsor.id} sponsor={sponsor} tier={tier} TIER_META={TIER_META} />
                       ))}
                     </div>
                   </div>
@@ -308,15 +311,16 @@ export default async function SponsorsPage() {
             <div className="border border-dashed border-[#D7C6B2] px-8 py-20 text-center">
               <div className="mx-auto max-w-md">
                 <p className="font-serif text-2xl font-normal text-[#2A2421]">
-                  Sé el primero en asociarte
+                  {lang === 'en' ? 'Be the first to partner' : 'Sé el primero en asociarte'}
                 </p>
                 <p className="mt-4 font-sans text-sm leading-relaxed text-[#5B4638]">
-                  Estamos construyendo una comunidad de marcas comprometidas con la cultura latina.
-                  Los primeros en unirse tienen acceso a los mejores espacios y visibilidad.
+                  {lang === 'en'
+                    ? "We are building a community of brands committed to Latino culture. The first to join have access to the best spaces and visibility."
+                    : 'Estamos construyendo una comunidad de marcas comprometidas con la cultura latina. Los primeros en unirse tienen acceso a los mejores espacios y visibilidad.'}
                 </p>
                 <div className="mt-8">
                   <Button href="/contact" variant="primary" size="md">
-                    Iniciar conversación
+                    {lang === 'en' ? 'Start a conversation' : 'Iniciar conversación'}
                   </Button>
                 </div>
               </div>
@@ -330,20 +334,21 @@ export default async function SponsorsPage() {
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <div className="mb-14 flex flex-col gap-2">
             <span className="font-sans text-[11px] font-medium uppercase tracking-[0.22em] text-[#A56E52]">
-              Por qué asociarse
+              {lang === 'en' ? 'Why partner with us' : 'Por qué asociarse'}
             </span>
             <div className="mt-1 h-px w-8 bg-[#A56E52]" />
             <h2 className="mt-4 max-w-lg font-serif text-3xl font-normal text-[#2A2421] md:text-4xl">
-              Más que visibilidad.
+              {lang === 'en' ? 'More than visibility.' : 'Más que visibilidad.'}
             </h2>
             <p className="mt-3 max-w-xl font-sans text-sm leading-relaxed text-[#5B4638]">
-              El patrocinio con ME Producciones es una inversión en comunidad, credibilidad
-              y relevancia cultural.
+              {lang === 'en'
+                ? 'Sponsoring ME Producciones is an investment in community, credibility, and cultural relevance.'
+                : 'El patrocinio con ME Producciones es una inversión en comunidad, credibilidad y relevancia cultural.'}
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-0 md:grid-cols-2">
-            {WHY_PARTNER.map((item, i) => (
+            {whyPartner.map((item, i) => (
               <div
                 key={item.number}
                 className={[
@@ -369,15 +374,16 @@ export default async function SponsorsPage() {
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <div className="mb-14 text-center flex flex-col items-center gap-2">
             <span className="font-sans text-[11px] font-medium uppercase tracking-[0.22em] text-[#A56E52]">
-              Paquetes de patrocinio
+              {lang === 'en' ? 'Sponsorship packages' : 'Paquetes de patrocinio'}
             </span>
             <div className="mt-1 h-px w-8 bg-[#A56E52]" />
             <h2 className="mt-4 font-serif text-3xl font-normal text-[#2A2421] md:text-4xl">
-              Encuentra tu nivel.
+              {lang === 'en' ? 'Find your level.' : 'Encuentra tu nivel.'}
             </h2>
             <p className="mt-3 max-w-xl font-sans text-sm leading-relaxed text-[#5B4638]">
-              Cada nivel está diseñado para maximizar la presencia de tu marca mientras profundizas
-              tu conexión con la comunidad.
+              {lang === 'en'
+                ? "Each level is designed to maximize your brand's presence while deepening your connection with the community."
+                : 'Cada nivel está diseñado para maximizar la presencia de tu marca mientras profundizas tu conexión con la comunidad.'}
             </p>
           </div>
 
@@ -390,25 +396,28 @@ export default async function SponsorsPage() {
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <div className="mx-auto max-w-2xl text-center">
             <span className="font-sans text-[11px] font-medium uppercase tracking-[0.22em] text-[#A56E52]">
-              Construyamos juntos
+              {lang === 'en' ? "Let's build together" : 'Construyamos juntos'}
             </span>
             <div className="mx-auto mt-3 mb-8 h-px w-8 bg-[#A56E52]" />
             <h2 className="mb-6 font-serif text-3xl font-normal leading-tight text-[#F7F3EE] md:text-4xl">
-              Los acuerdos de patrocinio a medida están disponibles para marcas con objetivos únicos.
+              {lang === 'en'
+                ? 'Custom sponsorship agreements are available for brands with unique objectives.'
+                : 'Los acuerdos de patrocinio a medida están disponibles para marcas con objetivos únicos.'}
             </h2>
             <p className="mb-10 font-sans text-sm leading-relaxed text-[#D7C6B2]">
-              Nuestro equipo trabajará contigo para diseñar una presencia que se sienta auténtica y
-              entregue resultados reales.
+              {lang === 'en'
+                ? 'Our team will work with you to design a presence that feels authentic and delivers real results.'
+                : 'Nuestro equipo trabajará contigo para diseñar una presencia que se sienta auténtica y entregue resultados reales.'}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button href="/contact" variant="terracotta" size="lg">
-                Iniciar conversación
+                {lang === 'en' ? 'Start a conversation' : 'Iniciar conversación'}
               </Button>
               <Link
                 href="#paquetes"
                 className="inline-flex items-center justify-center border border-[#5B4638] px-6 py-3 font-sans text-[11px] uppercase tracking-widest text-[#D7C6B2] hover:border-[#D7C6B2] hover:text-[#F7F3EE] transition-colors duration-200"
               >
-                Ver paquetes
+                {lang === 'en' ? 'View packages' : 'Ver paquetes'}
               </Link>
             </div>
           </div>

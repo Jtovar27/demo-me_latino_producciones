@@ -3,6 +3,7 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { submitBooking } from '@/app/actions/bookings';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 type UpcomingEvent = { id: string; title: string; date: string; city: string; venue: string };
 
@@ -37,35 +38,22 @@ interface FormErrors {
   guests?:      string;
 }
 
-// ── Options ──────────────────────────────────────
-
-const INQUIRY_OPTIONS: { value: InquiryType; label: string }[] = [
-  { value: '',          label: 'Selecciona el tipo de consulta' },
-  { value: 'reservar',  label: 'Quiero hacer una reserva' },
-  { value: 'asistir',   label: 'Quiero asistir a un evento' },
-  { value: 'patrocinio',label: 'Interés en patrocinio' },
-  { value: 'speaker',   label: 'Quiero ser speaker' },
-  { value: 'produccion',label: 'Producción de evento a medida' },
-  { value: 'prensa',    label: 'Prensa y medios' },
-  { value: 'otro',      label: 'Otro' },
-];
-
 // ── Helpers ──────────────────────────────────────
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function validate(form: FormState): FormErrors {
+function validate(form: FormState, lang: 'es' | 'en'): FormErrors {
   const errs: FormErrors = {};
-  if (!form.name.trim())  errs.name = 'El nombre completo es requerido.';
-  if (!form.email.trim()) errs.email = 'El correo electrónico es requerido.';
-  else if (!EMAIL_RE.test(form.email)) errs.email = 'Ingresa una dirección de correo válida.';
-  if (!form.inquiryType)  errs.inquiryType = 'Selecciona el tipo de consulta.';
-  if (!form.message.trim()) errs.message = 'El mensaje es requerido.';
+  if (!form.name.trim())  errs.name = lang === 'en' ? 'Full name is required.' : 'El nombre completo es requerido.';
+  if (!form.email.trim()) errs.email = lang === 'en' ? 'Email address is required.' : 'El correo electrónico es requerido.';
+  else if (!EMAIL_RE.test(form.email)) errs.email = lang === 'en' ? 'Enter a valid email address.' : 'Ingresa una dirección de correo válida.';
+  if (!form.inquiryType)  errs.inquiryType = lang === 'en' ? 'Select the inquiry type.' : 'Selecciona el tipo de consulta.';
+  if (!form.message.trim()) errs.message = lang === 'en' ? 'Message is required.' : 'El mensaje es requerido.';
 
   if (form.inquiryType === 'reservar') {
-    if (!form.event_name.trim()) errs.event_name = 'Indica el nombre del evento.';
+    if (!form.event_name.trim()) errs.event_name = lang === 'en' ? 'Indicate the event name.' : 'Indica el nombre del evento.';
     const g = parseInt(form.guests, 10);
-    if (!form.guests || isNaN(g) || g < 1) errs.guests = 'Indica el número de personas.';
+    if (!form.guests || isNaN(g) || g < 1) errs.guests = lang === 'en' ? 'Indicate the number of people.' : 'Indica el número de personas.';
   }
 
   return errs;
@@ -111,12 +99,35 @@ const EMPTY_FORM: FormState = {
 };
 
 export default function ContactForm({ upcomingEvents = [] }: { upcomingEvents?: UpcomingEvent[] }) {
+  const { lang } = useLanguage();
   const [form,      setForm]      = useState<FormState>(EMPTY_FORM);
   const [errors,    setErrors]    = useState<FormErrors>({});
   const [loading,   setLoading]   = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const isBooking = form.inquiryType === 'reservar';
+
+  const inquiryOptions: { value: InquiryType; label: string }[] = lang === 'en'
+    ? [
+        { value: '',           label: 'Select inquiry type' },
+        { value: 'reservar',   label: 'I want to make a reservation' },
+        { value: 'asistir',    label: 'I want to attend an event' },
+        { value: 'patrocinio', label: 'Interest in sponsorship' },
+        { value: 'speaker',    label: 'I want to be a speaker' },
+        { value: 'produccion', label: 'Custom event production' },
+        { value: 'prensa',     label: 'Press and media' },
+        { value: 'otro',       label: 'Other' },
+      ]
+    : [
+        { value: '',           label: 'Selecciona el tipo de consulta' },
+        { value: 'reservar',   label: 'Quiero hacer una reserva' },
+        { value: 'asistir',    label: 'Quiero asistir a un evento' },
+        { value: 'patrocinio', label: 'Interés en patrocinio' },
+        { value: 'speaker',    label: 'Quiero ser speaker' },
+        { value: 'produccion', label: 'Producción de evento a medida' },
+        { value: 'prensa',     label: 'Prensa y medios' },
+        { value: 'otro',       label: 'Otro' },
+      ];
 
   function handleChange(
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -128,19 +139,17 @@ export default function ContactForm({ upcomingEvents = [] }: { upcomingEvents?: 
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const errs = validate(form);
+    const errs = validate(form, lang);
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
     setLoading(true);
     try {
       if (isBooking) {
-        // → tabla bookings
         const fd = new FormData();
         Object.entries(form).forEach(([k, v]) => fd.append(k, v));
         const res = await submitBooking(fd);
         if (res.error) throw new Error(res.error);
       } else {
-        // → tabla leads
         const supabase = createClient();
         const { error: dbError } = await supabase.from('leads').insert({
           name:     form.name.trim(),
@@ -155,7 +164,7 @@ export default function ContactForm({ upcomingEvents = [] }: { upcomingEvents?: 
       }
       setSubmitted(true);
     } catch {
-      setErrors({ message: 'Hubo un error al enviar tu mensaje. Intenta de nuevo.' });
+      setErrors({ message: lang === 'en' ? 'There was an error sending your message. Please try again.' : 'Hubo un error al enviar tu mensaje. Intenta de nuevo.' });
     } finally {
       setLoading(false);
     }
@@ -168,19 +177,21 @@ export default function ContactForm({ upcomingEvents = [] }: { upcomingEvents?: 
       <div className="flex flex-col gap-5 border border-[#A56E52] bg-[#F7F3EE] p-10">
         <div className="h-px w-8 bg-[#A56E52]" />
         <h3 className="font-serif text-2xl font-normal text-[#2A2421]">
-          {isBooking ? 'Reserva recibida.' : 'Gracias, recibimos tu mensaje.'}
+          {isBooking
+            ? (lang === 'en' ? 'Reservation received.' : 'Reserva recibida.')
+            : (lang === 'en' ? 'Thank you, we received your message.' : 'Gracias, recibimos tu mensaje.')}
         </h3>
         <p className="font-sans text-base leading-relaxed text-[#5B4638]">
           {isBooking
-            ? 'Tu solicitud de reserva fue enviada. Nos pondremos en contacto para confirmar los detalles.'
-            : 'Nos pondremos en contacto en menos de 48 horas.'}
+            ? (lang === 'en' ? 'Your reservation request was sent. We will be in touch to confirm the details.' : 'Tu solicitud de reserva fue enviada. Nos pondremos en contacto para confirmar los detalles.')
+            : (lang === 'en' ? 'We will be in touch within 48 hours.' : 'Nos pondremos en contacto en menos de 48 horas.')}
         </p>
         <button
           type="button"
           onClick={() => { setSubmitted(false); setForm(EMPTY_FORM); setErrors({}); }}
           className="mt-2 w-fit font-sans text-xs font-medium uppercase tracking-widest text-[#5B4638] underline underline-offset-4 transition-colors hover:text-[#A56E52]"
         >
-          Enviar otro mensaje
+          {lang === 'en' ? 'Send another message' : 'Enviar otro mensaje'}
         </button>
       </div>
     );
@@ -192,24 +203,24 @@ export default function ContactForm({ upcomingEvents = [] }: { upcomingEvents?: 
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-7">
 
       {/* Name */}
-      <FieldWrapper label="Nombre completo" required error={errors.name}>
+      <FieldWrapper label={lang === 'en' ? 'Full name' : 'Nombre completo'} required error={errors.name}>
         <input
           type="text" name="name" value={form.name}
-          onChange={handleChange} placeholder="Tu nombre completo"
+          onChange={handleChange} placeholder={lang === 'en' ? 'Your full name' : 'Tu nombre completo'}
           autoComplete="name" className={inputCls(errors.name)}
         />
       </FieldWrapper>
 
       {/* Email + Phone */}
       <div className="grid grid-cols-1 gap-7 sm:grid-cols-2">
-        <FieldWrapper label="Correo electrónico" required error={errors.email}>
+        <FieldWrapper label={lang === 'en' ? 'Email address' : 'Correo electrónico'} required error={errors.email}>
           <input
             type="email" name="email" value={form.email}
-            onChange={handleChange} placeholder="tú@ejemplo.com"
+            onChange={handleChange} placeholder={lang === 'en' ? 'you@example.com' : 'tú@ejemplo.com'}
             autoComplete="email" className={inputCls(errors.email)}
           />
         </FieldWrapper>
-        <FieldWrapper label="Teléfono (opcional)">
+        <FieldWrapper label={lang === 'en' ? 'Phone (optional)' : 'Teléfono (opcional)'}>
           <input
             type="tel" name="phone" value={form.phone}
             onChange={handleChange} placeholder="+1 (305) 000-0000"
@@ -219,7 +230,7 @@ export default function ContactForm({ upcomingEvents = [] }: { upcomingEvents?: 
       </div>
 
       {/* Inquiry type */}
-      <FieldWrapper label="Tipo de consulta" required error={errors.inquiryType}>
+      <FieldWrapper label={lang === 'en' ? 'Inquiry type' : 'Tipo de consulta'} required error={errors.inquiryType}>
         <div className="relative">
           <select
             name="inquiryType" value={form.inquiryType} onChange={handleChange}
@@ -229,7 +240,7 @@ export default function ContactForm({ upcomingEvents = [] }: { upcomingEvents?: 
               form.inquiryType === '' ? 'text-[#5B4638]/30' : 'text-[#2A2421]',
             ].join(' ')}
           >
-            {INQUIRY_OPTIONS.map((opt) => (
+            {inquiryOptions.map((opt) => (
               <option key={opt.value} value={opt.value} disabled={opt.value === ''}>
                 {opt.label}
               </option>
@@ -246,7 +257,7 @@ export default function ContactForm({ upcomingEvents = [] }: { upcomingEvents?: 
       {/* ── Booking-only fields ─────────────────── */}
       {isBooking && (
         <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 border-l-2 border-[#A56E52] pl-5">
-          <FieldWrapper label="Evento" required error={errors.event_name}>
+          <FieldWrapper label={lang === 'en' ? 'Event' : 'Evento'} required error={errors.event_name}>
             <div className="relative">
               <select
                 name="event_name"
@@ -258,9 +269,9 @@ export default function ContactForm({ upcomingEvents = [] }: { upcomingEvents?: 
                   form.event_name === '' ? 'text-[#5B4638]/30' : 'text-[#2A2421]',
                 ].join(' ')}
               >
-                <option value="" disabled>Selecciona un evento</option>
+                <option value="" disabled>{lang === 'en' ? 'Select an event' : 'Selecciona un evento'}</option>
                 {upcomingEvents.length === 0 && (
-                  <option value="" disabled>No hay eventos disponibles</option>
+                  <option value="" disabled>{lang === 'en' ? 'No events available' : 'No hay eventos disponibles'}</option>
                 )}
                 {upcomingEvents.map((ev) => {
                   const date = new Date(ev.date + 'T00:00:00').toLocaleDateString('es-US', {
@@ -280,7 +291,7 @@ export default function ContactForm({ upcomingEvents = [] }: { upcomingEvents?: 
               </div>
             </div>
           </FieldWrapper>
-          <FieldWrapper label="Número de personas" required error={errors.guests}>
+          <FieldWrapper label={lang === 'en' ? 'Number of guests' : 'Número de personas'} required error={errors.guests}>
             <input
               type="number" name="guests" value={form.guests}
               onChange={handleChange} placeholder="1" min="1"
@@ -291,11 +302,19 @@ export default function ContactForm({ upcomingEvents = [] }: { upcomingEvents?: 
       )}
 
       {/* Message */}
-      <FieldWrapper label={isBooking ? 'Notas adicionales (opcional)' : 'Mensaje'} required={!isBooking} error={errors.message}>
+      <FieldWrapper
+        label={isBooking
+          ? (lang === 'en' ? 'Additional notes (optional)' : 'Notas adicionales (opcional)')
+          : (lang === 'en' ? 'Message' : 'Mensaje')}
+        required={!isBooking}
+        error={errors.message}
+      >
         <textarea
           name="message" value={form.message} onChange={handleChange}
           rows={6}
-          placeholder={isBooking ? 'Algún detalle especial, restricciones dietéticas, etc.' : 'Cuéntanos qué tienes en mente...'}
+          placeholder={isBooking
+            ? (lang === 'en' ? 'Any special details, dietary restrictions, etc.' : 'Algún detalle especial, restricciones dietéticas, etc.')
+            : (lang === 'en' ? 'Tell us what you have in mind...' : 'Cuéntanos qué tienes en mente...')}
           className={[inputCls(errors.message), 'resize-none'].join(' ')}
         />
       </FieldWrapper>
@@ -316,11 +335,13 @@ export default function ContactForm({ upcomingEvents = [] }: { upcomingEvents?: 
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              Enviando...
+              {lang === 'en' ? 'Sending...' : 'Enviando...'}
             </>
-          ) : isBooking ? 'Solicitar reserva' : 'Enviar mensaje'}
+          ) : isBooking
+            ? (lang === 'en' ? 'Request reservation' : 'Solicitar reserva')
+            : (lang === 'en' ? 'Send message' : 'Enviar mensaje')}
         </button>
-        <p className="font-sans text-xs text-[#A56E52]">* Campos requeridos</p>
+        <p className="font-sans text-xs text-[#A56E52]">* {lang === 'en' ? 'Required fields' : 'Campos requeridos'}</p>
       </div>
 
     </form>

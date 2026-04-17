@@ -2,10 +2,12 @@ import PublicLayout from '@/components/layout/PublicLayout';
 import Button from '@/components/ui/Button';
 import EventsFilter from '@/components/events/EventsFilter';
 import { getEvents } from '@/app/actions/events';
+import { getLang } from '@/lib/i18n/getLang';
 
 export const revalidate = 60;
 
 export default async function EventsPage() {
+  const lang = await getLang();
   const { data: events } = await getEvents();
   const upcomingCount = events.filter((e) => e.status === 'upcoming').length;
   const cities = new Set(events.map((e) => e.city)).size;
@@ -20,7 +22,7 @@ export default async function EventsPage() {
           {/* Label */}
           <div className="hero-label flex flex-col gap-2">
             <span className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
-              Próximos Eventos
+              {lang === 'en' ? 'Upcoming Events' : 'Próximos Eventos'}
             </span>
             <div className="h-px w-8 bg-[#A56E52]" />
           </div>
@@ -31,15 +33,17 @@ export default async function EventsPage() {
             <h1
               className="hero-h1 font-serif text-4xl md:text-5xl lg:text-6xl font-normal leading-tight text-[#2A2421]"
             >
-              Cada experiencia, una oportunidad de transformación.
+              {lang === 'en'
+                ? 'Every experience, an opportunity for transformation.'
+                : 'Cada experiencia, una oportunidad de transformación.'}
             </h1>
 
             {/* Intro + quick stats */}
             <div className="flex flex-col gap-8">
               <p className="font-sans text-base leading-relaxed text-[#5B4638] max-w-lg">
-                Desde Miami hasta Chicago, ME Producciones produce eventos que combinan
-                propósito editorial, comunidad auténtica y producción de clase mundial. Encuentra
-                la experiencia diseñada para este momento de tu vida.
+                {lang === 'en'
+                  ? 'From Miami to Chicago, ME Producciones produces events that combine editorial purpose, authentic community, and world-class production. Find the experience designed for this moment in your life.'
+                  : 'Desde Miami hasta Chicago, ME Producciones produce eventos que combinan propósito editorial, comunidad auténtica y producción de clase mundial. Encuentra la experiencia diseñada para este momento de tu vida.'}
               </p>
 
               {/* Stat strip */}
@@ -49,7 +53,7 @@ export default async function EventsPage() {
                     {upcomingCount}
                   </p>
                   <p className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] mt-1">
-                    Próximos
+                    {lang === 'en' ? 'Upcoming' : 'Próximos'}
                   </p>
                 </div>
                 <div>
@@ -57,7 +61,7 @@ export default async function EventsPage() {
                     {cities}
                   </p>
                   <p className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] mt-1">
-                    Ciudades
+                    {lang === 'en' ? 'Cities' : 'Ciudades'}
                   </p>
                 </div>
                 <div>
@@ -65,7 +69,7 @@ export default async function EventsPage() {
                     {events.length}
                   </p>
                   <p className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] mt-1">
-                    Total eventos
+                    {lang === 'en' ? 'Total events' : 'Total eventos'}
                   </p>
                 </div>
               </div>
@@ -86,26 +90,27 @@ export default async function EventsPage() {
 
             <div className="flex flex-col items-center gap-2">
               <span className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
-                Producción personalizada
+                {lang === 'en' ? 'Custom production' : 'Producción personalizada'}
               </span>
               <div className="h-px w-8 bg-[#A56E52]" />
             </div>
 
             <h2
               className="font-serif text-4xl md:text-5xl font-normal leading-tight text-[#F7F3EE]"
-
             >
-              ¿Buscas producir tu propio evento?
+              {lang === 'en'
+                ? 'Looking to produce your own event?'
+                : '¿Buscas producir tu propio evento?'}
             </h2>
 
             <p className="font-sans text-base leading-relaxed text-[#B89E87] max-w-xl">
-              Nuestro equipo de producción trabaja con marcas, organizaciones y líderes para
-              diseñar experiencias a medida — desde conceptualización editorial hasta ejecución
-              completa en cualquier ciudad del país. Cuéntanos tu visión.
+              {lang === 'en'
+                ? 'Our production team works with brands, organizations, and leaders to design tailor-made experiences — from editorial conceptualization to full execution in any city in the country. Tell us your vision.'
+                : 'Nuestro equipo de producción trabaja con marcas, organizaciones y líderes para diseñar experiencias a medida — desde conceptualización editorial hasta ejecución completa en cualquier ciudad del país. Cuéntanos tu visión.'}
             </p>
 
             <Button href="/contact" variant="terracotta" size="lg">
-              Contactar al equipo
+              {lang === 'en' ? 'Contact the team' : 'Contactar al equipo'}
             </Button>
           </div>
         </div>

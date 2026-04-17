@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, type ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import type { Lang } from './translations';
 
 interface LanguageContextValue {
@@ -19,10 +20,12 @@ function writeCookie(lang: Lang) {
 
 export function LanguageProvider({ children, initialLang = 'es' }: { children: ReactNode; initialLang?: Lang }) {
   const [lang, setLangState] = useState<Lang>(initialLang);
+  const router = useRouter();
 
   function setLang(l: Lang) {
     writeCookie(l);
     setLangState(l);
+    router.refresh();
   }
 
   return (

@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import type { DBEvent } from '@/types/supabase';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
-// ── Ticket constants — reemplazar cuando estén disponibles ──
+// ── Ticket constants ──────────────────────────────────────────────
 const WA_NUMBER = '13055252555';
 const TICKET_LINK_1 = '#'; // TODO: reemplazar con link real
 const TICKET_LINK_2 = '#'; // TODO: reemplazar con link real
@@ -20,49 +21,6 @@ interface EventsFilterProps {
   events: DBEvent[];
 }
 
-// ── Filter options ───────────────────────────────
-
-const CATEGORY_OPTIONS: { value: CategoryFilter; label: string }[] = [
-  { value: 'all', label: 'Todos' },
-  { value: 'flagship', label: 'Flagship' },
-  { value: 'wellness', label: 'Wellness' },
-  { value: 'summit', label: 'Summit' },
-  { value: 'community', label: 'Community' },
-  { value: 'branded', label: 'Branded' },
-];
-
-const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
-  { value: 'all', label: 'Todos' },
-  { value: 'upcoming', label: 'Próximos' },
-  { value: 'sold-out', label: 'Agotados' },
-  { value: 'past', label: 'Finalizados' },
-];
-
-// ── Badge configs ─────────────────────────────────
-
-const CATEGORY_LABELS: Record<EventCategory, string> = {
-  flagship: 'Flagship',
-  summit: 'Summit',
-  wellness: 'Wellness',
-  community: 'Community',
-  branded: 'Branded',
-};
-
-const STATUS_CONFIG: Record<EventStatus, { label: string; styles: string }> = {
-  upcoming: {
-    label: 'Próximo',
-    styles: 'border-[#A56E52] text-[#A56E52] bg-transparent',
-  },
-  'sold-out': {
-    label: 'Agotado',
-    styles: 'border-[#2A2421] text-[#F7F3EE] bg-[#2A2421]',
-  },
-  past: {
-    label: 'Finalizado',
-    styles: 'border-[#D7C6B2] text-[#5B4638] bg-transparent',
-  },
-};
-
 // ── Helpers ──────────────────────────────────────
 
 function formatDate(dateStr: string): { day: string; month: string; year: number } {
@@ -76,7 +34,7 @@ function formatDate(dateStr: string): { day: string; month: string; year: number
 
 function truncate(text: string, max: number): string {
   if (text.length <= max) return text;
-  return text.slice(0, max).trimEnd() + '…';
+  return text.slice(0, max).trimEnd() + '\u2026';
 }
 
 // ── Filter button ─────────────────────────────────
@@ -109,6 +67,7 @@ function FilterButton({
 // ── Main component ────────────────────────────────
 
 export default function EventsFilter({ events }: EventsFilterProps) {
+  const { lang } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>('all');
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('all');
   const [visible, setVisible] = useState(true);
@@ -118,7 +77,7 @@ export default function EventsFilter({ events }: EventsFilterProps) {
   const [ticketEvent, setTicketEvent] = useState<DBEvent | null>(null);
   const [ticketShow, setTicketShow] = useState(false);
 
-  // Manage body scroll lock via effect — avoids direct DOM mutation in handlers
+  // Manage body scroll lock via effect
   useEffect(() => {
     if (ticketShow) {
       document.body.style.overflow = 'hidden';
@@ -138,7 +97,7 @@ export default function EventsFilter({ events }: EventsFilterProps) {
     setTimeout(() => setTicketEvent(null), 480);
   }
 
-  // Animate grid on filter change — schedule both state updates asynchronously
+  // Animate grid on filter change
   useEffect(() => {
     const prev = prevFilters.current;
     if (prev.category !== selectedCategory || prev.status !== selectedStatus) {
@@ -162,6 +121,47 @@ export default function EventsFilter({ events }: EventsFilterProps) {
     setSelectedStatus('all');
   }
 
+  // ── Translated constants ──────────────────────────────────────
+
+  const categoryOptions: { value: CategoryFilter; label: string }[] = [
+    { value: 'all',       label: lang === 'en' ? 'All'       : 'Todos' },
+    { value: 'flagship',  label: 'Flagship' },
+    { value: 'wellness',  label: 'Wellness' },
+    { value: 'summit',    label: 'Summit' },
+    { value: 'community', label: 'Community' },
+    { value: 'branded',   label: 'Branded' },
+  ];
+
+  const statusOptions: { value: StatusFilter; label: string }[] = [
+    { value: 'all',      label: lang === 'en' ? 'All'      : 'Todos' },
+    { value: 'upcoming', label: lang === 'en' ? 'Upcoming' : 'Próximos' },
+    { value: 'sold-out', label: lang === 'en' ? 'Sold Out' : 'Agotados' },
+    { value: 'past',     label: lang === 'en' ? 'Past'     : 'Finalizados' },
+  ];
+
+  const categoryLabels: Record<EventCategory, string> = {
+    flagship:  'Flagship',
+    summit:    'Summit',
+    wellness:  'Wellness',
+    community: 'Community',
+    branded:   'Branded',
+  };
+
+  const statusConfig: Record<EventStatus, { label: string; styles: string }> = {
+    upcoming: {
+      label: lang === 'en' ? 'Upcoming' : 'Próximo',
+      styles: 'border-[#A56E52] text-[#A56E52] bg-transparent',
+    },
+    'sold-out': {
+      label: lang === 'en' ? 'Sold Out' : 'Agotado',
+      styles: 'border-[#2A2421] text-[#F7F3EE] bg-[#2A2421]',
+    },
+    past: {
+      label: lang === 'en' ? 'Past' : 'Finalizado',
+      styles: 'border-[#D7C6B2] text-[#5B4638] bg-transparent',
+    },
+  };
+
   return (
     <>
       {/* ── Filter bar ────────────────────────────── */}
@@ -173,10 +173,10 @@ export default function EventsFilter({ events }: EventsFilterProps) {
               {/* Category */}
               <div className="flex flex-col gap-2">
                 <span className="font-sans text-[9px] font-medium uppercase tracking-widest text-[#A56E52]">
-                  Categoría
+                  {lang === 'en' ? 'Category' : 'Categoría'}
                 </span>
                 <div className="flex flex-wrap gap-2">
-                  {CATEGORY_OPTIONS.map((opt) => (
+                  {categoryOptions.map((opt) => (
                     <FilterButton
                       key={opt.value}
                       active={selectedCategory === opt.value}
@@ -191,10 +191,10 @@ export default function EventsFilter({ events }: EventsFilterProps) {
               {/* Status */}
               <div className="flex flex-col gap-2">
                 <span className="font-sans text-[9px] font-medium uppercase tracking-widest text-[#A56E52]">
-                  Estado
+                  {lang === 'en' ? 'Status' : 'Estado'}
                 </span>
                 <div className="flex flex-wrap gap-2">
-                  {STATUS_OPTIONS.map((opt) => (
+                  {statusOptions.map((opt) => (
                     <FilterButton
                       key={opt.value}
                       active={selectedStatus === opt.value}
@@ -210,7 +210,9 @@ export default function EventsFilter({ events }: EventsFilterProps) {
             {/* Count */}
             <span className="font-sans text-xs text-[#5B4638]">
               {filteredEvents.length}{' '}
-              {filteredEvents.length === 1 ? 'evento' : 'eventos'}
+              {filteredEvents.length === 1
+                ? (lang === 'en' ? 'event' : 'evento')
+                : (lang === 'en' ? 'events' : 'eventos')}
             </span>
           </div>
         </div>
@@ -224,18 +226,17 @@ export default function EventsFilter({ events }: EventsFilterProps) {
             /* ── Empty state ─────────────────── */
             <div className="flex flex-col items-center justify-center gap-6 py-24 text-center">
               <div className="h-px w-16 bg-[#D7C6B2]" />
-              <p
-                className="font-serif text-xl font-normal text-[#2A2421]"
-
-              >
-                No hay eventos que coincidan con los filtros seleccionados.
+              <p className="font-serif text-xl font-normal text-[#2A2421]">
+                {lang === 'en'
+                  ? 'No events match the selected filters.'
+                  : 'No hay eventos que coincidan con los filtros seleccionados.'}
               </p>
               <button
                 type="button"
                 onClick={resetFilters}
                 className="border border-[#D7C6B2] px-5 py-2.5 font-sans text-[10px] font-medium uppercase tracking-widest text-[#5B4638] transition-all duration-150 hover:border-[#2A2421] hover:text-[#2A2421] cursor-pointer"
               >
-                Limpiar filtros
+                {lang === 'en' ? 'Clear filters' : 'Limpiar filtros'}
               </button>
             </div>
           ) : (
@@ -249,8 +250,8 @@ export default function EventsFilter({ events }: EventsFilterProps) {
             >
               {filteredEvents.map((event) => {
                 const date = formatDate(event.date);
-                const status = STATUS_CONFIG[event.status as EventStatus] ?? STATUS_CONFIG['past'];
-                const catLabel = CATEGORY_LABELS[event.category as EventCategory] ?? event.category;
+                const status = statusConfig[event.status as EventStatus] ?? statusConfig['past'];
+                const catLabel = categoryLabels[event.category as EventCategory] ?? event.category;
 
                 return (
                   <article
@@ -279,10 +280,7 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                     <div className="flex items-stretch border-b border-[#EAE1D6]">
                       {/* Date block */}
                       <div className="flex min-w-[68px] flex-col items-center justify-center bg-[#2A2421] px-4 py-4">
-                        <span
-                          className="font-serif text-3xl font-normal leading-none text-[#F7F3EE]"
-
-                        >
+                        <span className="font-serif text-3xl font-normal leading-none text-[#F7F3EE]">
                           {date.day}
                         </span>
                         <span className="mt-1 font-sans text-[9px] font-medium uppercase tracking-widest text-[#A56E52]">
@@ -312,10 +310,7 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                     {/* Card body */}
                     <div className="flex flex-1 flex-col gap-4 p-6">
                       <div>
-                        <h3
-                          className="mb-1.5 font-serif text-xl font-normal leading-snug text-[#2A2421]"
-
-                        >
+                        <h3 className="mb-1.5 font-serif text-xl font-normal leading-snug text-[#2A2421]">
                           {event.title}
                         </h3>
                         <p className="font-sans text-[11px] font-medium uppercase tracking-wide text-[#A56E52]">
@@ -334,11 +329,13 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                             onClick={() => openTickets(event)}
                             className="block w-full px-4 py-3 text-center font-sans text-[10px] font-semibold uppercase tracking-widest text-[#F7F3EE] bg-[#2A2421] hover:bg-[#5B4638] transition-colors"
                           >
-                            {event.status === 'sold-out' ? 'Lista de espera' : 'Comprar Tickets'}
+                            {event.status === 'sold-out'
+                              ? (lang === 'en' ? 'Waitlist' : 'Lista de espera')
+                              : (lang === 'en' ? 'Buy Tickets' : 'Comprar Tickets')}
                           </button>
                         ) : (
                           <div className="w-full px-4 py-3 text-center font-sans text-[10px] uppercase tracking-widest text-[#5B4638] border border-[#D7C6B2]">
-                            Finalizado
+                            {lang === 'en' ? 'Past event' : 'Finalizado'}
                           </div>
                         )}
                       </div>
@@ -373,7 +370,7 @@ export default function EventsFilter({ events }: EventsFilterProps) {
             }}
             role="dialog"
             aria-modal
-            aria-label={`Tickets: ${ticketEvent.title}`}
+            aria-label={`${lang === 'en' ? 'Tickets' : 'Tickets'}: ${ticketEvent.title}`}
           >
             {/* Drag handle — mobile only */}
             <div className="flex justify-center pt-3 pb-1 sm:hidden" aria-hidden>
@@ -383,7 +380,7 @@ export default function EventsFilter({ events }: EventsFilterProps) {
             {/* Close */}
             <button
               onClick={closeTickets}
-              aria-label="Cerrar"
+              aria-label={lang === 'en' ? 'Close' : 'Cerrar'}
               className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-[#EAE1D6] hover:bg-[#D7C6B2] transition-colors"
             >
               <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
@@ -409,7 +406,9 @@ export default function EventsFilter({ events }: EventsFilterProps) {
             {/* Ticket options */}
             <div className="px-6 py-5 sm:px-7">
               <p className="font-sans text-[9px] uppercase tracking-[0.22em] text-[#5B4638] mb-3">
-                {ticketEvent.status === 'sold-out' ? 'Lista de espera' : 'Selecciona cómo comprar'}
+                {ticketEvent.status === 'sold-out'
+                  ? (lang === 'en' ? 'Waitlist' : 'Lista de espera')
+                  : (lang === 'en' ? 'Select how to purchase' : 'Selecciona cómo comprar')}
               </p>
 
               <div className="flex flex-col gap-2.5">
@@ -421,10 +420,14 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                     </span>
                     <div>
                       <p className="font-sans text-xs font-medium text-[#2A2421]">
-                        Comprar en línea — Opción 1
-                        <span className="ml-2 text-[9px] uppercase tracking-widest text-[#A56E52]">Próximamente</span>
+                        {lang === 'en' ? 'Buy online — Option 1' : 'Comprar en línea — Opción 1'}
+                        <span className="ml-2 text-[9px] uppercase tracking-widest text-[#A56E52]">
+                          {lang === 'en' ? 'Coming soon' : 'Próximamente'}
+                        </span>
                       </p>
-                      <p className="font-sans text-[10px] text-[#5B4638]">Pago con tarjeta de crédito</p>
+                      <p className="font-sans text-[10px] text-[#5B4638]">
+                        {lang === 'en' ? 'Credit card payment' : 'Pago con tarjeta de crédito'}
+                      </p>
                     </div>
                   </div>
                 ) : (
@@ -434,8 +437,12 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                       <TicketSVG />
                     </span>
                     <div className="flex-1">
-                      <p className="font-sans text-xs font-medium text-[#2A2421]">Comprar en línea — Opción 1</p>
-                      <p className="font-sans text-[10px] text-[#5B4638]">Pago con tarjeta de crédito</p>
+                      <p className="font-sans text-xs font-medium text-[#2A2421]">
+                        {lang === 'en' ? 'Buy online — Option 1' : 'Comprar en línea — Opción 1'}
+                      </p>
+                      <p className="font-sans text-[10px] text-[#5B4638]">
+                        {lang === 'en' ? 'Credit card payment' : 'Pago con tarjeta de crédito'}
+                      </p>
                     </div>
                     <ArrowSVG className="text-[#A56E52] shrink-0" />
                   </a>
@@ -449,10 +456,14 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                     </span>
                     <div>
                       <p className="font-sans text-xs font-medium text-[#2A2421]">
-                        Comprar en línea — Opción 2
-                        <span className="ml-2 text-[9px] uppercase tracking-widest text-[#A56E52]">Próximamente</span>
+                        {lang === 'en' ? 'Buy online — Option 2' : 'Comprar en línea — Opción 2'}
+                        <span className="ml-2 text-[9px] uppercase tracking-widest text-[#A56E52]">
+                          {lang === 'en' ? 'Coming soon' : 'Próximamente'}
+                        </span>
                       </p>
-                      <p className="font-sans text-[10px] text-[#5B4638]">Pago alternativo</p>
+                      <p className="font-sans text-[10px] text-[#5B4638]">
+                        {lang === 'en' ? 'Alternative payment' : 'Pago alternativo'}
+                      </p>
                     </div>
                   </div>
                 ) : (
@@ -462,8 +473,12 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                       <TicketSVG />
                     </span>
                     <div className="flex-1">
-                      <p className="font-sans text-xs font-medium text-[#2A2421]">Comprar en línea — Opción 2</p>
-                      <p className="font-sans text-[10px] text-[#5B4638]">Pago alternativo</p>
+                      <p className="font-sans text-xs font-medium text-[#2A2421]">
+                        {lang === 'en' ? 'Buy online — Option 2' : 'Comprar en línea — Opción 2'}
+                      </p>
+                      <p className="font-sans text-[10px] text-[#5B4638]">
+                        {lang === 'en' ? 'Alternative payment' : 'Pago alternativo'}
+                      </p>
                     </div>
                     <ArrowSVG className="text-[#A56E52] shrink-0" />
                   </a>
@@ -472,7 +487,9 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                 {/* Zelle via WhatsApp */}
                 <a
                   href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
-                    `Hola! Me interesa comprar tickets para "${ticketEvent.title}" el ${new Date(ticketEvent.date + 'T00:00:00').toLocaleDateString('es-US', { day: 'numeric', month: 'long', year: 'numeric' })} en ${ticketEvent.city}, ${ticketEvent.state}. ¿Cómo puedo pagar con Zelle?`
+                    lang === 'en'
+                      ? `Hi! I'm interested in buying tickets for "${ticketEvent.title}" on ${new Date(ticketEvent.date + 'T00:00:00').toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })} in ${ticketEvent.city}, ${ticketEvent.state}. How can I pay with Zelle?`
+                      : `Hola! Me interesa comprar tickets para "${ticketEvent.title}" el ${new Date(ticketEvent.date + 'T00:00:00').toLocaleDateString('es-US', { day: 'numeric', month: 'long', year: 'numeric' })} en ${ticketEvent.city}, ${ticketEvent.state}. ¿Cómo puedo pagar con Zelle?`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -482,8 +499,12 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                     <WhatsAppSVG />
                   </span>
                   <div className="flex-1">
-                    <p className="font-sans text-xs font-medium text-[#2A2421]">Pagar con Zelle</p>
-                    <p className="font-sans text-[10px] text-[#5B4638]">Escríbenos por WhatsApp</p>
+                    <p className="font-sans text-xs font-medium text-[#2A2421]">
+                      {lang === 'en' ? 'Pay with Zelle' : 'Pagar con Zelle'}
+                    </p>
+                    <p className="font-sans text-[10px] text-[#5B4638]">
+                      {lang === 'en' ? 'Message us on WhatsApp' : 'Escríbenos por WhatsApp'}
+                    </p>
                   </div>
                   <ArrowSVG className="text-[#25D366] shrink-0" />
                 </a>
@@ -493,7 +514,7 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                 onClick={closeTickets}
                 className="mt-5 w-full py-2.5 font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hover:text-[#2A2421] transition-colors"
               >
-                Cancelar
+                {lang === 'en' ? 'Cancel' : 'Cancelar'}
               </button>
             </div>
           </div>

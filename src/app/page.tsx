@@ -281,7 +281,7 @@ export default async function HomePage() {
                         {exp.short_desc}
                       </p>
                       <span className="mt-auto flex items-center gap-2 font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">
-                        Ver más
+                        {lang === 'en' ? 'See more' : 'Ver más'}
                         <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
                       </span>
                     </div>
@@ -326,7 +326,7 @@ export default async function HomePage() {
                       {exp.short_desc}
                     </p>
                     <span className="mt-auto flex items-center gap-2 font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">
-                      Ver más
+                      {lang === 'en' ? 'See more' : 'Ver más'}
                       <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
                     </span>
                   </div>
@@ -370,7 +370,7 @@ export default async function HomePage() {
                         </div>
                         <div className="h-10 w-px bg-[#3D342F]" />
                         <div className="flex flex-col gap-1">
-                          <Badge variant={event.status === 'sold-out' ? 'sold-out' : 'upcoming'} />
+                          <Badge variant={event.status === 'sold-out' ? 'sold-out' : 'upcoming'} lang={lang} />
                           <span className="font-sans text-[10px] uppercase tracking-widest text-[#B89E87]">{categoryLabel(event.category)}</span>
                         </div>
                       </div>
@@ -390,7 +390,7 @@ export default async function HomePage() {
                             </>
                           )}
                         </div>
-                        <Button href={`/events/${event.slug}`} variant="ghost" size="sm">Reservar</Button>
+                        <Button href={`/events/${event.slug}`} variant="ghost" size="sm">{lang === 'en' ? 'Reserve' : 'Reservar'}</Button>
                       </div>
                     </div>
                   );
@@ -411,7 +411,7 @@ export default async function HomePage() {
                       </div>
                       <div className="h-12 w-px bg-[#3D342F]" />
                       <div className="flex flex-col gap-1">
-                        <Badge variant={event.status === 'sold-out' ? 'sold-out' : 'upcoming'} />
+                        <Badge variant={event.status === 'sold-out' ? 'sold-out' : 'upcoming'} lang={lang} />
                         <span className="font-sans text-[10px] uppercase tracking-widest text-[#B89E87]">{categoryLabel(event.category)}</span>
                       </div>
                     </div>
@@ -426,15 +426,15 @@ export default async function HomePage() {
                     <div className="px-8 pb-8 flex items-center justify-between">
                       <div className="flex flex-col">
                         {event.price === 0 ? (
-                          <span className="font-serif text-lg text-[#2A2421]">Entrada libre</span>
+                          <span className="font-serif text-lg text-[#2A2421]">{lang === 'en' ? 'Free entry' : 'Entrada libre'}</span>
                         ) : (
                           <>
                             <span className="font-serif text-2xl text-[#2A2421]">${event.price}</span>
-                            <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">por persona</span>
+                            <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'per person' : 'por persona'}</span>
                           </>
                         )}
                       </div>
-                      <Button href={`/events/${event.slug}`} variant="ghost" size="sm">Reservar lugar</Button>
+                      <Button href={`/events/${event.slug}`} variant="ghost" size="sm">{lang === 'en' ? 'Reserve spot' : 'Reservar lugar'}</Button>
                     </div>
                   </div>
                 );
@@ -607,7 +607,7 @@ export default async function HomePage() {
               {/* Stats overlay */}
               <div className="absolute top-8 right-8 bg-[#2A2421] border border-[#3D342F] px-6 py-5">
                 <p className="font-serif text-3xl text-[#EAE1D6]">{cfg?.satisfaction ?? 97}%</p>
-                <p className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] mt-1">Satisfacción</p>
+                <p className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] mt-1">{lang === 'en' ? 'Satisfaction' : 'Satisfacción'}</p>
               </div>
             </div>
 
@@ -664,7 +664,7 @@ export default async function HomePage() {
               />
               <div className="shrink-0">
                 <Button href="/events" variant="secondary" size="md">
-                  Ver eventos
+                  {lang === 'en' ? 'View events' : 'Ver eventos'}
                 </Button>
               </div>
             </div>
@@ -736,7 +736,7 @@ export default async function HomePage() {
                   href="/sponsors"
                   className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] hover:text-[#2A2421] transition-colors shrink-0"
                 >
-                  Ver todos los sponsors →
+                  {lang === 'en' ? 'View all sponsors →' : 'Ver todos los sponsors →'}
                 </Link>
               </div>
 
@@ -780,7 +780,7 @@ export default async function HomePage() {
                       href={sponsor.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label={`Visitar sitio de ${sponsor.name}`}
+                      aria-label={lang === 'en' ? `Visit ${sponsor.name} website` : `Visitar sitio de ${sponsor.name}`}
                       className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A56E52]"
                     >
                       {card}
@@ -824,7 +824,7 @@ export default async function HomePage() {
                 {lang === 'en' ? 'Explore experiences' : 'Explorar experiencias'}
               </Button>
               <Button href="/events" variant="secondary" size="lg">
-                Próximos eventos
+                {lang === 'en' ? 'Upcoming events' : 'Próximos eventos'}
               </Button>
             </div>
           </div>

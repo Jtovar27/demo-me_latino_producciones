@@ -1,36 +1,26 @@
 import PublicLayout from '@/components/layout/PublicLayout';
 import ContactForm from '@/components/contact/ContactForm';
 import { getUpcomingEvents } from '@/app/actions/events';
-
-// ── Inquiry types ────────────────────────────────
-
-const INQUIRY_PATHS = [
-  {
-    label: 'Asistentes',
-    description:
-      'Preguntas sobre boletos, disponibilidad, accesibilidad o qué esperar en uno de nuestros eventos.',
-  },
-  {
-    label: 'Sponsors',
-    description:
-      'Consultas de patrocinio, paquetes de partnership y oportunidades de co-producción con marcas.',
-  },
-  {
-    label: 'Speakers',
-    description:
-      'Aplicaciones para hablar en un próximo evento o propuestas para nueva programación.',
-  },
-  {
-    label: 'Producción',
-    description:
-      'Comisiona a ME Producciones para producir tu evento corporativo, reunión cultural o experiencia de marca.',
-  },
-];
-
-// ── Page ────────────────────────────────────────
+import { getLang } from '@/lib/i18n/getLang';
 
 export default async function ContactPage() {
+  const lang = await getLang();
   const { data: upcomingEvents } = await getUpcomingEvents();
+
+  const inquiryPaths = lang === 'en'
+    ? [
+        { label: 'Attendees',   description: 'Questions about tickets, availability, accessibility, or what to expect at one of our events.' },
+        { label: 'Sponsors',    description: 'Sponsorship inquiries, partnership packages, and co-production opportunities with brands.' },
+        { label: 'Speakers',    description: 'Applications to speak at an upcoming event or proposals for new programming.' },
+        { label: 'Production',  description: 'Commission ME Producciones to produce your corporate event, cultural gathering, or brand experience.' },
+      ]
+    : [
+        { label: 'Asistentes',  description: 'Preguntas sobre boletos, disponibilidad, accesibilidad o qué esperar en uno de nuestros eventos.' },
+        { label: 'Sponsors',    description: 'Consultas de patrocinio, paquetes de partnership y oportunidades de co-producción con marcas.' },
+        { label: 'Speakers',    description: 'Aplicaciones para hablar en un próximo evento o propuestas para nueva programación.' },
+        { label: 'Producción',  description: 'Comisiona a ME Producciones para producir tu evento corporativo, reunión cultural o experiencia de marca.' },
+      ];
+
   return (
     <PublicLayout>
 
@@ -39,17 +29,16 @@ export default async function ContactPage() {
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <div className="max-w-2xl">
             <span className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
-              Contacto
+              {lang === 'en' ? 'Contact' : 'Contacto'}
             </span>
             <div className="mt-2 mb-8 h-px w-8 bg-[#A56E52]" />
             <h1
               className="font-serif text-5xl font-normal leading-tight text-[#F7F3EE] md:text-6xl lg:text-7xl"
-
             >
-              Hablemos.
+              {lang === 'en' ? "Let's talk." : 'Hablemos.'}
             </h1>
             <p className="mt-6 font-sans text-base leading-relaxed text-[#D7C6B2]">
-              Estamos aquí para responder.
+              {lang === 'en' ? "We're here to answer." : 'Estamos aquí para responder.'}
             </p>
           </div>
         </div>
@@ -79,7 +68,7 @@ export default async function ContactPage() {
 
                 <div className="flex flex-col gap-1.5">
                   <span className="font-sans text-[11px] font-medium uppercase tracking-widest text-[#A56E52]">
-                    Teléfono / WhatsApp
+                    {lang === 'en' ? 'Phone / WhatsApp' : 'Teléfono / WhatsApp'}
                   </span>
                   <a
                     href="tel:+13055252555"
@@ -91,10 +80,12 @@ export default async function ContactPage() {
 
                 <div className="flex flex-col gap-1.5">
                   <span className="font-sans text-[11px] font-medium uppercase tracking-widest text-[#A56E52]">
-                    Tiempo de respuesta
+                    {lang === 'en' ? 'Response time' : 'Tiempo de respuesta'}
                   </span>
                   <p className="font-sans text-sm leading-relaxed text-[#5B4638]">
-                    Respondemos en menos de 48 horas hábiles.
+                    {lang === 'en'
+                      ? 'We respond within 48 business hours.'
+                      : 'Respondemos en menos de 48 horas hábiles.'}
                   </p>
                 </div>
               </div>
@@ -105,18 +96,15 @@ export default async function ContactPage() {
               {/* Inquiry types */}
               <div className="flex flex-col gap-6">
                 <span className="font-sans text-[11px] font-medium uppercase tracking-widest text-[#A56E52]">
-                  Tipos de consulta
+                  {lang === 'en' ? 'Inquiry types' : 'Tipos de consulta'}
                 </span>
                 <div className="flex flex-col gap-6">
-                  {INQUIRY_PATHS.map((path) => (
+                  {inquiryPaths.map((path) => (
                     <div
                       key={path.label}
                       className="flex flex-col gap-1.5 border-l-2 border-[#A56E52] pl-5"
                     >
-                      <p
-                        className="font-serif text-base font-normal text-[#2A2421]"
-
-                      >
+                      <p className="font-serif text-base font-normal text-[#2A2421]">
                         {path.label}
                       </p>
                       <p className="font-sans text-sm leading-relaxed text-[#5B4638]">
@@ -132,14 +120,13 @@ export default async function ContactPage() {
             <div>
               <div className="mb-10">
                 <span className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
-                  Enviar mensaje
+                  {lang === 'en' ? 'Send a message' : 'Enviar mensaje'}
                 </span>
                 <div className="mt-2 h-px w-8 bg-[#A56E52]" />
                 <h2
                   className="mt-5 font-serif text-3xl font-normal text-[#2A2421]"
-
                 >
-                  Cuéntanos más.
+                  {lang === 'en' ? 'Tell us more.' : 'Cuéntanos más.'}
                 </h2>
               </div>
               <ContactForm upcomingEvents={upcomingEvents} />
@@ -155,7 +142,6 @@ export default async function ContactPage() {
           <div className="flex min-h-[200px] w-full items-center justify-center bg-[#D7C6B2]">
             <p
               className="font-serif text-xl font-normal text-[#2A2421] md:text-2xl"
-
             >
               Miami, FL — Orlando, FL — Ecuador
             </p>
