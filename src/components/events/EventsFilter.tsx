@@ -4,11 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import type { DBEvent } from '@/types/supabase';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import TicketPurchaseModal from '@/components/ui/TicketPurchaseModal';
 
-// ── Ticket constants ──────────────────────────────────────────────
 const WA_NUMBER = '13055252555';
-const TICKET_LINK_1 = '#'; // TODO: reemplazar con link real
-const TICKET_LINK_2 = '#'; // TODO: reemplazar con link real
 
 // ── Types ────────────────────────────────────────
 
@@ -73,29 +71,10 @@ export default function EventsFilter({ events }: EventsFilterProps) {
   const [visible, setVisible] = useState(true);
   const prevFilters = useRef({ category: selectedCategory, status: selectedStatus });
 
-  // ── Ticket sheet state ────────────────────────────────────────
   const [ticketEvent, setTicketEvent] = useState<DBEvent | null>(null);
-  const [ticketShow, setTicketShow] = useState(false);
 
-  // Manage body scroll lock via effect
-  useEffect(() => {
-    if (ticketShow) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => { document.body.style.overflow = ''; };
-  }, [ticketShow]);
-
-  function openTickets(event: DBEvent) {
-    setTicketEvent(event);
-    requestAnimationFrame(() => requestAnimationFrame(() => setTicketShow(true)));
-  }
-
-  function closeTickets() {
-    setTicketShow(false);
-    setTimeout(() => setTicketEvent(null), 480);
-  }
+  function openTickets(event: DBEvent) { setTicketEvent(event); }
+  function closeTickets() { setTicketEvent(null); }
 
   // Animate grid on filter change
   useEffect(() => {
@@ -323,16 +302,25 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                       </p>
 
                       {/* CTA buttons */}
-                      <div className="mt-auto pt-2">
+                      <div className="mt-auto pt-2 flex flex-col gap-2">
                         {event.status !== 'past' ? (
-                          <button
-                            onClick={() => openTickets(event)}
-                            className="block w-full px-4 py-3 text-center font-sans text-[10px] font-semibold uppercase tracking-widest text-[#F7F3EE] bg-[#2A2421] hover:bg-[#5B4638] transition-colors"
-                          >
-                            {event.status === 'sold-out'
-                              ? (lang === 'en' ? 'Waitlist' : 'Lista de espera')
-                              : (lang === 'en' ? 'Buy Tickets' : 'Comprar Tickets')}
-                          </button>
+                          <>
+                            <button
+                              onClick={() => openTickets(event)}
+                              className="block w-full px-4 py-3 text-center font-sans text-[10px] font-semibold uppercase tracking-widest text-[#F7F3EE] bg-[#A56E52] hover:bg-[#8B5A42] transition-colors"
+                            >
+                              {event.status === 'sold-out'
+                                ? (lang === 'en' ? 'Waitlist' : 'Lista de espera')
+                                : (lang === 'en' ? 'Buy Tickets' : 'Comprar Tickets')}
+                            </button>
+                            <a
+                              href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lang === 'en' ? `Hi! I'd like more info about "${event.title}" on ${new Date(event.date+'T00:00:00').toLocaleDateString('en-US',{day:'numeric',month:'long',year:'numeric'})} in ${event.city}, ${event.state}.` : `Hola! Me interesa saber más sobre "${event.title}" el ${new Date(event.date+'T00:00:00').toLocaleDateString('es-US',{day:'numeric',month:'long',year:'numeric'})} en ${event.city}, ${event.state}.`)}`}
+                              target="_blank" rel="noopener noreferrer"
+                              className="flex items-center justify-center gap-2 w-full px-4 py-3 text-center font-sans text-[10px] uppercase tracking-widest text-[#5B4638] border border-[#D7C6B2] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors"
+                            >
+                              <WhatsAppSVG />{lang === 'en' ? 'More Info' : 'Más Información'}
+                            </a>
+                          </>
                         ) : (
                           <div className="w-full px-4 py-3 text-center font-sans text-[10px] uppercase tracking-widest text-[#5B4638] border border-[#D7C6B2]">
                             {lang === 'en' ? 'Past event' : 'Finalizado'}
@@ -349,8 +337,18 @@ export default function EventsFilter({ events }: EventsFilterProps) {
         </div>
       </div>
 
-    {/* ── Ticket Sheet ─────────────────────────────────────────── */}
+    {/* ── Ticket Modal ─────────────────────────────────────────── */}
     {ticketEvent && (
+      <TicketPurchaseModal
+        eventTitle={ticketEvent.title}
+        eventDate={ticketEvent.date}
+        eventCity={ticketEvent.city}
+        eventState={ticketEvent.state}
+        eventPrice={ticketEvent.price ?? 0}
+        onClose={closeTickets}
+      />
+    )}
+    {false && ticketEvent && (
       <div className="fixed inset-0 z-[200]" style={{ pointerEvents: ticketEvent ? 'auto' : 'none' }}>
         {/* Backdrop */}
         <div

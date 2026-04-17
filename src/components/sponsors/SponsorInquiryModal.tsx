@@ -9,7 +9,7 @@ type SponsorTier = 'platinum' | 'silver' | 'blue' | 'pink';
 
 const WA_NUMBER   = '13055252555';
 const ZELLE_PHONE = '786-599-9520';
-const ZELLE_LINK  = 'https://enroll.zellepay.com/qr-codes?data=eyJuYW1lIjoiTU9OSUNBIEVTUElOT1pBIiwidG9rZW4iOiI3ODY1OTk5NTIwIiwiYWN0aW9uIjoicGF5bWVudCJ9';
+const ZELLE_NAME  = 'Monica Espinoza';
 
 interface Props {
   tier: SponsorTier;
@@ -154,14 +154,12 @@ export default function SponsorInquiryModal({ tier, tierLabel, price, onClose }:
                   <p className="font-serif text-2xl text-[#A56E52]">{price}</p>
                 </div>
               </div>
-              <a
-                href={ZELLE_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center w-full border border-[#A56E52] bg-[#A56E52] px-6 py-3.5 font-sans text-[11px] uppercase tracking-widest text-white hover:bg-[#8B5A42] transition-colors"
-              >
-                Abrir Zelle y Pagar →
-              </a>
+              <div className="flex items-center gap-4">
+                <img src="/monicaqr.png" alt="Zelle QR" className="w-24 h-24 object-contain bg-white p-1 shrink-0" />
+                <p className="font-sans text-[10px] text-[#D7C6B2] leading-relaxed">
+                  Escanea el QR desde tu app Zelle, o busca el número <strong className="text-white">{ZELLE_PHONE}</strong> manualmente como <strong className="text-white">{ZELLE_NAME}</strong>.
+                </p>
+              </div>
             </div>
 
             {/* Captura */}
