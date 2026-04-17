@@ -20,12 +20,14 @@ import {
   BookOpen,
   Sparkles,
   GalleryHorizontal,
+  Trophy,
 } from 'lucide-react';
 
 const navItems = [
   { label: 'Dashboard',    href: '/admin',                icon: LayoutDashboard },
   { label: 'Sitio',        href: '/admin/settings',       icon: Settings },
   { label: 'Hero',         href: '/admin/hero',           icon: GalleryHorizontal },
+  { label: 'Insignia',     href: '/admin/flagship',       icon: Trophy },
   { label: 'Eventos',      href: '/admin/events',         icon: Calendar },
   { label: 'Experiencias', href: '/admin/experiences',    icon: Sparkles },
   { label: 'Reservas',     href: '/admin/bookings',       icon: BookOpen },

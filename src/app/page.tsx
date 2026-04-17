@@ -13,6 +13,8 @@ import { getSponsors } from '@/app/actions/sponsors';
 import { getExperiences } from '@/app/actions/experiences';
 import { getSiteConfig } from '@/app/actions/settings';
 import { getActiveHeroSlides } from '@/app/actions/hero';
+import { getFlagshipEvents } from '@/app/actions/flagship';
+import FlagshipCarousel from '@/components/ui/FlagshipCarousel';
 import { getLang } from '@/lib/i18n/getLang';
 import type { DBReview, DBSponsor } from '@/types/supabase';
 import ReviewSubmitForm from '@/components/reviews/ReviewSubmitForm';
@@ -65,6 +67,8 @@ export default async function HomePage() {
     getSiteConfig(),
     getActiveHeroSlides(),
   ]);
+
+  const { data: flagshipEvents } = await getFlagshipEvents();
 
   // Typed helpers — pick correct language variant with safe fallbacks
   const t = (es: string | null | undefined, en: string | null | undefined, fallback = '') =>
@@ -181,57 +185,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── C. TRHMC 3 CITIES ───────────────────── */}
-      <section className="bg-[#2A2421] py-12 md:py-20 lg:py-28">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
-          <div className="flex flex-col gap-10 md:gap-16">
-
-            <div className="flex flex-col gap-3">
-              <span className="font-sans text-[11px] font-medium uppercase tracking-[0.25em] text-[#A56E52]">
-                {lang === 'en' ? 'Flagship event · ME Producciones' : 'Evento insignia · ME Producciones'}
-              </span>
-              <div className="h-px w-8 bg-[#A56E52]" />
-              <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-normal leading-tight text-[#EAE1D6] max-w-2xl">
-                The Real Happiness<br /><span className="italic">MasterClass</span> Summit III
-              </h2>
-              <p className="font-sans text-base leading-relaxed text-[#B89E87] max-w-xl mt-2">
-                {lang === 'en'
-                  ? 'Our flagship event comes to three venues in 2026 — Miami, Samborondón, and Orlando. One day of experience, tools, and community that changes you forever.'
-                  : 'Nuestro evento insignia llega a tres sedes en 2026 — Miami, Samborondón y Orlando. Un día de experiencia, herramientas y comunidad que te cambia para siempre.'}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#3D342F]">
-              {(lang === 'en' ? [
-                { num: '01', date: 'August 29, 2026',    city: 'Miami',        region: 'Florida, USA',  tag: '1st venue' },
-                { num: '02', date: 'September 2026',     city: 'Samborondón',  region: 'Ecuador',       tag: '2nd venue' },
-                { num: '03', date: 'October 11, 2026',   city: 'Orlando',      region: 'Florida, USA',  tag: '3rd venue' },
-              ] : [
-                { num: '01', date: 'Agosto 29, 2026',    city: 'Miami',        region: 'Florida, USA',  tag: 'Primera sede' },
-                { num: '02', date: 'Septiembre 2026',    city: 'Samborondón',  region: 'Ecuador',       tag: 'Segunda sede' },
-                { num: '03', date: 'Octubre 11, 2026',   city: 'Orlando',      region: 'Florida, USA',  tag: 'Tercera sede' },
-              ]).map((stop) => (
-                <div key={stop.num} className="bg-[#2A2421] p-8 md:p-10 flex flex-col gap-5 group hover:bg-[#1A1410] transition-colors duration-300">
-                  <span className="font-serif text-5xl font-normal text-[#A56E52] opacity-40 leading-none">{stop.num}</span>
-                  <div className="flex flex-col gap-1">
-                    <span className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#A56E52]">{stop.tag}</span>
-                    <h3 className="font-serif text-3xl font-normal text-[#EAE1D6]">{stop.city}</h3>
-                    <p className="font-sans text-sm text-[#B89E87]">{stop.region}</p>
-                  </div>
-                  <div className="h-px w-full bg-[#3D342F]" />
-                  <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]">{stop.date}</p>
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <Button href="/events" variant="terracotta" size="lg">
-                {lang === 'en' ? 'View all events' : 'Ver todos los eventos'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ── C. EVENTO INSIGNIA CAROUSEL ─────────── */}
+      <FlagshipCarousel events={flagshipEvents ?? []} lang={lang} />
 
       {/* ── D. EXPERIENCE CATEGORIES ────────────── */}
       <section className="bg-[#FDFAF7] py-12 md:py-20 lg:py-28">

@@ -1,5 +1,14 @@
 export type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
 
+export type FlagshipVenue = {
+  city: string;
+  region: string;
+  date_es: string;
+  date_en: string;
+  tag_es: string;
+  tag_en: string;
+};
+
 // Row types extracted to avoid circular self-references inside Database interface
 type EventRow = {
   id: string; title: string; slug: string; date: string; end_date: string | null;
@@ -96,6 +105,18 @@ type SiteConfigRow = {
   updated_at: string;
 };
 
+type FlagshipEventRow = {
+  id: string;
+  title: string;
+  description_es: string | null;
+  description_en: string | null;
+  venues: FlagshipVenue[];
+  sort_order: number;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 type HeroSlideRow = {
   id: string;
   image_url:    string;
@@ -180,6 +201,12 @@ export interface Database {
         Update: Partial<HeroSlideRow>;
         Relationships: [];
       };
+      flagship_events: {
+        Row: FlagshipEventRow;
+        Insert: Partial<FlagshipEventRow>;
+        Update: Partial<FlagshipEventRow>;
+        Relationships: [];
+      };
     };
   };
 }
@@ -193,5 +220,6 @@ export type DBGalleryItem = GalleryItemRow;
 export type DBLead        = LeadRow;
 export type DBBooking     = BookingRow;
 export type DBReview      = ReviewRow;
-export type DBSiteConfig  = SiteConfigRow;
-export type DBHeroSlide   = HeroSlideRow;
+export type DBSiteConfig      = SiteConfigRow;
+export type DBHeroSlide       = HeroSlideRow;
+export type DBFlagshipEvent   = FlagshipEventRow;
