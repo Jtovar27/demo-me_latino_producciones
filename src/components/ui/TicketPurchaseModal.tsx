@@ -45,6 +45,7 @@ export default function TicketPurchaseModal({
   const [error, setError]   = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone]     = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const qty = Math.max(1, parseInt(qtyStr) || 1);
 
@@ -179,15 +180,28 @@ export default function TicketPurchaseModal({
                     Escanea el QR desde tu app Zelle, o busca el número <strong className="text-white">{ZELLE_PHONE}</strong> manualmente como <strong className="text-white">{ZELLE_NAME}</strong>.
                   </p>
                 </div>
-                <a
-                  href={`zelle://send?address=${ZELLE_PHONE_CLEAN}&amount=${total}`}
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(ZELLE_PHONE_CLEAN).then(() => {
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 3000);
+                    });
+                  }}
                   className="flex items-center justify-center gap-2 w-full bg-[#6D1ED4] px-6 py-3.5 font-sans text-[11px] uppercase tracking-widest text-white hover:bg-[#5A18B0] transition-colors"
                 >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3 4h12l-7 8h7l-12 8 5-8H3z" />
-                  </svg>
-                  Abrir Zelle y pagar ${total.toLocaleString('en-US')}
-                </a>
+                  {copied ? (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                      ¡Número copiado! Pégalo en tu app bancaria
+                    </>
+                  ) : (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" /></svg>
+                      Copiar número Zelle de Monica
+                    </>
+                  )}
+                </button>
               </div>
             )}
 
