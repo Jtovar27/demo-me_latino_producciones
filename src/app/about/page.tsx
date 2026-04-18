@@ -195,8 +195,8 @@ export default async function AboutPage() {
                 {lang === 'en' ? 'Explore The Real Happiness' : 'Explorar The Real Happiness'}
               </Button>
             </div>
-            <div className="relative aspect-video w-full overflow-hidden">
-              <Image fill src="/1-100.jpg.png" alt="The Real Happiness" className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
+            <div className="w-full">
+              <Image src="/1-100.jpg.png" alt="The Real Happiness" width={0} height={0} sizes="(max-width: 768px) 100vw, 50vw" className="w-full h-auto" />
             </div>
           </div>
         </div>
@@ -213,8 +213,8 @@ export default async function AboutPage() {
           <div className="md:hidden -mx-6 px-6">
             <MobileCarousel itemWidth="w-[78vw]" interval={5000}>
               <div className="flex flex-col">
-                <div className="relative mb-4 aspect-square w-full overflow-hidden">
-                  <Image fill src="/MEspinoza.jpg.png" alt="Mónica Espinoza — Founder & CEO" className="object-cover" sizes="80vw" />
+                <div className="mb-4 w-full">
+                  <Image src="/MEspinoza.jpg.png" alt="Mónica Espinoza — Founder & CEO" width={0} height={0} sizes="80vw" className="w-full h-auto" />
                 </div>
                 <h3 className="mb-1 font-serif text-xl font-normal text-[#2A2421]">Mónica Espinoza</h3>
                 <span className="mb-3 font-sans text-xs font-medium uppercase tracking-widest text-[#A56E52]">Founder &amp; CEO</span>
@@ -224,8 +224,8 @@ export default async function AboutPage() {
           </div>
           <div className="hidden md:grid grid-cols-2 gap-16 max-w-3xl">
             <div className="flex flex-col">
-              <div className="relative mb-6 aspect-square w-full overflow-hidden">
-                <Image fill src="/MEspinoza.jpg.png" alt="Mónica Espinoza — Founder & CEO" className="object-cover" sizes="33vw" />
+              <div className="mb-6 w-full">
+                <Image src="/MEspinoza.jpg.png" alt="Mónica Espinoza — Founder & CEO" width={0} height={0} sizes="33vw" className="w-full h-auto" />
               </div>
               <h3 className="mb-1 font-serif text-xl font-normal text-[#2A2421]">Mónica Espinoza</h3>
               <span className="mb-4 font-sans text-xs font-medium uppercase tracking-widest text-[#A56E52]">Founder &amp; CEO</span>
