@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
 import AdminLayout from '@/components/layout/AdminLayout';
 import Button from '@/components/ui/Button';
-import { getReviews, upsertReview, deleteReview } from '@/app/actions/reviews';
+import { getReviews, upsertReview, deleteReview, setReviewStatus, setReviewFeatured } from '@/app/actions/reviews';
 import type { DBReview } from '@/types/supabase';
 
 // ── Helpers ──────────────────────────────────────
@@ -129,15 +129,7 @@ export default function AdminReviewsPage() {
   }
 
   async function toggleStatus(id: string, status: ReviewStatus) {
-    const fd = new FormData();
-    const review = reviews.find((r) => r.id === id);
-    if (!review) return;
-    fd.append('id', id);
-    fd.append('name', review.name);
-    fd.append('status', status);
-    fd.append('featured', String(review.featured));
-    fd.append('rating', String(review.rating ?? 5));
-    await upsertReview(fd);
+    await setReviewStatus(id, status);
     setReviews((prev) => prev.map((r) => r.id === id ? { ...r, status } : r));
     showToast(status === 'published' ? 'Review publicado' : 'Review ocultado');
   }
@@ -145,17 +137,12 @@ export default function AdminReviewsPage() {
   async function toggleFeatured(id: string) {
     const review = reviews.find((r) => r.id === id);
     if (!review) return;
-    const fd = new FormData();
-    fd.append('id', id);
-    fd.append('name', review.name);
-    fd.append('status', review.status ?? 'pending');
-    fd.append('featured', String(!review.featured));
-    fd.append('rating', String(review.rating ?? 5));
-    await upsertReview(fd);
+    await setReviewFeatured(id, !review.featured);
     setReviews((prev) => prev.map((r) => r.id === id ? { ...r, featured: !r.featured } : r));
   }
 
   async function handleDelete(id: string) {
+    if (!confirm('¿Eliminar este review? Esta acción no se puede deshacer.')) return;
     await deleteReview(id);
     setReviews((prev) => prev.filter((r) => r.id !== id));
     showToast('Review eliminado');

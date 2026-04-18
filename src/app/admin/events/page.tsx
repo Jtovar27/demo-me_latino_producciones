@@ -140,6 +140,7 @@ export default function AdminEventsPage() {
   }
 
   async function handleDelete(id: string) {
+    if (!confirm('¿Eliminar este evento? Esta acción no se puede deshacer.')) return;
     await deleteEvent(id);
     setEvents((prev) => prev.filter((e) => e.id !== id));
     showToast('Evento eliminado');

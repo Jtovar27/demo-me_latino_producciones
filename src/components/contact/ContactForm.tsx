@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, type FormEvent, type ChangeEvent } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { submitBooking } from '@/app/actions/bookings';
+import { submitContact } from '@/app/actions/leads';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 type UpcomingEvent = { id: string; title: string; date: string; city: string; venue: string };
@@ -150,17 +150,14 @@ export default function ContactForm({ upcomingEvents = [] }: { upcomingEvents?: 
         const res = await submitBooking(fd);
         if (res.error) throw new Error(res.error);
       } else {
-        const supabase = createClient();
-        const { error: dbError } = await supabase.from('leads').insert({
-          name:     form.name.trim(),
-          email:    form.email.trim().toLowerCase(),
-          phone:    form.phone.trim() || null,
-          interest: form.inquiryType || null,
-          message:  form.message.trim(),
-          source:   'website',
-          status:   'new',
-        });
-        if (dbError) throw dbError;
+        const fd = new FormData();
+        fd.append('name',        form.name.trim());
+        fd.append('email',       form.email.trim().toLowerCase());
+        fd.append('phone',       form.phone.trim());
+        fd.append('inquiryType', form.inquiryType);
+        fd.append('message',     form.message.trim());
+        const res = await submitContact(fd);
+        if (res.error) throw new Error(res.error);
       }
       setSubmitted(true);
     } catch {

@@ -103,6 +103,7 @@ export default function AdminExperiencesPage() {
   }
 
   async function handleDelete(id: string) {
+    if (!confirm('¿Eliminar esta experiencia? Esta acción no se puede deshacer.')) return;
     await deleteExperience(id);
     setExperiences((prev) => prev.filter((e) => e.id !== id));
     showToast('Experiencia eliminada');

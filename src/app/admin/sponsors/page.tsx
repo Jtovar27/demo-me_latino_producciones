@@ -106,6 +106,7 @@ export default function AdminSponsorsPage() {
   }
 
   async function handleDelete(id: string) {
+    if (!confirm('¿Eliminar este sponsor? Esta acción no se puede deshacer.')) return;
     await deleteSponsor(id);
     setSponsors((prev) => prev.filter((s) => s.id !== id));
     showToast('Sponsor eliminado');

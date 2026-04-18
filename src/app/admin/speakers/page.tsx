@@ -95,6 +95,7 @@ export default function AdminSpeakersPage() {
   }
 
   async function handleDelete(id: string) {
+    if (!confirm('¿Eliminar este speaker? Esta acción no se puede deshacer.')) return;
     await deleteSpeaker(id);
     setSpeakers((prev) => prev.filter((s) => s.id !== id));
     showToast('Speaker eliminado');

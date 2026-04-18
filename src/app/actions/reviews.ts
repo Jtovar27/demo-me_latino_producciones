@@ -40,6 +40,30 @@ export async function upsertReview(formData: FormData) {
   return { success: true };
 }
 
+export async function setReviewStatus(id: string, status: string) {
+  const client = createAdminClient();
+  const { error } = await client
+    .from('reviews')
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) return { error: error.message };
+  revalidatePath('/admin/reviews');
+  revalidatePath('/');
+  return { success: true };
+}
+
+export async function setReviewFeatured(id: string, featured: boolean) {
+  const client = createAdminClient();
+  const { error } = await client
+    .from('reviews')
+    .update({ featured, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) return { error: error.message };
+  revalidatePath('/admin/reviews');
+  revalidatePath('/');
+  return { success: true };
+}
+
 export async function deleteReview(id: string) {
   const client = createAdminClient();
   const { error } = await client.from('reviews').delete().eq('id', id);
@@ -82,15 +106,37 @@ export async function getPublishedReviewsForEvent(
   limit = 50,
 ) {
   const client = createPublicClient();
-  const { data, error } = await client
+
+  // Two-query approach avoids the PostgREST .or() comma-escaping issue when
+  // event titles contain commas. Primary: match by FK. Fallback: case-insensitive
+  // name match for legacy reviews created before event_id was populated.
+  const { data: byId } = await client
     .from('reviews')
     .select('*')
     .eq('status', 'published')
-    .or(`event_id.eq.${eventId},event_name.ilike.${eventTitle}`)
+    .eq('event_id', eventId)
     .order('featured', { ascending: false })
     .order('submitted_at', { ascending: false })
     .limit(limit);
-  return { data: data ?? [], error: error?.message ?? null };
+
+  const { data: byName } = await client
+    .from('reviews')
+    .select('*')
+    .eq('status', 'published')
+    .is('event_id', null)
+    .ilike('event_name', eventTitle)
+    .order('featured', { ascending: false })
+    .order('submitted_at', { ascending: false })
+    .limit(limit);
+
+  const seen = new Set<string>();
+  const merged: typeof byId = [];
+  for (const r of [...(byId ?? []), ...(byName ?? [])]) {
+    if (!seen.has(r.id)) { seen.add(r.id); merged.push(r); }
+  }
+  const data = merged.slice(0, limit);
+  const error = null;
+  return { data, error };
 }
 
 export async function submitPublicReview(formData: FormData) {

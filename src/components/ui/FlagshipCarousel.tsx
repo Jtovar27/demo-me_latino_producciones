@@ -32,12 +32,11 @@ export default function FlagshipCarousel({ events, lang }: Props) {
     if (total <= 1) return;
     timerRef.current = setInterval(() => {
       if (!pausedRef.current) {
-        setCurrent(c => {
-          const n = (c + 1) % total;
-          setVisible(false);
-          setTimeout(() => { setCurrent(n); setVisible(true); }, 220);
-          return c;
-        });
+        setVisible(false);
+        setTimeout(() => {
+          setCurrent(c => (c + 1) % total);
+          setVisible(true);
+        }, 220);
       }
     }, 7000);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };

@@ -64,6 +64,7 @@ export default function AdminMediaPage() {
   );
 
   async function handleDelete(item: DBGalleryItem) {
+    if (!confirm('¿Eliminar este archivo? Esta acción no se puede deshacer.')) return;
     const res = await deleteMediaFile(item.id, item.storage_path);
     if (res?.error) {
       showToast('Error al eliminar');

@@ -195,19 +195,8 @@ export default async function AboutPage() {
                 {lang === 'en' ? 'Explore The Real Happiness' : 'Explorar The Real Happiness'}
               </Button>
             </div>
-            <div className="relative aspect-video w-full overflow-hidden bg-[#1A1410] flex flex-col items-center justify-center gap-4 border border-[#5B4638]/40">
-              <div className="flex h-14 w-14 items-center justify-center border border-[#A56E52] rounded-full">
-                <svg className="w-6 h-6 text-[#A56E52] ml-1" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-              <p className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#5B4638]">
-                {lang === 'en' ? 'Promotional video — Coming soon' : 'Video promocional — Próximamente'}
-              </p>
-              <p className="font-serif text-sm text-[#D7C6B2] text-center px-8 leading-relaxed">
-                The Real Happiness MasterClass · Summit III<br />
-                Doral · Samborondón · Orlando · 2026
-              </p>
+            <div className="relative aspect-video w-full overflow-hidden">
+              <Image fill src="/1-100.jpg.png" alt="The Real Happiness" className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
             </div>
           </div>
         </div>
@@ -225,18 +214,18 @@ export default async function AboutPage() {
             <MobileCarousel itemWidth="w-[78vw]" interval={5000}>
               <div className="flex flex-col">
                 <div className="relative mb-4 aspect-square w-full overflow-hidden">
-                  <Image fill src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80" alt="Mónica Espinoza — Founder & CEO" className="object-cover" sizes="80vw" />
+                  <Image fill src="/MEspinoza.jpg.png" alt="Mónica Espinoza — Founder & CEO" className="object-cover" sizes="80vw" />
                 </div>
                 <h3 className="mb-1 font-serif text-xl font-normal text-[#2A2421]">Mónica Espinoza</h3>
                 <span className="mb-3 font-sans text-xs font-medium uppercase tracking-widest text-[#A56E52]">Founder &amp; CEO</span>
-                <p className="font-sans text-sm leading-relaxed text-[#5B4638] line-clamp-4">{leadershipBio}</p>
+                <p className="font-sans text-sm leading-relaxed text-[#5B4638]">{leadershipBio}</p>
               </div>
             </MobileCarousel>
           </div>
           <div className="hidden md:grid grid-cols-2 gap-16 max-w-3xl">
             <div className="flex flex-col">
               <div className="relative mb-6 aspect-square w-full overflow-hidden">
-                <Image fill src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80" alt="Mónica Espinoza — Founder & CEO" className="object-cover" sizes="33vw" />
+                <Image fill src="/MEspinoza.jpg.png" alt="Mónica Espinoza — Founder & CEO" className="object-cover" sizes="33vw" />
               </div>
               <h3 className="mb-1 font-serif text-xl font-normal text-[#2A2421]">Mónica Espinoza</h3>
               <span className="mb-4 font-sans text-xs font-medium uppercase tracking-widest text-[#A56E52]">Founder &amp; CEO</span>

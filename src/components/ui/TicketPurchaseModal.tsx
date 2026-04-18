@@ -3,9 +3,10 @@
 import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { submitBooking } from '@/app/actions/bookings';
 
-const WA_NUMBER   = '13055252555';
-const ZELLE_PHONE = '786-599-9520';
-const ZELLE_NAME  = 'Monica Espinoza';
+const WA_NUMBER        = '13055252555';
+const ZELLE_PHONE      = '786-599-9520';
+const ZELLE_PHONE_CLEAN = '7865999520';
+const ZELLE_NAME       = 'Monica Espinoza';
 
 interface Props {
   eventTitle: string;
@@ -37,13 +38,15 @@ export default function TicketPurchaseModal({
   eventPrice,
   onClose,
 }: Props) {
-  const [name, setName]   = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [qty, setQty]     = useState(1);
-  const [error, setError] = useState('');
+  const [name, setName]     = useState('');
+  const [email, setEmail]   = useState('');
+  const [phone, setPhone]   = useState('');
+  const [qtyStr, setQtyStr] = useState('1');
+  const [error, setError]   = useState('');
   const [loading, setLoading] = useState(false);
-  const [done, setDone]   = useState(false);
+  const [done, setDone]     = useState(false);
+
+  const qty = Math.max(1, parseInt(qtyStr) || 1);
 
   const firstInputRef = useRef<HTMLInputElement>(null);
 
@@ -176,6 +179,15 @@ export default function TicketPurchaseModal({
                     Escanea el QR desde tu app Zelle, o busca el número <strong className="text-white">{ZELLE_PHONE}</strong> manualmente como <strong className="text-white">{ZELLE_NAME}</strong>.
                   </p>
                 </div>
+                <a
+                  href={`zelle://send?address=${ZELLE_PHONE_CLEAN}&amount=${total}`}
+                  className="flex items-center justify-center gap-2 w-full bg-[#6D1ED4] px-6 py-3.5 font-sans text-[11px] uppercase tracking-widest text-white hover:bg-[#5A18B0] transition-colors"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 4h12l-7 8h7l-12 8 5-8H3z" />
+                  </svg>
+                  Abrir Zelle y pagar ${total.toLocaleString('en-US')}
+                </a>
               </div>
             )}
 
@@ -269,11 +281,14 @@ export default function TicketPurchaseModal({
                   <div>
                     <label className={labelCls}>Cantidad de tickets</label>
                     <input
-                      type="number"
-                      min={1}
-                      max={20}
-                      value={qty}
-                      onChange={(e) => setQty(Math.max(1, parseInt(e.target.value) || 1))}
+                      type="text"
+                      inputMode="numeric"
+                      value={qtyStr}
+                      onChange={(e) => {
+                        const v = e.target.value.replace(/[^0-9]/g, '');
+                        if (v === '' || (parseInt(v) >= 1 && parseInt(v) <= 20)) setQtyStr(v);
+                      }}
+                      onBlur={() => setQtyStr(String(Math.max(1, parseInt(qtyStr) || 1)))}
                       className={inputCls}
                     />
                   </div>
