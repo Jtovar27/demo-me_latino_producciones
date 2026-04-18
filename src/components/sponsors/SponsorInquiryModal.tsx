@@ -7,9 +7,10 @@ import { t, tr } from '@/lib/i18n/translations';
 
 type SponsorTier = 'platinum' | 'silver' | 'blue' | 'pink';
 
-const WA_NUMBER   = '13055252555';
-const ZELLE_PHONE = '786-599-9520';
-const ZELLE_NAME  = 'Monica Espinoza';
+const WA_NUMBER        = '13055252555';
+const ZELLE_PHONE      = '786-599-9520';
+const ZELLE_PHONE_CLEAN = '7865999520';
+const ZELLE_NAME       = 'Monica Espinoza';
 
 interface Props {
   tier: SponsorTier;
@@ -38,6 +39,7 @@ export default function SponsorInquiryModal({ tier, tierLabel, price, onClose }:
   const [error, setError]     = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone]       = useState(false);
+  const [copied, setCopied]   = useState(false);
 
   const firstInputRef = useRef<HTMLInputElement>(null);
 
@@ -160,6 +162,28 @@ export default function SponsorInquiryModal({ tier, tierLabel, price, onClose }:
                   Escanea el QR desde tu app Zelle, o busca el número <strong className="text-white">{ZELLE_PHONE}</strong> manualmente como <strong className="text-white">{ZELLE_NAME}</strong>.
                 </p>
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(ZELLE_PHONE_CLEAN).then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 3000);
+                  });
+                }}
+                className="flex items-center justify-center gap-2 w-full bg-[#6D1ED4] px-6 py-3.5 font-sans text-[11px] uppercase tracking-widest text-white hover:bg-[#5A18B0] transition-colors"
+              >
+                {copied ? (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    ¡Número copiado! Pégalo en tu app bancaria
+                  </>
+                ) : (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" /></svg>
+                    Copiar número Zelle de Monica
+                  </>
+                )}
+              </button>
             </div>
 
             {/* Captura */}
