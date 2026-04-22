@@ -11,12 +11,12 @@ export const revalidate = 60;
 
 // ── Types & constants ───────────────────────────────────
 
-type SponsorTier = 'platinum' | 'silver' | 'blue' | 'pink';
+type SponsorTier = 'exclusive' | 'platinum' | 'silver' | 'blue' | 'pink';
 
-const TIER_ORDER: SponsorTier[] = ['platinum', 'silver', 'blue', 'pink'];
+const TIER_ORDER: SponsorTier[] = ['exclusive', 'platinum', 'silver', 'blue', 'pink'];
 
 function safeTier(t: string): SponsorTier {
-  return (['platinum', 'silver', 'blue', 'pink'] as const).includes(t as SponsorTier)
+  return (['exclusive', 'platinum', 'silver', 'blue', 'pink'] as const).includes(t as SponsorTier)
     ? (t as SponsorTier)
     : 'pink';
 }
@@ -32,6 +32,16 @@ type TierMeta = {
 
 function getTierMeta(lang: 'es' | 'en'): Record<SponsorTier, TierMeta> {
   return {
+    exclusive: {
+      label: 'Exclusive',
+      description: lang === 'en'
+        ? 'The brand that presents and leads the event — maximum visibility, stage presence, and an exclusive activation space.'
+        : 'La marca que presenta y lidera el evento — máxima visibilidad, presencia en escena y espacio de activación exclusivo.',
+      borderClass: 'border-[#A56E52]',
+      pillClass: 'bg-[#A56E52] text-[#F7F3EE]',
+      gridClass: 'grid-cols-1 sm:grid-cols-1',
+      cardBg: 'bg-[#2A2421]',
+    },
     platinum: {
       label: 'Platinum',
       description: lang === 'en'
@@ -205,7 +215,7 @@ export default async function SponsorsPage() {
       acc[tier] = activeSponsors.filter((s) => safeTier(s.tier) === tier);
       return acc;
     },
-    { platinum: [], silver: [], blue: [], pink: [] }
+    { exclusive: [], platinum: [], silver: [], blue: [], pink: [] }
   );
 
   const hasAnySponsors = activeSponsors.length > 0;

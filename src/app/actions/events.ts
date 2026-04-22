@@ -29,8 +29,12 @@ export async function upsertEvent(formData: FormData) {
   const tags = tagsRaw.split(',').map((t) => t.trim()).filter(Boolean);
 
   // Safe numeric parsing — avoids NaN on non-numeric input
-  const capacity = Math.max(0, parseInt(formData.get('capacity') as string, 10) || 0);
-  const price = Math.max(0, parseFloat(formData.get('price') as string) || 0);
+  const capacity  = Math.max(0, parseInt(formData.get('capacity') as string, 10) || 0);
+  const price     = Math.max(0, parseFloat(formData.get('price') as string) || 0);
+  const priceVipRaw = formData.get('price_vip') as string;
+  const price_vip = priceVipRaw?.trim() ? Math.max(0, parseFloat(priceVipRaw) || 0) : null;
+  const vipBenefitsRaw = (formData.get('vip_benefits') as string) || '';
+  const vip_benefits = vipBenefitsRaw.split('\n').map((b) => b.trim()).filter(Boolean);
 
   const payload = {
     title,
@@ -47,6 +51,8 @@ export async function upsertEvent(formData: FormData) {
     video_url: (formData.get('video_url') as string)?.trim() || null,
     capacity,
     price,
+    price_vip,
+    vip_benefits: vip_benefits.length > 0 ? vip_benefits : null,
     featured: formData.get('featured') === 'true',
     tags,
     updated_at: new Date().toISOString(),
@@ -77,7 +83,7 @@ export async function getEvents() {
   const { data, error } = await client
     .from('events')
     .select('*')
-    .order('date', { ascending: false });
+    .order('date', { ascending: true });
   if (error) return { data: [], error: error.message };
   return { data: data ?? [], error: null };
 }

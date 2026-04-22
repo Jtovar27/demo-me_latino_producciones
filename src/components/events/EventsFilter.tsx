@@ -89,11 +89,23 @@ export default function EventsFilter({ events }: EventsFilterProps) {
     }
   }, [selectedCategory, selectedStatus]);
 
-  const filteredEvents = events.filter((event) => {
-    const catMatch = selectedCategory === 'all' || event.category === selectedCategory;
-    const statusMatch = selectedStatus === 'all' || event.status === selectedStatus;
-    return catMatch && statusMatch;
-  });
+  const statusPriority: Record<string, number> = { upcoming: 0, 'sold-out': 1, past: 2 };
+
+  const filteredEvents = events
+    .filter((event) => {
+      const catMatch = selectedCategory === 'all' || event.category === selectedCategory;
+      const statusMatch = selectedStatus === 'all' || event.status === selectedStatus;
+      return catMatch && statusMatch;
+    })
+    .sort((a, b) => {
+      const ap = statusPriority[a.status] ?? 2;
+      const bp = statusPriority[b.status] ?? 2;
+      if (ap !== bp) return ap - bp;
+      // Past events: most recent first; upcoming/sold-out: nearest first
+      return a.status === 'past'
+        ? b.date.localeCompare(a.date)
+        : a.date.localeCompare(b.date);
+    });
 
   function resetFilters() {
     setSelectedCategory('all');
@@ -345,6 +357,8 @@ export default function EventsFilter({ events }: EventsFilterProps) {
         eventCity={ticketEvent.city}
         eventState={ticketEvent.state}
         eventPrice={ticketEvent.price ?? 0}
+        eventPriceVip={ticketEvent.price_vip}
+        vipBenefits={ticketEvent.vip_benefits}
         onClose={closeTickets}
       />
     )}

@@ -16,6 +16,8 @@ interface FeaturedEvent {
   venue: string;
   image_url: string | null;
   price: number;
+  price_vip: number | null;
+  vip_benefits: string[] | null;
 }
 
 function formatDate(dateStr: string) {
@@ -167,6 +169,11 @@ export default function PromoPopup() {
               {event.price > 0 && (
                 <p className="font-sans text-sm font-semibold mt-1.5" style={{ color: '#A56E52' }}>
                   Desde ${event.price.toLocaleString('en-US')}
+                  {event.price_vip && event.price_vip > 0 && (
+                    <span className="ml-3 font-sans text-xs font-normal text-[#5B4638]">
+                      VIP ${event.price_vip.toLocaleString('en-US')}
+                    </span>
+                  )}
                 </p>
               )}
 
@@ -222,6 +229,8 @@ export default function PromoPopup() {
           eventCity={event.city}
           eventState={event.state}
           eventPrice={event.price}
+          eventPriceVip={event.price_vip}
+          vipBenefits={event.vip_benefits}
           onClose={() => setModalOpen(false)}
         />
       )}

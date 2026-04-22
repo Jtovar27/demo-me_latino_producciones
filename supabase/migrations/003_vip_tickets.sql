@@ -1,0 +1,3 @@
+ALTER TABLE events
+  ADD COLUMN IF NOT EXISTS price_vip    NUMERIC       DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS vip_benefits TEXT[]        DEFAULT NULL;

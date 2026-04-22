@@ -5,7 +5,7 @@ import { submitSponsorLead } from '@/app/actions/sponsors';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { t, tr } from '@/lib/i18n/translations';
 
-type SponsorTier = 'platinum' | 'silver' | 'blue' | 'pink';
+type SponsorTier = 'exclusive' | 'platinum' | 'silver' | 'blue' | 'pink';
 
 const WA_NUMBER        = '13055252555';
 const ZELLE_PHONE      = '786-599-9520';
@@ -30,6 +30,8 @@ function WhatsAppIcon() {
 export default function SponsorInquiryModal({ tier, tierLabel, price, onClose }: Props) {
   const { lang } = useLanguage();
   const tf = t.sponsorForm;
+  const sp = t.sponsorPayment;
+  const pf = t.paymentFlow;
 
   const [name, setName]       = useState('');
   const [email, setEmail]     = useState('');
@@ -103,12 +105,12 @@ export default function SponsorInquiryModal({ tier, tierLabel, price, onClose }:
               {tierLabel} — {price}
             </span>
             <p className="mt-1 font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">
-              {done ? 'Completa tu pago' : tr(tf.title, lang)}
+              {done ? tr(pf.headerDone, lang) : tr(tf.title, lang)}
             </p>
           </div>
           <button
             onClick={onClose}
-            aria-label="Cerrar"
+            aria-label={tr(pf.closeAriaLbl, lang)}
             className="shrink-0 font-sans text-[#5B4638] hover:text-[#2A2421] transition-colors text-xl leading-none p-1 mt-0.5"
           >
             ×
@@ -126,40 +128,40 @@ export default function SponsorInquiryModal({ tier, tierLabel, price, onClose }:
                 </svg>
               </div>
               <div>
-                <p className="font-serif text-xl text-[#2A2421]">¡Solicitud registrada!</p>
-                <p className="font-sans text-xs text-[#5B4638]">Ahora completa tu pago por Zelle para confirmar</p>
+                <p className="font-serif text-xl text-[#2A2421]">{tr(sp.requestRegistered, lang)}</p>
+                <p className="font-sans text-xs text-[#5B4638]">{tr(sp.requestSubtitle, lang)}</p>
               </div>
             </div>
 
             {/* Resumen */}
             <div className="border border-[#EAE1D6] bg-[#F7F3EE] px-5 py-4 space-y-1">
-              <p className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">Resumen</p>
-              <p className="font-sans text-sm text-[#2A2421] font-medium">Paquete {tierLabel}</p>
+              <p className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">{tr(pf.summary, lang)}</p>
+              <p className="font-sans text-sm text-[#2A2421] font-medium">{tr(sp.packageLabel, lang)} {tierLabel}</p>
               {company && <p className="font-sans text-xs text-[#5B4638]">{company}</p>}
               <div className="pt-2 flex justify-between items-center">
-                <span className="font-sans text-xs text-[#5B4638]">Inversión inicial</span>
+                <span className="font-sans text-xs text-[#5B4638]">{tr(sp.investment, lang)}</span>
                 <span className="font-sans text-sm font-semibold text-[#A56E52]">{price}</span>
               </div>
             </div>
 
             {/* Zelle */}
             <div className="border border-[#2A2421] bg-[#2A2421] px-5 py-5 space-y-4">
-              <p className="font-sans text-[9px] uppercase tracking-widest text-[#D7C6B2]">Pago por Zelle</p>
+              <p className="font-sans text-[9px] uppercase tracking-widest text-[#D7C6B2]">{tr(pf.zelleTitle, lang)}</p>
               <div className="flex items-end justify-between gap-4">
                 <div>
-                  <p className="font-sans text-[10px] text-[#D7C6B2] mb-0.5">Enviar a</p>
+                  <p className="font-sans text-[10px] text-[#D7C6B2] mb-0.5">{tr(pf.sendTo, lang)}</p>
                   <p className="font-serif text-2xl text-white">{ZELLE_PHONE}</p>
                   <p className="font-sans text-[10px] text-[#D7C6B2] mt-0.5">Monica Espinoza</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-sans text-[10px] text-[#D7C6B2] mb-0.5">Monto exacto</p>
+                  <p className="font-sans text-[10px] text-[#D7C6B2] mb-0.5">{tr(pf.exactAmount, lang)}</p>
                   <p className="font-serif text-2xl text-[#A56E52]">{price}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <img src="/monicaqr.png" alt="Zelle QR" className="w-24 h-24 object-contain bg-white p-1 shrink-0" />
                 <p className="font-sans text-[10px] text-[#D7C6B2] leading-relaxed">
-                  Escanea el QR desde tu app Zelle, o busca el número <strong className="text-white">{ZELLE_PHONE}</strong> manualmente como <strong className="text-white">{ZELLE_NAME}</strong>.
+                  {tr(pf.zelleInstrPrefix, lang)} <strong className="text-white">{ZELLE_PHONE}</strong> {tr(pf.zelleInstrSuffix, lang)} <strong className="text-white">{ZELLE_NAME}</strong>.
                 </p>
               </div>
               <button
@@ -175,12 +177,12 @@ export default function SponsorInquiryModal({ tier, tierLabel, price, onClose }:
                 {copied ? (
                   <>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                    ¡Número copiado! Pégalo en tu app bancaria
+                    {tr(pf.copiedNumber, lang)}
                   </>
                 ) : (
                   <>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" /></svg>
-                    Copiar número Zelle de Monica
+                    {tr(pf.copyZelleBtn, lang)}
                   </>
                 )}
               </button>
@@ -191,9 +193,9 @@ export default function SponsorInquiryModal({ tier, tierLabel, price, onClose }:
               <div className="flex gap-3 items-start">
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#A56E52] font-sans text-[10px] text-white font-bold">!</span>
                 <div>
-                  <p className="font-sans text-xs font-medium text-[#2A2421]">Confirma tu pago</p>
+                  <p className="font-sans text-xs font-medium text-[#2A2421]">{tr(t.ticketModal.confirmPaidTitle, lang)}</p>
                   <p className="font-sans text-xs text-[#5B4638] leading-relaxed mt-1">
-                    Luego de pagar, envía la <strong>captura de pantalla del pago</strong> al número <strong>+1 (305) 525-2555</strong> por WhatsApp para activar tu sponsorship.
+                    {tr(sp.confirmBody, lang)}
                   </p>
                 </div>
               </div>
@@ -204,7 +206,7 @@ export default function SponsorInquiryModal({ tier, tierLabel, price, onClose }:
                 className="flex items-center justify-center gap-2 w-full border border-[#25D366] bg-[#25D366] px-6 py-3.5 font-sans text-[11px] uppercase tracking-widest text-white hover:bg-[#1DA851] transition-colors"
               >
                 <WhatsAppIcon />
-                Enviar Captura por WhatsApp
+                {tr(pf.sendScreenshotWA, lang)}
               </a>
             </div>
 
@@ -212,7 +214,7 @@ export default function SponsorInquiryModal({ tier, tierLabel, price, onClose }:
               onClick={onClose}
               className="w-full py-2.5 font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hover:text-[#2A2421] transition-colors"
             >
-              Cerrar
+              {tr(pf.close, lang)}
             </button>
           </div>
         ) : (
@@ -311,7 +313,7 @@ export default function SponsorInquiryModal({ tier, tierLabel, price, onClose }:
                 disabled={loading}
                 className="border border-[#A56E52] bg-[#A56E52] px-6 py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#F7F3EE] hover:bg-[#8B5A42] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? tr(tf.submitting, lang) : 'Continuar al Pago'}
+                {loading ? tr(tf.submitting, lang) : tr(sp.continuePayment, lang)}
               </button>
             </div>
           </form>

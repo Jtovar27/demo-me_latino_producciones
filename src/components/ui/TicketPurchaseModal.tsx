@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { submitBooking } from '@/app/actions/bookings';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { t, tr } from '@/lib/i18n/translations';
 
 const WA_NUMBER        = '13055252555';
 const ZELLE_PHONE      = '786-599-9520';
@@ -14,6 +16,8 @@ interface Props {
   eventCity: string;
   eventState: string;
   eventPrice: number;
+  eventPriceVip?: number | null;
+  vipBenefits?: string[] | null;
   onClose: () => void;
 }
 
@@ -36,19 +40,27 @@ export default function TicketPurchaseModal({
   eventCity,
   eventState,
   eventPrice,
+  eventPriceVip,
+  vipBenefits,
   onClose,
 }: Props) {
-  const [name, setName]     = useState('');
-  const [email, setEmail]   = useState('');
-  const [phone, setPhone]   = useState('');
-  const [qtyStr, setQtyStr] = useState('1');
-  const [error, setError]   = useState('');
-  const [loading, setLoading] = useState(false);
-  const [done, setDone]     = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [name, setName]         = useState('');
+  const [email, setEmail]       = useState('');
+  const [phone, setPhone]       = useState('');
+  const [qtyStr, setQtyStr]     = useState('1');
+  const [ticketType, setTicketType] = useState<'regular' | 'vip'>('regular');
+  const [error, setError]       = useState('');
+  const [loading, setLoading]   = useState(false);
+  const [done, setDone]         = useState(false);
+  const [copied, setCopied]     = useState(false);
 
   const qty = Math.max(1, parseInt(qtyStr) || 1);
+  const hasVip = !!eventPriceVip && eventPriceVip > 0;
+  const effectivePrice = hasVip && ticketType === 'vip' ? eventPriceVip : eventPrice;
 
+  const { lang } = useLanguage();
+  const tm = t.ticketModal;
+  const pf = t.paymentFlow;
   const firstInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -57,16 +69,16 @@ export default function TicketPurchaseModal({
     return () => { document.body.style.overflow = ''; };
   }, []);
 
-  const total = eventPrice * qty;
-  const isFree = eventPrice === 0;
+  const total = effectivePrice * qty;
+  const isFree = effectivePrice === 0;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
 
-    if (!name.trim())  { setError('Por favor ingresa tu nombre completo.'); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError('Por favor ingresa un email válido.'); return; }
-    if (!phone.trim()) { setError('Por favor ingresa tu teléfono.'); return; }
+    if (!name.trim())  { setError(tr(tm.errorName, lang)); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError(tr(tm.errorEmail, lang)); return; }
+    if (!phone.trim()) { setError(tr(tm.errorPhone, lang)); return; }
 
     setLoading(true);
     const fd = new FormData();
@@ -75,7 +87,9 @@ export default function TicketPurchaseModal({
     fd.append('phone',      phone);
     fd.append('event_name', eventTitle);
     fd.append('guests',     String(qty));
-    fd.append('message',    isFree ? `Asistencia gratuita · ${qty} persona(s)` : `${qty} ticket(s) · Total: $${total.toLocaleString('en-US')}`);
+    fd.append('message',    isFree
+      ? `Asistencia gratuita · ${qty} persona(s)`
+      : `${qty} ticket(s) ${hasVip ? `(${ticketType.toUpperCase()}) ` : ''}· Total: $${total.toLocaleString('en-US')}`);
 
     const result = await submitBooking(fd);
     setLoading(false);
@@ -85,7 +99,7 @@ export default function TicketPurchaseModal({
   }
 
   const waConfirmMsg = encodeURIComponent(
-    `Hola! Acabo de pagar por Zelle para "${eventTitle}" el ${formatDate(eventDate)} en ${eventCity}, ${eventState}.\n\nNombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\nTickets: ${qty}${!isFree ? `\nTotal pagado: $${total.toLocaleString('en-US')}` : ''}\n\nAdjunto la captura del pago. ✅`
+    `Hola! Acabo de pagar por Zelle para "${eventTitle}" el ${formatDate(eventDate)} en ${eventCity}, ${eventState}.\n\nNombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\nTickets: ${qty}${hasVip ? ` (${ticketType.toUpperCase()})` : ''}${!isFree ? `\nTotal pagado: $${total.toLocaleString('en-US')}` : ''}\n\nAdjunto la captura del pago. ✅`
   );
   const waConfirmUrl = `https://wa.me/${WA_NUMBER}?text=${waConfirmMsg}`;
 
@@ -113,12 +127,12 @@ export default function TicketPurchaseModal({
               {eventCity}, {eventState}
             </span>
             <p className="mt-1 font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">
-              {done ? 'Completa tu pago' : 'Comprar Tickets'}
+              {done ? tr(pf.headerDone, lang) : tr(tm.buyTickets, lang)}
             </p>
           </div>
           <button
             onClick={onClose}
-            aria-label="Cerrar"
+            aria-label={tr(pf.closeAriaLbl, lang)}
             className="shrink-0 font-sans text-[#5B4638] hover:text-[#2A2421] transition-colors text-xl leading-none p-1 mt-0.5"
           >
             ×
@@ -136,25 +150,25 @@ export default function TicketPurchaseModal({
                 </svg>
               </div>
               <div>
-                <p className="font-serif text-xl text-[#2A2421]">¡Reserva registrada!</p>
+                <p className="font-serif text-xl text-[#2A2421]">{tr(tm.reservedTitle, lang)}</p>
                 <p className="font-sans text-xs text-[#5B4638]">
-                  {isFree ? 'Solo confirma tu asistencia por WhatsApp' : 'Ahora completa tu pago por Zelle'}
+                  {isFree ? tr(tm.freeSubtitle, lang) : tr(tm.paidSubtitle, lang)}
                 </p>
               </div>
             </div>
 
             {/* Resumen del pedido */}
             <div className="border border-[#EAE1D6] bg-[#F7F3EE] px-5 py-4 space-y-1">
-              <p className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">Resumen</p>
+              <p className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">{tr(pf.summary, lang)}</p>
               <p className="font-sans text-sm text-[#2A2421] font-medium">{eventTitle}</p>
               <p className="font-sans text-xs text-[#5B4638]">{formatDate(eventDate)} · {eventCity}, {eventState}</p>
               <div className="pt-2 flex justify-between items-center">
                 <span className="font-sans text-xs text-[#5B4638]">
-                  {qty} ticket{qty > 1 ? 's' : ''}{isFree ? ' (entrada libre)' : ` × $${eventPrice.toLocaleString('en-US')}`}
+                  {qty} ticket{qty > 1 ? 's' : ''}{hasVip ? ` ${ticketType.toUpperCase()}` : ''}{isFree ? ` (${tr(tm.freeEntry, lang)})` : ` × $${effectivePrice.toLocaleString('en-US')}`}
                 </span>
                 {!isFree && (
                   <span className="font-sans text-sm font-semibold text-[#A56E52]">
-                    Total: ${total.toLocaleString('en-US')}
+                    {tr(tm.total, lang)} ${total.toLocaleString('en-US')}
                   </span>
                 )}
               </div>
@@ -163,21 +177,21 @@ export default function TicketPurchaseModal({
             {!isFree && (
               /* Instrucciones de Zelle */
               <div className="border border-[#2A2421] bg-[#2A2421] px-5 py-5 space-y-4">
-                <p className="font-sans text-[9px] uppercase tracking-widest text-[#D7C6B2]">Pago por Zelle</p>
+                <p className="font-sans text-[9px] uppercase tracking-widest text-[#D7C6B2]">{tr(pf.zelleTitle, lang)}</p>
                 <div className="flex items-end justify-between gap-4">
                   <div>
-                    <p className="font-sans text-[10px] text-[#D7C6B2] mb-0.5">Enviar a</p>
+                    <p className="font-sans text-[10px] text-[#D7C6B2] mb-0.5">{tr(pf.sendTo, lang)}</p>
                     <p className="font-serif text-2xl text-white">{ZELLE_PHONE}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-sans text-[10px] text-[#D7C6B2] mb-0.5">Monto exacto</p>
+                    <p className="font-sans text-[10px] text-[#D7C6B2] mb-0.5">{tr(pf.exactAmount, lang)}</p>
                     <p className="font-serif text-2xl text-[#A56E52]">${total.toLocaleString('en-US')}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <img src="/monicaqr.png" alt="Zelle QR" className="w-24 h-24 object-contain bg-white p-1 shrink-0" />
                   <p className="font-sans text-[10px] text-[#D7C6B2] leading-relaxed">
-                    Escanea el QR desde tu app Zelle, o busca el número <strong className="text-white">{ZELLE_PHONE}</strong> manualmente como <strong className="text-white">{ZELLE_NAME}</strong>.
+                    {tr(pf.zelleInstrPrefix, lang)} <strong className="text-white">{ZELLE_PHONE}</strong> {tr(pf.zelleInstrSuffix, lang)} <strong className="text-white">{ZELLE_NAME}</strong>.
                   </p>
                 </div>
                 <button
@@ -193,12 +207,12 @@ export default function TicketPurchaseModal({
                   {copied ? (
                     <>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                      ¡Número copiado! Pégalo en tu app bancaria
+                      {tr(pf.copiedNumber, lang)}
                     </>
                   ) : (
                     <>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" /></svg>
-                      Copiar número Zelle de Monica
+                      {tr(pf.copyZelleBtn, lang)}
                     </>
                   )}
                 </button>
@@ -211,12 +225,10 @@ export default function TicketPurchaseModal({
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#A56E52] font-sans text-[10px] text-white font-bold">!</span>
                 <div>
                   <p className="font-sans text-xs font-medium text-[#2A2421]">
-                    {isFree ? 'Confirma tu asistencia' : 'Confirma tu pago'}
+                    {isFree ? tr(tm.confirmFreeTitle, lang) : tr(tm.confirmPaidTitle, lang)}
                   </p>
                   <p className="font-sans text-xs text-[#5B4638] leading-relaxed mt-1">
-                    {isFree
-                      ? 'Envíanos un mensaje por WhatsApp para confirmar tu lugar en el evento.'
-                      : 'Luego de pagar, envía la captura de pantalla del pago al +1 (305) 525-2555 por WhatsApp para confirmar tu reserva.'}
+                    {isFree ? tr(tm.confirmFreeBody, lang) : tr(tm.confirmPaidBody, lang)}
                   </p>
                 </div>
               </div>
@@ -227,7 +239,7 @@ export default function TicketPurchaseModal({
                 className="flex items-center justify-center gap-2 w-full border border-[#25D366] bg-[#25D366] px-6 py-3.5 font-sans text-[11px] uppercase tracking-widest text-white hover:bg-[#1DA851] transition-colors"
               >
                 <WhatsAppIcon />
-                {isFree ? 'Confirmar por WhatsApp' : 'Enviar Captura por WhatsApp'}
+                {isFree ? tr(tm.confirmViaWA, lang) : tr(pf.sendScreenshotWA, lang)}
               </a>
             </div>
 
@@ -235,7 +247,7 @@ export default function TicketPurchaseModal({
               onClick={onClose}
               className="w-full py-2.5 font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hover:text-[#2A2421] transition-colors"
             >
-              Cerrar
+              {tr(pf.close, lang)}
             </button>
           </div>
         ) : (
@@ -252,13 +264,54 @@ export default function TicketPurchaseModal({
               </div>
 
               <p className="font-sans text-xs leading-relaxed text-[#5B4638]">
-                Ingresa tus datos para reservar
-                {!isFree ? '. Luego te mostraremos cómo completar el pago por Zelle.' : '.'}
+                {isFree ? tr(tm.enterDetails, lang) : tr(tm.enterDetailsPaid, lang)}
               </p>
+
+              {hasVip && (
+                <div>
+                  <p className={labelCls}>{tr(tm.ticketType, lang)}</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setTicketType('regular')}
+                      className={`border p-4 text-left transition-colors ${
+                        ticketType === 'regular'
+                          ? 'border-[#2A2421] bg-[#2A2421] text-white'
+                          : 'border-[#D7C6B2] text-[#2A2421] hover:border-[#A56E52]'
+                      }`}
+                    >
+                      <p className="font-sans text-[9px] uppercase tracking-widest opacity-70">Regular</p>
+                      <p className="font-serif text-xl mt-1">${eventPrice.toLocaleString('en-US')}</p>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTicketType('vip')}
+                      className={`border p-4 text-left transition-colors ${
+                        ticketType === 'vip'
+                          ? 'border-[#A56E52] bg-[#A56E52] text-white'
+                          : 'border-[#D7C6B2] text-[#2A2421] hover:border-[#A56E52]'
+                      }`}
+                    >
+                      <p className="font-sans text-[9px] uppercase tracking-widest opacity-70">VIP</p>
+                      <p className="font-serif text-xl mt-1">${eventPriceVip!.toLocaleString('en-US')}</p>
+                    </button>
+                  </div>
+                  {ticketType === 'vip' && vipBenefits && vipBenefits.length > 0 && (
+                    <ul className="mt-3 space-y-1.5 border border-[#A56E52]/30 bg-[#FDF7F3] px-4 py-3">
+                      {vipBenefits.map((b) => (
+                        <li key={b} className="flex items-start gap-2">
+                          <span className="mt-[5px] h-1 w-1 shrink-0 rounded-full bg-[#A56E52]" />
+                          <span className="font-sans text-xs text-[#5B4638]">{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-4">
                 <div>
-                  <label className={labelCls}>Nombre completo <span className="text-[#A56E52]">*</span></label>
+                  <label className={labelCls}>{tr(t.bookingForm.nameLbl, lang)}</label>
                   <input
                     ref={firstInputRef}
                     type="text"
@@ -282,7 +335,7 @@ export default function TicketPurchaseModal({
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}>Teléfono <span className="text-[#A56E52]">*</span></label>
+                    <label className={labelCls}>{tr(tm.phone, lang)} <span className="text-[#A56E52]">*</span></label>
                     <input
                       type="tel"
                       value={phone}
@@ -293,7 +346,7 @@ export default function TicketPurchaseModal({
                     />
                   </div>
                   <div>
-                    <label className={labelCls}>Cantidad de tickets</label>
+                    <label className={labelCls}>{tr(tm.ticketQty, lang)}</label>
                     <input
                       type="text"
                       inputMode="numeric"
@@ -311,7 +364,7 @@ export default function TicketPurchaseModal({
                 {!isFree && (
                   <div className="flex justify-between items-center border-t border-[#EAE1D6] pt-3">
                     <span className="font-sans text-xs text-[#5B4638]">
-                      {qty} ticket{qty > 1 ? 's' : ''} × ${eventPrice.toLocaleString('en-US')}
+                      {qty} ticket{qty > 1 ? 's' : ''}{hasVip ? ` ${ticketType.toUpperCase()}` : ''} × ${effectivePrice.toLocaleString('en-US')}
                     </span>
                     <span className="font-sans text-sm font-semibold text-[#A56E52]">
                       Total: ${total.toLocaleString('en-US')}
@@ -333,14 +386,14 @@ export default function TicketPurchaseModal({
                 onClick={onClose}
                 className="border border-[#D7C6B2] px-5 py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors"
               >
-                Cancelar
+                {tr(tm.cancelBtn, lang)}
               </button>
               <button
                 type="submit"
                 disabled={loading}
                 className="border border-[#A56E52] bg-[#A56E52] px-6 py-2.5 font-sans text-[9px] uppercase tracking-widest text-white hover:bg-[#8B5A42] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Procesando...' : isFree ? 'Reservar Lugar' : 'Continuar al Pago'}
+                {loading ? tr(tm.processing, lang) : isFree ? tr(tm.reserveSpot, lang) : tr(tm.continuePayment, lang)}
               </button>
             </div>
           </form>

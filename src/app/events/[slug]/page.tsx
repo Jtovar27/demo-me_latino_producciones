@@ -1,10 +1,12 @@
 import { notFound } from 'next/navigation';
+import { getLang } from '@/lib/i18n/getLang';
 import Image from 'next/image';
 import Link from 'next/link';
 import PublicLayout from '@/components/layout/PublicLayout';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getPublishedReviewsForEvent } from '@/app/actions/reviews';
 import ReviewSubmitForm from './ReviewSubmitForm';
+import EventTicketButtons from '@/components/events/EventTicketButtons';
 
 export const revalidate = 60;
 
@@ -50,6 +52,7 @@ interface Props {
 
 export default async function EventDetailPage({ params }: Props) {
   const { slug } = await params;
+  const lang = await getLang();
 
   const client = createAdminClient();
   const { data: event, error } = await client
@@ -64,11 +67,6 @@ export default async function EventDetailPage({ params }: Props) {
   const { data: eventReviews } = await getPublishedReviewsForEvent(event.id, event.title);
 
   const sc = statusConfig(event.status);
-
-  const WA_NUMBER = '13055252555';
-  const waText = encodeURIComponent(
-    `Hola! Me interesa comprar tickets para "${event.title}" el ${formatFullDate(event.date)} en ${event.city}, ${event.state}. ¿Cómo puedo pagar con Zelle?`
-  );
 
   return (
     <PublicLayout>
@@ -126,17 +124,24 @@ export default async function EventDetailPage({ params }: Props) {
                   <span className="font-sans text-sm text-[#2A2421]">{event.venue}</span>
                   <span className="font-sans text-xs text-[#5B4638]">{event.city}, {event.state}</span>
                 </div>
-                {event.price > 0 && (
+                {event.price === 0 && !event.price_vip && (
                   <div className="flex flex-col gap-0.5">
-                    <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">Precio</span>
-                    <span className="font-serif text-2xl text-[#2A2421]">${event.price}</span>
-                    <span className="font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">por persona</span>
+                    <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'Price' : 'Precio'}</span>
+                    <span className="font-serif text-xl text-[#2A2421]">{lang === 'en' ? 'Free entry' : 'Entrada libre'}</span>
                   </div>
                 )}
-                {event.price === 0 && (
+                {event.price > 0 && (
                   <div className="flex flex-col gap-0.5">
-                    <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">Precio</span>
-                    <span className="font-serif text-xl text-[#2A2421]">Entrada libre</span>
+                    <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'Regular' : 'Regular'}</span>
+                    <span className="font-serif text-2xl text-[#2A2421]">${event.price}</span>
+                    <span className="font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{lang === 'en' ? 'per person' : 'por persona'}</span>
+                  </div>
+                )}
+                {event.price_vip && event.price_vip > 0 && (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">VIP</span>
+                    <span className="font-serif text-2xl text-[#A56E52]">${event.price_vip}</span>
+                    <span className="font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{lang === 'en' ? 'per person' : 'por persona'}</span>
                   </div>
                 )}
               </div>
@@ -145,6 +150,22 @@ export default async function EventDetailPage({ params }: Props) {
                 <p className="font-sans text-base leading-relaxed text-[#5B4638]">
                   {event.description}
                 </p>
+              )}
+
+              {event.price_vip && event.price_vip > 0 && event.vip_benefits && event.vip_benefits.length > 0 && (
+                <div className="border border-[#A56E52]/40 bg-[#F7F3EE] p-5 flex flex-col gap-3">
+                  <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">
+                    {lang === 'en' ? 'VIP — Includes' : 'VIP — Incluye'}
+                  </span>
+                  <ul className="flex flex-col gap-2">
+                    {event.vip_benefits.map((b) => (
+                      <li key={b} className="flex items-start gap-2">
+                        <span className="mt-[6px] h-1 w-1 shrink-0 rounded-full bg-[#A56E52]" />
+                        <span className="font-sans text-sm text-[#2A2421]">{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
 
               {event.tags && event.tags.length > 0 && (
@@ -159,22 +180,18 @@ export default async function EventDetailPage({ params }: Props) {
 
               {/* CTA buttons */}
               {event.status !== 'past' && (
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <a
-                    href={`https://wa.me/${WA_NUMBER}?text=${waText}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 border border-[#2A2421] bg-[#2A2421] px-8 py-4 font-sans text-[10px] uppercase tracking-widest text-[#F7F3EE] hover:bg-[#5B4638] transition-colors"
-                  >
-                    {event.status === 'sold-out' ? 'Lista de espera (WhatsApp)' : 'Comprar tickets — WhatsApp'}
-                  </a>
-                  <Link
-                    href="/contact"
-                    className="inline-flex items-center justify-center gap-2 border border-[#D7C6B2] px-8 py-4 font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors"
-                  >
-                    Contactar al equipo
-                  </Link>
-                </div>
+                <EventTicketButtons
+                  event={{
+                    title: event.title,
+                    date: event.date,
+                    city: event.city,
+                    state: event.state,
+                    price: event.price,
+                    price_vip: event.price_vip,
+                    vip_benefits: event.vip_benefits,
+                    status: event.status,
+                  }}
+                />
               )}
             </div>
 

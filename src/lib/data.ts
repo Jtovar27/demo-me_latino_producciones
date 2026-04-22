@@ -59,7 +59,7 @@ export interface Experience {
   tags: string[];
 }
 
-export type SponsorTier = "platinum" | "silver" | "blue" | "pink";
+export type SponsorTier = "exclusive" | "platinum" | "silver" | "blue" | "pink";
 
 export interface Sponsor {
   id: string;

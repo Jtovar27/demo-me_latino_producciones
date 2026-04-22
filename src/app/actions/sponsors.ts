@@ -56,14 +56,16 @@ export async function deleteSponsor(id: string) {
  */
 export async function submitSponsorLead(formData: FormData) {
   const { createPublicClient } = await import('@/lib/supabase/public');
+  const { getLang } = await import('@/lib/i18n/getLang');
   const client = createPublicClient();
+  const lang = await getLang();
 
   const name  = (formData.get('name')  as string)?.trim();
   const email = (formData.get('email') as string)?.trim();
 
-  if (!name || name.length > 200) return { error: 'Nombre requerido.' };
+  if (!name || name.length > 200) return { error: lang === 'en' ? 'Name is required.' : 'Nombre requerido.' };
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { error: 'Email inválido.' };
+    return { error: lang === 'en' ? 'Invalid email.' : 'Email inválido.' };
   }
 
   const tier    = (formData.get('tier')    as string)?.trim() || 'pink';

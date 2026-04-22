@@ -19,6 +19,17 @@ export async function getExperiences() {
   return { data: data ?? [], error: null };
 }
 
+export async function getExperienceBySlug(slug: string) {
+  const client = createAdminClient();
+  const { data, error } = await client
+    .from('experiences')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+  if (error) return { data: null, error: error.message };
+  return { data, error: null };
+}
+
 export async function upsertExperience(formData: FormData) {
   const client = createAdminClient();
   const id = formData.get('id') as string | null;

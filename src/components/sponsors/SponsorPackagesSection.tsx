@@ -2,12 +2,19 @@
 
 import { useState } from 'react';
 import SponsorInquiryModal from './SponsorInquiryModal';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
-type SponsorTier = 'platinum' | 'silver' | 'blue' | 'pink';
+type SponsorTier = 'exclusive' | 'platinum' | 'silver' | 'blue' | 'pink';
 
 const WA_NUMBER = '13055252555';
 
 const TIER_META: Record<SponsorTier, { label: string; borderClass: string; pillClass: string; cardBg: string }> = {
+  exclusive: {
+    label: 'Exclusive',
+    borderClass: 'border-[#A56E52]',
+    pillClass: 'bg-[#A56E52] text-[#F7F3EE]',
+    cardBg: 'bg-[#2A2421]',
+  },
   platinum: {
     label: 'Platinum',
     borderClass: 'border-[#2A2421]',
@@ -34,44 +41,78 @@ const TIER_META: Record<SponsorTier, { label: string; borderClass: string; pillC
   },
 };
 
-const TIER_PACKAGES = [
+type Package = { tier: SponsorTier; price: string; highlight: boolean; benefits: { en: string; es: string }[] };
+
+const TIER_PACKAGES: Package[] = [
   {
-    tier: 'platinum' as SponsorTier,
-    price: '$5,000',
+    tier: 'exclusive',
+    price: '$10,000',
     highlight: true,
     benefits: [
-      'Presencia completa en todos los eventos de la temporada',
-      'Tiempo en escena (introducción de keynote o segmento de marca)',
-      'Espacio de activación exclusivo',
-      'Logotipo en todo el material del evento',
-      'Campaña digital co-brandada (redes + email)',
-      'Acceso VIP para 10 personas (todos los eventos)',
-      'Oportunidad de speaker o panel',
-      'Reporte de impacto post-evento',
+      { en: '20 VIP tickets',                                                              es: '20 entradas VIP' },
+      { en: 'Sponsoring brand presenting the event',                                       es: 'Marca patrocinadora presentando el evento' },
+      { en: 'Logo on printed promotional material',                                        es: 'Logo en material promocional impreso' },
+      { en: 'Logo on the step and repeat banner',                                          es: 'Logo en el banner step and repeat' },
+      { en: 'Brand mention in social media advertising',                                   es: 'Mención de marca en publicidad en redes sociales' },
+      { en: 'Special thank you mention on the day of the event',                           es: 'Mención de agradecimiento especial el día del evento' },
+      { en: 'Corporate video screening on screens on the day of the event',                es: 'Proyección de video corporativo en pantallas el día del evento' },
+      { en: 'Exhibition space — exclusive activity for the day of the event',              es: 'Espacio de exhibición — actividad exclusiva el día del evento' },
+      { en: '10 minutes on stage at the event opening',                                    es: '10 minutos en escena en la apertura del evento' },
     ],
   },
   {
-    tier: 'silver' as SponsorTier,
-    price: '$2,500',
+    tier: 'platinum',
+    price: '$5,000',
     highlight: false,
     benefits: [
-      'Patrocinador nombrado para un evento o track específico',
-      'Señalización en escenario',
-      'Stand o booth premium',
-      '20 entradas de acceso general',
-      'Co-promoción en redes sociales (3 publicaciones)',
-      'Reporte de impacto post-evento',
+      { en: '10 VIP tickets',                                                              es: '10 entradas VIP' },
+      { en: 'Sponsoring brand presenting the event',                                       es: 'Marca patrocinadora presentando el evento' },
+      { en: 'Logo on printed promotional material',                                        es: 'Logo en material promocional impreso' },
+      { en: 'Logo on the step and repeat banner',                                          es: 'Logo en el banner step and repeat' },
+      { en: 'Brand mention in social media advertising',                                   es: 'Mención de marca en publicidad en redes sociales' },
+      { en: 'Brand inviting to the event',                                                 es: 'Marca invitando al evento' },
+      { en: 'Special thank you mention on the day of the event',                           es: 'Mención de agradecimiento especial el día del evento' },
+      { en: 'Corporate video screening on screens on the day of the event',                es: 'Proyección de video corporativo en pantallas el día del evento' },
+      { en: 'Exhibition space — exclusive activity for the day of the event',              es: 'Espacio de exhibición — actividad exclusiva el día del evento' },
+      { en: '5 minutes on stage at the event opening',                                     es: '5 minutos en escena en la apertura del evento' },
     ],
   },
   {
-    tier: 'blue' as SponsorTier,
-    price: '$1,000',
+    tier: 'silver',
+    price: '$3,000',
     highlight: false,
     benefits: [
-      'Logotipo en programa del evento y materiales digitales',
-      'Mención en redes sociales (1 publicación)',
-      '10 entradas de acceso general',
-      'Listado en directorio de patrocinadores',
+      { en: '6 VIP tickets',                                                               es: '6 entradas VIP' },
+      { en: 'Silver sponsor brand',                                                        es: 'Marca patrocinadora Silver' },
+      { en: 'Logo on printed promotional material',                                        es: 'Logo en material promocional impreso' },
+      { en: 'Logo on the step and repeat banner',                                          es: 'Logo en el banner step and repeat' },
+      { en: 'Brand mention in social media advertising',                                   es: 'Mención de marca en publicidad en redes sociales' },
+      { en: 'Special thank you mention on the day of the event',                           es: 'Mención de agradecimiento especial el día del evento' },
+      { en: 'Exhibition space — exclusive activity for the day of the event',              es: 'Espacio de exhibición — actividad exclusiva el día del evento' },
+    ],
+  },
+  {
+    tier: 'blue',
+    price: '$1,500',
+    highlight: false,
+    benefits: [
+      { en: '2 VIP tickets',                                                               es: '2 entradas VIP' },
+      { en: 'Exhibiting brand (Entrepreneurship)',                                         es: 'Marca exhibidora (Emprendimiento)' },
+      { en: 'Logo on the step and repeat banner',                                          es: 'Logo en el banner step and repeat' },
+      { en: 'Brand mention in social media advertising',                                   es: 'Mención de marca en publicidad en redes sociales' },
+      { en: 'Special thank you mention on the day of the event',                           es: 'Mención de agradecimiento especial el día del evento' },
+      { en: 'Exhibition space — exclusive activity for the day of the event',              es: 'Espacio de exhibición — actividad exclusiva el día del evento' },
+    ],
+  },
+  {
+    tier: 'pink',
+    price: '$500',
+    highlight: false,
+    benefits: [
+      { en: '1 VIP ticket',                                                                es: '1 entrada VIP' },
+      { en: 'Exhibiting brand (Entrepreneurship)',                                         es: 'Marca exhibidora (Emprendimiento)' },
+      { en: 'Logo on the step and repeat banner',                                          es: 'Logo en el banner step and repeat' },
+      { en: 'Exhibition space — exclusive activity for the day of the event',              es: 'Espacio de exhibición — actividad exclusiva el día del evento' },
     ],
   },
 ];
@@ -93,15 +134,91 @@ function WhatsAppIcon() {
   );
 }
 
-function waInfoUrl(tier: SponsorTier, label: string, price: string) {
-  const msg = encodeURIComponent(
-    `Hola! Me interesa el paquete de sponsorship ${label} (${price}) de ME Producciones. ¿Pueden darme más información?`
-  );
+function waInfoUrl(tier: SponsorTier, label: string, price: string, lang: 'en' | 'es') {
+  const msg = lang === 'en'
+    ? encodeURIComponent(`Hi! I'm interested in the ${label} sponsorship package (${price}) from ME Producciones. Can you give me more information?`)
+    : encodeURIComponent(`Hola! Me interesa el paquete de sponsorship ${label} (${price}) de ME Producciones. ¿Pueden darme más información?`);
   return `https://wa.me/${WA_NUMBER}?text=${msg}`;
 }
 
+function PackageCard({
+  pkg,
+  lang,
+  onModal,
+}: {
+  pkg: Package;
+  lang: 'en' | 'es';
+  onModal: (t: SponsorTier) => void;
+}) {
+  const meta   = TIER_META[pkg.tier];
+  const isDark = pkg.highlight;
+
+  return (
+    <div
+      className={[
+        'flex flex-col gap-8 p-8 md:p-10',
+        isDark ? 'bg-[#2A2421]' : `border ${meta.borderClass} ${meta.cardBg}`,
+      ].join(' ')}
+    >
+      {/* Header */}
+      <div className="flex flex-col gap-3">
+        <TierPill tier={pkg.tier} />
+        <p className={['font-serif text-4xl font-normal', isDark ? 'text-[#F7F3EE]' : 'text-[#2A2421]'].join(' ')}>
+          {pkg.price}
+        </p>
+        <p className={['font-sans text-[10px] uppercase tracking-widest', isDark ? 'text-[#D7C6B2]' : 'text-[#5B4638]'].join(' ')}>
+          {lang === 'en' ? 'Initial investment' : 'Inversión inicial'}
+        </p>
+      </div>
+
+      {/* Benefits */}
+      <ul className="flex flex-col gap-3 flex-1">
+        {pkg.benefits.map((b) => (
+          <li key={b.en} className="flex items-start gap-3">
+            <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-[#A56E52]" />
+            <span className={['font-sans text-sm leading-relaxed', isDark ? 'text-[#D7C6B2]' : 'text-[#5B4638]'].join(' ')}>
+              {lang === 'en' ? b.en : b.es}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      {/* CTAs */}
+      <div className="pt-2 flex flex-col gap-2">
+        <button
+          onClick={() => onModal(pkg.tier)}
+          className={[
+            'w-full border px-6 py-3 font-sans text-[11px] uppercase tracking-widest transition-colors duration-200',
+            isDark
+              ? 'border-[#A56E52] bg-[#A56E52] text-[#F7F3EE] hover:bg-[#8B5A42] hover:border-[#8B5A42]'
+              : 'border-[#2A2421] bg-[#2A2421] text-[#F7F3EE] hover:bg-[#5B4638] hover:border-[#5B4638]',
+          ].join(' ')}
+        >
+          {lang === 'en' ? 'Become a Sponsor' : 'Convertirse en Sponsor'}
+        </button>
+
+        <a
+          href={waInfoUrl(pkg.tier, meta.label, pkg.price, lang)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={[
+            'flex items-center justify-center gap-2 w-full border px-6 py-3 font-sans text-[11px] uppercase tracking-widest transition-colors duration-200',
+            isDark
+              ? 'border-[#D7C6B2]/40 text-[#D7C6B2] hover:border-[#D7C6B2] hover:text-white'
+              : 'border-[#D7C6B2] text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421]',
+          ].join(' ')}
+        >
+          <WhatsAppIcon />
+          {lang === 'en' ? 'More Information' : 'Más Información'}
+        </a>
+      </div>
+    </div>
+  );
+}
+
 export default function SponsorPackagesSection() {
-  const [modalTier, setModalTier] = useState<SponsorTier>('platinum');
+  const { lang } = useLanguage();
+  const [modalTier, setModalTier] = useState<SponsorTier>('exclusive');
   const [modalOpen, setModalOpen] = useState(false);
 
   function openModal(tier: SponsorTier) {
@@ -112,106 +229,25 @@ export default function SponsorPackagesSection() {
   const activeMeta = TIER_META[modalTier];
   const activePkg  = TIER_PACKAGES.find((p) => p.tier === modalTier);
 
+  const [exclusive, platinum, silver, blue, pink] = TIER_PACKAGES;
+
   return (
     <>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {TIER_PACKAGES.map((pkg) => {
-          const meta  = TIER_META[pkg.tier];
-          const isDark = pkg.highlight;
-
-          return (
-            <div
-              key={pkg.tier}
-              className={[
-                'flex flex-col gap-8 p-8 md:p-10',
-                isDark ? 'bg-[#2A2421]' : `border ${meta.borderClass} ${meta.cardBg}`,
-              ].join(' ')}
-            >
-              {/* Header */}
-              <div className="flex flex-col gap-3">
-                <TierPill tier={pkg.tier} />
-                <p className={['font-serif text-4xl font-normal', isDark ? 'text-[#F7F3EE]' : 'text-[#2A2421]'].join(' ')}>
-                  {pkg.price}
-                </p>
-                <p className={['font-sans text-[10px] uppercase tracking-widest', isDark ? 'text-[#D7C6B2]' : 'text-[#5B4638]'].join(' ')}>
-                  Inversión inicial
-                </p>
-              </div>
-
-              {/* Benefits */}
-              <ul className="flex flex-col gap-3 flex-1">
-                {pkg.benefits.map((b) => (
-                  <li key={b} className="flex items-start gap-3">
-                    <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-[#A56E52]" />
-                    <span className={['font-sans text-sm leading-relaxed', isDark ? 'text-[#D7C6B2]' : 'text-[#5B4638]'].join(' ')}>
-                      {b}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* CTAs — dos botones */}
-              <div className="pt-2 flex flex-col gap-2">
-                {/* Botón 1: Convertirse en Sponsor */}
-                <button
-                  onClick={() => openModal(pkg.tier)}
-                  className={[
-                    'w-full border px-6 py-3 font-sans text-[11px] uppercase tracking-widest transition-colors duration-200',
-                    isDark
-                      ? 'border-[#A56E52] bg-[#A56E52] text-[#F7F3EE] hover:bg-[#8B5A42] hover:border-[#8B5A42]'
-                      : 'border-[#2A2421] bg-[#2A2421] text-[#F7F3EE] hover:bg-[#5B4638] hover:border-[#5B4638]',
-                  ].join(' ')}
-                >
-                  Convertirse en Sponsor
-                </button>
-
-                {/* Botón 2: Más Información */}
-                <a
-                  href={waInfoUrl(pkg.tier, meta.label, pkg.price)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={[
-                    'flex items-center justify-center gap-2 w-full border px-6 py-3 font-sans text-[11px] uppercase tracking-widest transition-colors duration-200',
-                    isDark
-                      ? 'border-[#D7C6B2]/40 text-[#D7C6B2] hover:border-[#D7C6B2] hover:text-white'
-                      : 'border-[#D7C6B2] text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421]',
-                  ].join(' ')}
-                >
-                  <WhatsAppIcon />
-                  Más Información
-                </a>
-              </div>
-            </div>
-          );
-        })}
+      {/* Exclusive — full width featured */}
+      <div className="mb-6">
+        <PackageCard pkg={exclusive} lang={lang} onModal={openModal} />
       </div>
 
-      {/* Pink tier note */}
-      <div className="mt-8 border border-[#EAE1D6] bg-[#F7F3EE] p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <TierPill tier="pink" />
-          <p className="mt-2 font-sans text-sm text-[#5B4638] leading-relaxed">
-            ¿Buscas una colaboración más pequeña o a medida? El nivel Pink ($500) está disponible
-            para organizaciones con objetivos específicos.
-          </p>
-        </div>
-        <div className="shrink-0 flex flex-col gap-2 sm:items-end">
-          <button
-            onClick={() => openModal('pink')}
-            className="border border-[#C4758A] bg-[#C4758A] px-5 py-2.5 font-sans text-[9px] uppercase tracking-widest text-white hover:bg-[#a85f73] hover:border-[#a85f73] transition-colors"
-          >
-            Convertirse en Sponsor
-          </button>
-          <a
-            href={waInfoUrl('pink', 'Pink', '$500')}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 border border-[#D7C6B2] px-5 py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors"
-          >
-            <WhatsAppIcon />
-            Más Información
-          </a>
-        </div>
+      {/* Platinum + Silver */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <PackageCard pkg={platinum} lang={lang} onModal={openModal} />
+        <PackageCard pkg={silver}   lang={lang} onModal={openModal} />
+      </div>
+
+      {/* Blue + Pink */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <PackageCard pkg={blue} lang={lang} onModal={openModal} />
+        <PackageCard pkg={pink} lang={lang} onModal={openModal} />
       </div>
 
       {modalOpen && (

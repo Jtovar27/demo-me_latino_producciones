@@ -36,13 +36,15 @@ export async function getLeads() {
 export async function submitContact(formData: FormData) {
   // Use public client — subject to RLS, not service-role
   const client = createPublicClient();
+  const { getLang } = await import('@/lib/i18n/getLang');
+  const lang = await getLang();
 
   const name = (formData.get('name') as string)?.trim();
   const email = (formData.get('email') as string)?.trim();
 
-  if (!name || name.length > 200) return { error: 'Nombre requerido.' };
+  if (!name || name.length > 200) return { error: lang === 'en' ? 'Name is required.' : 'Nombre requerido.' };
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { error: 'Email inválido.' };
+    return { error: lang === 'en' ? 'Invalid email.' : 'Email inválido.' };
   }
 
   const { error } = await client.from('leads').insert({

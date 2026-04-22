@@ -14,25 +14,30 @@ type EventRow = {
   id: string; title: string; slug: string; date: string; end_date: string | null;
   city: string; state: string; venue: string; category: string; status: string;
   description: string | null; image_url: string | null; video_url: string | null;
-  capacity: number; registered: number; price: number; featured: boolean;
-  tags: string[]; created_at: string; updated_at: string;
+  capacity: number; registered: number; price: number;
+  price_vip: number | null; vip_benefits: string[] | null;
+  featured: boolean; tags: string[]; created_at: string; updated_at: string;
+  title_en: string | null; description_en: string | null;
 };
 
 type SpeakerRow = {
   id: string; name: string; title: string | null; organization: string | null;
   bio: string | null; image_url: string | null; expertise: string[];
   featured: boolean; instagram: string | null; created_at: string; updated_at: string;
+  title_en: string | null; bio_en: string | null;
 };
 
 type ExperienceRow = {
   id: string; title: string; slug: string; category: string; short_desc: string | null;
   description: string | null; image_url: string | null; video_url: string | null;
   featured: boolean; tags: string[]; created_at: string; updated_at: string;
+  title_en: string | null; short_desc_en: string | null; description_en: string | null;
 };
 
 type SponsorRow = {
   id: string; name: string; tier: string; website: string | null;
   logo_url: string | null; description: string | null; active: boolean; created_at: string;
+  description_en: string | null;
 };
 
 type GalleryItemRow = {

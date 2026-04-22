@@ -2,16 +2,18 @@
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createPublicClient } from '@/lib/supabase/public';
+import { getLang } from '@/lib/i18n/getLang';
 
 export async function submitBooking(formData: FormData) {
   const client = createPublicClient();
+  const lang = await getLang();
 
   const name  = (formData.get('name')  as string)?.trim();
   const email = (formData.get('email') as string)?.trim();
 
-  if (!name || name.length > 200) return { error: 'Nombre requerido.' };
+  if (!name || name.length > 200) return { error: lang === 'en' ? 'Name is required.' : 'Nombre requerido.' };
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { error: 'Email inválido.' };
+    return { error: lang === 'en' ? 'Invalid email.' : 'Email inválido.' };
   }
 
   const guests = parseInt((formData.get('guests') as string) ?? '1', 10);
