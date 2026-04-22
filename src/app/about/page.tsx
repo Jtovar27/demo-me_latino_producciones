@@ -183,17 +183,13 @@ export default async function AboutPage() {
               </h2>
               <p className="mb-5 font-sans text-base leading-relaxed text-[#D7C6B2]">
                 {lang === 'en'
-                  ? 'The Real Happiness emerged as the first expression of the ME Producciones philosophy — not simply an event, but a proof of concept of what it means to produce with real purpose. Before becoming a brand, it was a question: can an event truly change the lives of the people who attend?'
-                  : 'The Real Happiness surgió como la primera expresión de la filosofía ME Producciones — no simplemente un evento, sino una prueba de concepto de lo que significa producir con propósito real. Antes de ser una marca, fue una pregunta: ¿puede un evento cambiar verdaderamente la vida de las personas que asisten?'}
+                  ? 'The Real Happiness is the most intimate expression of the ME Producciones philosophy — a masterclass-experience designed for the Latino community to discover real tools for emotional well-being, personal growth, and genuine human connection. Not a superficial motivational event, but a space where transformation truly happens.'
+                  : 'The Real Happiness es la expresión más íntima de la filosofía ME Producciones — una masterclass-experiencia diseñada para que la comunidad latina descubra herramientas reales de bienestar emocional, crecimiento personal y conexión humana genuina. No es un evento de motivación superficial, sino un espacio donde la transformación sucede de verdad.'}
               </p>
-              <p className="mb-10 font-sans text-base leading-relaxed text-[#D7C6B2]">
+              <p className="font-sans text-base leading-relaxed text-[#D7C6B2]">
                 {lang === 'en'
-                  ? 'The answer was a resounding yes. From its first edition in Los Angeles in 2024 to its edition in Miami in 2025, The Real Happiness has demonstrated that the Latino community is hungry for experiences that treat it with the depth it deserves. Every edition sells out. Every edition produces real, measurable transformations in its attendees.'
-                  : 'La respuesta fue un rotundo sí. Desde su primera edición en Los Ángeles en 2024 hasta su edición en Miami en 2025, The Real Happiness ha demostrado que la comunidad latina está hambrienta de experiencias que la traten con la profundidad que merece. Cada edición agota su aforo. Cada edición produce transformaciones reales y medibles en sus asistentes.'}
-              </p>
-              <Button href="/the-real-happiness" variant="terracotta" size="lg">
-                {lang === 'en' ? 'Explore The Real Happiness' : 'Explorar The Real Happiness'}
-              </Button>
+                  ? 'ME Producciones has been creating purposeful events for the Latino community in the United States and Latin America since 2014. Over more than a decade, the production company has built its signature: high-quality experiences that do not only entertain, but generate real, lasting impact on every person who attends. The Real Happiness is the synthesis of all that learning — the project that best represents what ME Producciones believes an event can and must be.'
+                  : 'ME Producciones lleva desde 2014 creando eventos con propósito para la comunidad latina en Estados Unidos y Latinoamérica. A lo largo de más de una década, la productora ha consolidado su sello: experiencias de alto nivel que no solo entretienen, sino que generan un impacto real y duradero en cada persona que asiste. The Real Happiness es la síntesis de todo ese aprendizaje — el proyecto que mejor representa lo que ME Producciones cree que un evento puede y debe ser.'}</p>
             </div>
             <div className="w-full">
               <Image src="/1-100.jpg.png" alt="The Real Happiness" width={0} height={0} sizes="(max-width: 768px) 100vw, 50vw" className="w-full h-auto" />
