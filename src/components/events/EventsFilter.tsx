@@ -302,7 +302,7 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                     <div className="flex flex-1 flex-col gap-4 p-6">
                       <div>
                         <h3 className="mb-1.5 font-serif text-xl font-normal leading-snug text-[#2A2421]">
-                          {event.title}
+                          {lang === 'en' ? (event.title_en ?? event.title) : event.title}
                         </h3>
                         <p className="font-sans text-[11px] font-medium uppercase tracking-wide text-[#A56E52]">
                           {event.city}, {event.state} &mdash; {event.venue}
@@ -310,7 +310,7 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                       </div>
 
                       <p className="font-sans text-sm leading-relaxed text-[#5B4638]">
-                        {truncate(event.description ?? '', 100)}
+                        {truncate((lang === 'en' ? (event.description_en ?? event.description) : event.description) ?? '', 100)}
                       </p>
 
                       {/* CTA buttons */}

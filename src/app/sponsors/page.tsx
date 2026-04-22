@@ -98,7 +98,7 @@ function TierPill({ tier, TIER_META }: { tier: SponsorTier; TIER_META: Record<Sp
   );
 }
 
-function SponsorCard({ sponsor, tier, TIER_META }: { sponsor: DBSponsor; tier: SponsorTier; TIER_META: Record<SponsorTier, TierMeta> }) {
+function SponsorCard({ sponsor, tier, TIER_META, lang }: { sponsor: DBSponsor; tier: SponsorTier; TIER_META: Record<SponsorTier, TierMeta>; lang: 'es' | 'en' }) {
   const { borderClass, cardBg } = TIER_META[tier];
   const isPlatinum = tier === 'platinum';
 
@@ -178,7 +178,7 @@ function SponsorCard({ sponsor, tier, TIER_META }: { sponsor: DBSponsor; tier: S
       {/* Description — platinum only */}
       {sponsor.description && isPlatinum && (
         <p className="font-sans text-xs leading-relaxed text-[#5B4638]">
-          {sponsor.description}
+          {lang === 'en' ? (sponsor.description_en ?? sponsor.description) : sponsor.description}
         </p>
       )}
       </div>{/* end info */}
@@ -309,7 +309,7 @@ export default async function SponsorsPage() {
                     {/* Sponsor cards */}
                     <div className={`grid gap-4 ${gridClass}`}>
                       {sponsors.map((sponsor) => (
-                        <SponsorCard key={sponsor.id} sponsor={sponsor} tier={tier} TIER_META={TIER_META} />
+                        <SponsorCard key={sponsor.id} sponsor={sponsor} tier={tier} TIER_META={TIER_META} lang={lang} />
                       ))}
                     </div>
                   </div>

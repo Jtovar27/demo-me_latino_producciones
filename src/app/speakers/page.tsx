@@ -17,7 +17,7 @@ function ExpertiseTag({ label }: { label: string }) {
   );
 }
 
-function SpeakerCard({ speaker }: { speaker: DBSpeaker; large?: boolean }) {
+function SpeakerCard({ speaker, lang }: { speaker: DBSpeaker; large?: boolean; lang: 'es' | 'en' }) {
   return (
     <article className="card-lift group flex flex-col">
       {/* Speaker portrait */}
@@ -51,7 +51,9 @@ function SpeakerCard({ speaker }: { speaker: DBSpeaker; large?: boolean }) {
             {speaker.name}
           </h3>
           {speaker.title && (
-            <p className="mt-1 font-sans text-sm text-[#5B4638]">{speaker.title}</p>
+            <p className="mt-1 font-sans text-sm text-[#5B4638]">
+              {lang === 'en' ? (speaker.title_en ?? speaker.title) : speaker.title}
+            </p>
           )}
           {speaker.organization && (
             <p className="font-sans text-sm text-[#A56E52]">{speaker.organization}</p>
@@ -123,7 +125,7 @@ export default async function SpeakersPage() {
           <div className="sm:hidden -mx-6 px-6">
             <MobileCarousel itemWidth="w-[72vw]" interval={4000}>
               {featured.map((speaker) => (
-                <SpeakerCard key={speaker.id} speaker={speaker} large />
+                <SpeakerCard key={speaker.id} speaker={speaker} large lang={lang} />
               ))}
             </MobileCarousel>
           </div>
@@ -131,7 +133,7 @@ export default async function SpeakersPage() {
           {/* Tablet+ grid */}
           <div className="hidden sm:grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
             {featured.map((speaker) => (
-              <SpeakerCard key={speaker.id} speaker={speaker} large />
+              <SpeakerCard key={speaker.id} speaker={speaker} large lang={lang} />
             ))}
           </div>
         </div>
@@ -152,14 +154,14 @@ export default async function SpeakersPage() {
           {/* Mobile: 2-col grid is compact enough */}
           <div className="sm:hidden grid grid-cols-2 gap-x-4 gap-y-8">
             {all.map((speaker) => (
-              <SpeakerCard key={speaker.id} speaker={speaker} />
+              <SpeakerCard key={speaker.id} speaker={speaker} lang={lang} />
             ))}
           </div>
 
           {/* Tablet+ grid */}
           <div className="hidden sm:grid gap-x-8 gap-y-14 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {all.map((speaker) => (
-              <SpeakerCard key={speaker.id} speaker={speaker} />
+              <SpeakerCard key={speaker.id} speaker={speaker} lang={lang} />
             ))}
           </div>
         </div>

@@ -77,20 +77,20 @@ export default async function ExperienceDetailPage({
                 </span>
                 <div className="h-px w-8 bg-[#A56E52] mt-2 mb-6" />
                 <h1 className="font-serif text-4xl md:text-5xl font-normal leading-tight text-[#2A2421]">
-                  {experience.title}
+                  {lang === 'en' ? (experience.title_en ?? experience.title) : experience.title}
                 </h1>
               </div>
 
               {experience.short_desc && (
                 <p className="font-serif text-xl font-normal text-[#5B4638] leading-relaxed italic">
-                  {experience.short_desc}
+                  {lang === 'en' ? (experience.short_desc_en ?? experience.short_desc) : experience.short_desc}
                 </p>
               )}
 
               {experience.description && (
                 <div className="border-t border-[#EAE1D6] pt-8">
                   <p className="font-sans text-base leading-relaxed text-[#5B4638] whitespace-pre-line">
-                    {experience.description}
+                    {lang === 'en' ? (experience.description_en ?? experience.description) : experience.description}
                   </p>
                 </div>
               )}

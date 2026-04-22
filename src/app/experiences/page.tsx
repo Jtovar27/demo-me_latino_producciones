@@ -96,10 +96,10 @@ export default async function ExperiencesPage() {
                         {categoryLabels[experience.category] ?? experience.category}
                       </span>
                       <h3 className="font-serif text-lg font-normal text-[#2A2421] leading-snug">
-                        {experience.title}
+                        {lang === 'en' ? (experience.title_en ?? experience.title) : experience.title}
                       </h3>
                       <p className="font-sans text-sm leading-relaxed text-[#5B4638] line-clamp-2">
-                        {experience.short_desc}
+                        {lang === 'en' ? (experience.short_desc_en ?? experience.short_desc) : experience.short_desc}
                       </p>
                       <div className="mt-auto pt-1">
                         <Button variant="ghost" size="sm" href={`/experiences/${experience.slug}`}
@@ -141,10 +141,10 @@ export default async function ExperiencesPage() {
                         {categoryLabels[experience.category] ?? experience.category}
                       </span>
                       <h3 className="font-serif text-xl font-normal text-[#2A2421] leading-snug mb-3">
-                        {experience.title}
+                        {lang === 'en' ? (experience.title_en ?? experience.title) : experience.title}
                       </h3>
                       <p className="font-sans text-sm leading-relaxed text-[#5B4638]">
-                        {experience.short_desc}
+                        {lang === 'en' ? (experience.short_desc_en ?? experience.short_desc) : experience.short_desc}
                       </p>
                     </div>
                     <div className="mt-auto pt-2">
@@ -190,7 +190,7 @@ export default async function ExperiencesPage() {
                   The Real Happiness
                 </h2>
                 <p className="font-sans text-base leading-relaxed text-[#D7C6B2]">
-                  {flagshipExperience.description}
+                  {lang === 'en' ? (flagshipExperience.description_en ?? flagshipExperience.description) : flagshipExperience.description}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <Button variant="terracotta" size="md" href="/the-real-happiness">

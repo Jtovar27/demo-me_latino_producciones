@@ -12,9 +12,9 @@ export const revalidate = 60;
 
 // ── Helpers ───────────────────────────────────────────────────────
 
-function formatFullDate(dateStr: string) {
+function formatFullDate(dateStr: string, locale: string = 'es-US') {
   const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('es-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  return d.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 function categoryLabel(cat: string) {
@@ -25,10 +25,10 @@ function categoryLabel(cat: string) {
   return map[cat] ?? cat;
 }
 
-function statusConfig(status: string) {
-  if (status === 'upcoming') return { label: 'Próximo',     styles: 'border-[#A56E52] text-[#A56E52]' };
-  if (status === 'sold-out') return { label: 'Agotado',     styles: 'border-[#2A2421] text-[#F7F3EE] bg-[#2A2421]' };
-  return                            { label: 'Finalizado',  styles: 'border-[#D7C6B2] text-[#5B4638]' };
+function statusConfig(status: string, lang: 'es' | 'en') {
+  if (status === 'upcoming') return { label: lang === 'en' ? 'Upcoming'  : 'Próximo',    styles: 'border-[#A56E52] text-[#A56E52]' };
+  if (status === 'sold-out') return { label: lang === 'en' ? 'Sold Out'  : 'Agotado',    styles: 'border-[#2A2421] text-[#F7F3EE] bg-[#2A2421]' };
+  return                            { label: lang === 'en' ? 'Past'      : 'Finalizado', styles: 'border-[#D7C6B2] text-[#5B4638]' };
 }
 
 function StarRow({ rating }: { rating: number }) {
@@ -66,7 +66,7 @@ export default async function EventDetailPage({ params }: Props) {
   // Fetch published reviews for this event — filtered at DB level by event_id or event_name
   const { data: eventReviews } = await getPublishedReviewsForEvent(event.id, event.title);
 
-  const sc = statusConfig(event.status);
+  const sc = statusConfig(event.status, lang);
 
   return (
     <PublicLayout>
@@ -79,7 +79,7 @@ export default async function EventDetailPage({ params }: Props) {
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
               <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            Todos los eventos
+            {lang === 'en' ? 'All events' : 'Todos los eventos'}
           </Link>
         </div>
       </div>
@@ -101,26 +101,26 @@ export default async function EventDetailPage({ params }: Props) {
                 </span>
                 {event.featured && (
                   <span className="border border-[#A56E52] px-3 py-1 font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">
-                    Destacado
+                    {lang === 'en' ? 'Featured' : 'Destacado'}
                   </span>
                 )}
               </div>
 
               <h1 className="font-serif text-4xl md:text-5xl font-normal leading-tight text-[#2A2421]">
-                {event.title}
+                {lang === 'en' ? (event.title_en ?? event.title) : event.title}
               </h1>
 
               {/* Date / venue strip */}
               <div className="flex flex-col gap-3 border-l-2 border-[#A56E52] pl-5">
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">Fecha</span>
-                  <span className="font-sans text-sm text-[#2A2421] capitalize">{formatFullDate(event.date)}</span>
+                  <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'Date' : 'Fecha'}</span>
+                  <span className="font-sans text-sm text-[#2A2421] capitalize">{formatFullDate(event.date, lang === 'en' ? 'en-US' : 'es-US')}</span>
                   {event.end_date && event.end_date !== event.date && (
-                    <span className="font-sans text-xs text-[#5B4638]">al {formatFullDate(event.end_date)}</span>
+                    <span className="font-sans text-xs text-[#5B4638]">{lang === 'en' ? 'to' : 'al'} {formatFullDate(event.end_date, lang === 'en' ? 'en-US' : 'es-US')}</span>
                   )}
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">Lugar</span>
+                  <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'Venue' : 'Lugar'}</span>
                   <span className="font-sans text-sm text-[#2A2421]">{event.venue}</span>
                   <span className="font-sans text-xs text-[#5B4638]">{event.city}, {event.state}</span>
                 </div>
@@ -148,7 +148,7 @@ export default async function EventDetailPage({ params }: Props) {
 
               {event.description && (
                 <p className="font-sans text-base leading-relaxed text-[#5B4638]">
-                  {event.description}
+                  {lang === 'en' ? (event.description_en ?? event.description) : event.description}
                 </p>
               )}
 
@@ -224,11 +224,11 @@ export default async function EventDetailPage({ params }: Props) {
           <div className="max-w-[1400px] mx-auto flex flex-col gap-10">
             <div className="flex flex-col gap-2">
               <span className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
-                Testimonios
+                {lang === 'en' ? 'Testimonials' : 'Testimonios'}
               </span>
               <div className="h-px w-8 bg-[#A56E52]" />
               <h2 className="font-serif text-2xl md:text-3xl font-normal text-[#2A2421] mt-2">
-                Lo que dicen quienes vivieron este evento.
+                {lang === 'en' ? 'What those who lived this event say.' : 'Lo que dicen quienes vivieron este evento.'}
               </h2>
             </div>
 
@@ -259,14 +259,14 @@ export default async function EventDetailPage({ params }: Props) {
           <div className="max-w-2xl">
             <div className="flex flex-col gap-2 mb-10">
               <span className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#A56E52]">
-                Tu experiencia
+                {lang === 'en' ? 'Your experience' : 'Tu experiencia'}
               </span>
               <div className="h-px w-8 bg-[#A56E52]" />
               <h2 className="font-serif text-2xl md:text-3xl font-normal text-[#2A2421] mt-2">
-                Comparte tu testimonio.
+                {lang === 'en' ? 'Share your testimonial.' : 'Comparte tu testimonio.'}
               </h2>
               <p className="font-sans text-sm leading-relaxed text-[#5B4638] mt-1">
-                Tu experiencia inspira a otros a dar el primer paso. Cuéntanos cómo fue.
+                {lang === 'en' ? 'Your experience inspires others to take the first step. Tell us how it went.' : 'Tu experiencia inspira a otros a dar el primer paso. Cuéntanos cómo fue.'}
               </p>
             </div>
             <ReviewSubmitForm eventName={event.title} />
