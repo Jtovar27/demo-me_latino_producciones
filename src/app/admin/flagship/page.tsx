@@ -9,6 +9,8 @@ import {
   deleteFlagshipEvent,
 } from '@/app/actions/flagship';
 import type { DBFlagshipEvent, FlagshipVenue } from '@/types/supabase';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { t, tr } from '@/lib/i18n/translations';
 
 // ── Style tokens ──────────────────────────────────────────────
 const inp      = 'w-full border border-[#D7C6B2] bg-transparent px-4 py-3 text-sm text-[#2A2421] placeholder-[#5B4638]/40 focus:border-[#2A2421] focus:outline-none transition-colors duration-200';
@@ -45,6 +47,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 export default function AdminFlagshipPage() {
+  const { lang } = useLanguage();
+  const af = t.adminFlagship;
+
   const [events,  setEvents]  = useState<DBFlagshipEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving,  setSaving]  = useState(false);
@@ -123,7 +128,7 @@ export default function AdminFlagshipPage() {
 
   // ── Save ──────────────────────────────────────────────────────
   async function handleSave() {
-    if (!form.title.trim()) { showToast('El título es requerido.', true); return; }
+    if (!form.title.trim()) { showToast(tr(af.toastValidation, lang), true); return; }
     setSaving(true);
     const fd  = buildFormData();
     const res = editing === 'new'
@@ -131,7 +136,7 @@ export default function AdminFlagshipPage() {
       : await updateFlagshipEvent(editing as string, fd);
     setSaving(false);
     if (res.error) { showToast('Error: ' + res.error, true); return; }
-    showToast(editing === 'new' ? 'Evento creado.' : 'Cambios guardados.');
+    showToast(editing === 'new' ? tr(af.toastCreated, lang) : tr(af.toastSaved, lang));
     const { data } = await getAllFlagshipEvents();
     setEvents(data ?? []);
     closeForm();
@@ -142,7 +147,7 @@ export default function AdminFlagshipPage() {
     const res = await deleteFlagshipEvent(id);
     setConfirmDelete(null);
     if (res.error) { showToast('Error: ' + res.error, true); return; }
-    showToast('Evento eliminado.');
+    showToast(tr(af.toastDeleted, lang));
     setEvents(prev => prev.filter(e => e.id !== id));
   }
 
@@ -160,16 +165,16 @@ export default function AdminFlagshipPage() {
       {confirmDelete && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
           <div className="bg-[#FDFAF7] border border-[#D7C6B2] p-8 max-w-sm w-full mx-4 shadow-xl">
-            <h3 className="font-serif text-lg text-[#2A2421] mb-2">¿Eliminar evento?</h3>
+            <h3 className="font-serif text-lg text-[#2A2421] mb-2">{tr(af.deleteConfirmTitle, lang)}</h3>
             <p className="font-sans text-sm text-[#5B4638] mb-6">
-              Esta acción no se puede deshacer. El evento desaparecerá del sitio inmediatamente.
+              {tr(af.deleteConfirmBody, lang)}
             </p>
             <div className="flex gap-3">
               <button onClick={() => handleDelete(confirmDelete)} className="border border-red-400 bg-red-50 px-6 py-2.5 font-sans text-[10px] tracking-widest uppercase text-red-600 hover:bg-red-100 transition-colors">
-                Eliminar
+                {tr(af.removeVenue, lang)}
               </button>
               <button onClick={() => setConfirmDelete(null)} className={btnSecondary}>
-                Cancelar
+                {tr(af.cancel, lang)}
               </button>
             </div>
           </div>
@@ -180,14 +185,14 @@ export default function AdminFlagshipPage() {
         {/* ── Header ── */}
         <div className="mb-8 flex items-start justify-between gap-4">
           <div>
-            <h2 className="font-serif text-2xl text-[#2A2421]">Eventos Insignia</h2>
+            <h2 className="font-serif text-2xl text-[#2A2421]">{tr(af.pageTitle, lang)}</h2>
             <p className="mt-1 text-sm text-[#5B4638]">
-              Gestiona el carrusel de la sección "Evento Insignia" en la portada.
+              {tr(af.description, lang)}
             </p>
           </div>
           {editing === null && (
             <button onClick={openCreate} className={btnPrimary}>
-              + Nuevo evento
+              {tr(af.newEvent, lang)}
             </button>
           )}
         </div>
@@ -196,12 +201,12 @@ export default function AdminFlagshipPage() {
         {editing !== null && (
           <div className="mb-10 border border-[#D7C6B2] bg-[#FDFAF7] p-6 md:p-8">
             <h3 className="font-serif text-lg text-[#2A2421] mb-6">
-              {editing === 'new' ? 'Nuevo evento insignia' : 'Editar evento insignia'}
+              {editing === 'new' ? tr(af.newModal, lang) : tr(af.editModal, lang)}
             </h3>
 
             <div className="space-y-6">
               {/* Title */}
-              <Field label="Título del evento">
+              <Field label={tr(af.titleLbl, lang)}>
                 <input
                   value={form.title}
                   onChange={e => set('title', e.target.value)}
@@ -212,7 +217,7 @@ export default function AdminFlagshipPage() {
 
               {/* Descriptions */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label="Descripción (ES)">
+                <Field label={tr(af.descEsLbl, lang)}>
                   <textarea
                     rows={3}
                     value={form.description_es}
@@ -221,7 +226,7 @@ export default function AdminFlagshipPage() {
                     placeholder="Descripción en español…"
                   />
                 </Field>
-                <Field label="Descripción (EN)">
+                <Field label={tr(af.descEnLbl, lang)}>
                   <textarea
                     rows={3}
                     value={form.description_en}
@@ -234,7 +239,7 @@ export default function AdminFlagshipPage() {
 
               {/* Sort order + Active */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Field label="Orden (sort)">
+                <Field label={tr(af.sortOrderLbl, lang)}>
                   <input
                     type="number"
                     min={0}
@@ -243,14 +248,14 @@ export default function AdminFlagshipPage() {
                     className={inp}
                   />
                 </Field>
-                <Field label="Estado">
+                <Field label={tr(af.statusLbl, lang)}>
                   <select
                     value={form.active ? 'true' : 'false'}
                     onChange={e => set('active', e.target.value === 'true')}
                     className={inp}
                   >
-                    <option value="true">Activo (visible)</option>
-                    <option value="false">Inactivo (oculto)</option>
+                    <option value="true">{tr(af.activeOpt, lang)}</option>
+                    <option value="false">{tr(af.inactiveOpt, lang)}</option>
                   </select>
                 </Field>
               </div>
@@ -258,19 +263,19 @@ export default function AdminFlagshipPage() {
               {/* Venues */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <p className={lbl + ' mb-0'}>Sedes del evento</p>
+                  <p className={lbl + ' mb-0'}>{tr(af.venuesSection, lang)}</p>
                   <button
                     type="button"
                     onClick={addVenue}
                     className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] border border-[#A56E52]/40 px-3 py-1.5 hover:bg-[#A56E52]/5 transition-colors"
                   >
-                    + Agregar sede
+                    {tr(af.addVenue, lang)}
                   </button>
                 </div>
 
                 {form.venues.length === 0 && (
                   <p className="font-sans text-xs text-[#5B4638]/50 py-4 text-center border border-dashed border-[#D7C6B2]">
-                    Sin sedes. Usa "+ Agregar sede" para añadir.
+                    {tr(af.noVenues, lang)}
                   </p>
                 )}
 
@@ -279,34 +284,34 @@ export default function AdminFlagshipPage() {
                     <div key={i} className="border border-[#D7C6B2] p-4 relative">
                       <div className="flex items-center justify-between mb-3">
                         <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">
-                          Sede {String(i + 1).padStart(2, '0')}
+                          {tr(af.venueHeader, lang)} {String(i + 1).padStart(2, '0')}
                         </span>
                         <button
                           type="button"
                           onClick={() => removeVenue(i)}
                           className={btnDanger}
-                          aria-label="Eliminar sede"
+                          aria-label={tr(af.removeVenue, lang)}
                         >
-                          Eliminar
+                          {tr(af.removeVenue, lang)}
                         </button>
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        <Field label="Ciudad">
+                        <Field label={tr(af.cityLbl, lang)}>
                           <input value={venue.city} onChange={e => updateVenue(i, 'city', e.target.value)} className={inp} placeholder="Miami" />
                         </Field>
-                        <Field label="Región / País">
+                        <Field label={tr(af.regionLbl, lang)}>
                           <input value={venue.region} onChange={e => updateVenue(i, 'region', e.target.value)} className={inp} placeholder="Florida, USA" />
                         </Field>
-                        <Field label="Fecha (ES)">
+                        <Field label={tr(af.dateEsLbl, lang)}>
                           <input value={venue.date_es} onChange={e => updateVenue(i, 'date_es', e.target.value)} className={inp} placeholder="Agosto 29, 2026" />
                         </Field>
-                        <Field label="Fecha (EN)">
+                        <Field label={tr(af.dateEnLbl, lang)}>
                           <input value={venue.date_en} onChange={e => updateVenue(i, 'date_en', e.target.value)} className={inp} placeholder="August 29, 2026" />
                         </Field>
-                        <Field label="Etiqueta (ES)">
+                        <Field label={tr(af.tagEsLbl, lang)}>
                           <input value={venue.tag_es} onChange={e => updateVenue(i, 'tag_es', e.target.value)} className={inp} placeholder="Primera sede" />
                         </Field>
-                        <Field label="Etiqueta (EN)">
+                        <Field label={tr(af.tagEnLbl, lang)}>
                           <input value={venue.tag_en} onChange={e => updateVenue(i, 'tag_en', e.target.value)} className={inp} placeholder="1st venue" />
                         </Field>
                       </div>
@@ -318,10 +323,10 @@ export default function AdminFlagshipPage() {
               {/* Form actions */}
               <div className="flex items-center gap-4 pt-4 border-t border-[#EAE1D6]">
                 <button onClick={handleSave} disabled={saving} className={btnPrimary}>
-                  {saving ? 'Guardando…' : editing === 'new' ? 'Crear evento' : 'Guardar cambios'}
+                  {saving ? tr(af.saving, lang) : editing === 'new' ? tr(af.createEvent, lang) : tr(af.saveChanges, lang)}
                 </button>
                 <button onClick={closeForm} className={btnSecondary}>
-                  Cancelar
+                  {tr(af.cancel, lang)}
                 </button>
               </div>
             </div>
@@ -330,13 +335,10 @@ export default function AdminFlagshipPage() {
 
         {/* ── Event list ── */}
         {loading ? (
-          <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]/50 py-8">Cargando…</p>
+          <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]/50 py-8">{tr(af.loading, lang)}</p>
         ) : events.length === 0 ? (
           <div className="border border-dashed border-[#D7C6B2] py-16 text-center">
-            <p className="font-sans text-sm text-[#5B4638]">No hay eventos insignia todavía.</p>
-            <p className="font-sans text-xs text-[#5B4638]/60 mt-1">
-              Si acabas de ejecutar la migración SQL, recarga la página.
-            </p>
+            <p className="font-sans text-sm text-[#5B4638]">{tr(af.noEvents, lang)}</p>
           </div>
         ) : (
           <div className="divide-y divide-[#EAE1D6] border border-[#EAE1D6]">
@@ -346,11 +348,11 @@ export default function AdminFlagshipPage() {
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className="font-serif text-base text-[#2A2421] truncate">{ev.title}</span>
                     <span className={`font-sans text-[9px] uppercase tracking-widest px-2 py-0.5 ${ev.active ? 'bg-[#A56E52]/10 text-[#A56E52]' : 'bg-[#EAE1D6] text-[#5B4638]'}`}>
-                      {ev.active ? 'Activo' : 'Inactivo'}
+                      {ev.active ? tr(af.activeOpt, lang) : tr(af.inactiveOpt, lang)}
                     </span>
                   </div>
                   <p className="font-sans text-xs text-[#5B4638]/70">
-                    {(ev.venues as FlagshipVenue[])?.length ?? 0} sede(s) · Orden: {ev.sort_order}
+                    {(ev.venues as FlagshipVenue[])?.length ?? 0} {tr(af.venuesSection, lang).toLowerCase()} · {tr(af.sortOrderLbl, lang)}: {ev.sort_order}
                   </p>
                   {ev.description_es && (
                     <p className="font-sans text-xs text-[#5B4638]/50 mt-0.5 truncate max-w-md">
@@ -360,10 +362,10 @@ export default function AdminFlagshipPage() {
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <button onClick={() => openEdit(ev)} className={btnSecondary}>
-                    Editar
+                    {tr(af.editModal, lang)}
                   </button>
                   <button onClick={() => setConfirmDelete(ev.id)} className={btnDanger}>
-                    Eliminar
+                    {tr(af.removeVenue, lang)}
                   </button>
                 </div>
               </div>

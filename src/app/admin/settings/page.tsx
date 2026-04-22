@@ -4,16 +4,10 @@ import AdminLayout from '@/components/layout/AdminLayout';
 import { useState, useEffect } from 'react';
 import { getSiteConfig, updateSiteConfig } from '@/app/actions/settings';
 import type { DBSiteConfig } from '@/types/supabase';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { t, tr } from '@/lib/i18n/translations';
 
 type Tab = 'identity' | 'stats' | 'hero' | 'brand' | 'social';
-
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'identity', label: 'Identidad' },
-  { id: 'stats',    label: 'Estadísticas' },
-  { id: 'hero',     label: 'Hero / Portada' },
-  { id: 'brand',    label: 'Frase de marca' },
-  { id: 'social',   label: 'Redes sociales' },
-];
 
 const inp = 'w-full border border-[#D7C6B2] bg-transparent px-4 py-3 text-sm text-[#2A2421] placeholder-[#5B4638]/40 focus:border-[#2A2421] focus:outline-none transition-colors duration-200';
 const lbl = 'block text-[10px] tracking-widest uppercase text-[#5B4638] mb-1.5';
@@ -65,6 +59,9 @@ function BilingualFields({
 type FormState = Partial<Record<keyof DBSiteConfig, string>>;
 
 export default function AdminSettingsPage() {
+  const { lang } = useLanguage();
+  const as_ = t.adminSettings;
+
   const [tab,      setTab]      = useState<Tab>('identity');
   const [saving,   setSaving]   = useState(false);
   const [toast,    setToast]    = useState('');
@@ -103,7 +100,7 @@ export default function AdminSettingsPage() {
     const res = await updateSiteConfig(fd);
     setSaving(false);
     if (res?.error) showToast('Error: ' + res.error, true);
-    else showToast('Cambios guardados y publicados en el sitio.');
+    else showToast(tr(as_.toastSaved, lang));
   }
 
   const v = (key: keyof DBSiteConfig) => form[key] ?? '';
@@ -120,15 +117,23 @@ export default function AdminSettingsPage() {
       <div className="max-w-4xl">
         {/* Header */}
         <div className="mb-8">
-          <h2 className="font-serif text-2xl text-[#2A2421]">Configuración del sitio</h2>
+          <h2 className="font-serif text-2xl text-[#2A2421]">{tr(as_.pageTitle, lang)}</h2>
           <p className="mt-1 text-sm text-[#5B4638]">
-            Todos los cambios se publican automáticamente en el sitio web.
+            {tr(as_.description, lang)}
           </p>
         </div>
 
         {/* Tabs */}
         <div className="flex gap-0 border-b border-[#D7C6B2] mb-8 overflow-x-auto">
-          {TABS.map(({ id, label }) => (
+          {(
+            [
+              { id: 'identity', label: tr(as_.tabIdentity, lang) },
+              { id: 'stats',    label: tr(as_.tabStats,    lang) },
+              { id: 'hero',     label: tr(as_.tabHero,     lang) },
+              { id: 'brand',    label: tr(as_.tabBrand,    lang) },
+              { id: 'social',   label: tr(as_.tabSocial,   lang) },
+            ] as { id: Tab; label: string }[]
+          ).map(({ id, label }) => (
             <button
               key={id}
               onClick={() => setTab(id)}
@@ -144,7 +149,7 @@ export default function AdminSettingsPage() {
         </div>
 
         {loading ? (
-          <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]/50 py-8">Cargando…</p>
+          <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]/50 py-8">{tr(as_.loading, lang)}</p>
         ) : (
           <div className="space-y-6">
 
@@ -152,13 +157,13 @@ export default function AdminSettingsPage() {
             {tab === 'identity' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Field label="Nombre de empresa">
+                  <Field label={tr(as_.siteNameLbl, lang)}>
                     <input value={v('site_name')} onChange={e => set('site_name', e.target.value)} className={inp} placeholder="ME Producciones" />
                   </Field>
-                  <Field label="Email de contacto">
+                  <Field label={tr(as_.emailLbl, lang)}>
                     <input type="email" value={v('contact_email')} onChange={e => set('contact_email', e.target.value)} className={inp} placeholder="hola@melatinopr.com" />
                   </Field>
-                  <Field label="Tagline del sitio" hint="Aparece en el footer." >
+                  <Field label={tr(as_.taglineLbl, lang)} hint={tr(as_.footerHint, lang)}>
                     <input value={v('site_tagline')} onChange={e => set('site_tagline', e.target.value)} className={inp} placeholder="Experiencias que transforman." />
                   </Field>
                 </div>
@@ -168,16 +173,16 @@ export default function AdminSettingsPage() {
             {/* ── STATS ── */}
             {tab === 'stats' && (
               <div className="space-y-4">
-                <p className="font-sans text-xs text-[#5B4638] mb-4">Estos números aparecen en la portada y en la sección de métricas.</p>
+                <p className="font-sans text-xs text-[#5B4638] mb-4">{tr(as_.statsDesc, lang)}</p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                   {(
                     [
-                      { key: 'total_events',    label: 'Eventos producidos' },
-                      { key: 'total_attendees', label: 'Asistentes totales' },
-                      { key: 'total_speakers',  label: 'Speakers' },
-                      { key: 'cities_reached',  label: 'Ciudades' },
-                      { key: 'years_active',    label: 'Años de trayectoria' },
-                      { key: 'satisfaction',    label: 'Satisfacción (%)' },
+                      { key: 'total_events',    label: tr(as_.totalEventsLbl,    lang) },
+                      { key: 'total_attendees', label: tr(as_.totalAttendeesLbl, lang) },
+                      { key: 'total_speakers',  label: tr(as_.totalSpeakersLbl,  lang) },
+                      { key: 'cities_reached',  label: tr(as_.citiesLbl,         lang) },
+                      { key: 'years_active',    label: tr(as_.yearsLbl,          lang) },
+                      { key: 'satisfaction',    label: tr(as_.satisfactionLbl,   lang) },
                     ] as { key: keyof DBSiteConfig; label: string }[]
                   ).map(({ key, label }) => (
                     <Field key={key} label={label}>
@@ -198,37 +203,37 @@ export default function AdminSettingsPage() {
             {tab === 'hero' && (
               <div className="space-y-8">
                 <p className="font-sans text-xs text-[#5B4638]">
-                  El contenido de la sección hero/portada. Edita ambos idiomas.
+                  {tr(as_.heroDesc, lang)}
                 </p>
-                <BilingualFields labelEs="Badge / Eyebrow (ES)" labelEn="Badge / Eyebrow (EN)" nameEs="hero_badge_es" nameEn="hero_badge_en" valueEs={v('hero_badge_es')} valueEn={v('hero_badge_en')} onChange={set} />
-                <BilingualFields labelEs="Titular principal (ES)" labelEn="Titular principal (EN)" nameEs="hero_headline_es" nameEn="hero_headline_en" valueEs={v('hero_headline_es')} valueEn={v('hero_headline_en')} onChange={set} rows={2} hintEs="Máx. ~60 caracteres recomendado." hintEn="Max ~60 characters recommended." />
-                <BilingualFields labelEs="Subtítulo / Descripción (ES)" labelEn="Subtítulo / Descripción (EN)" nameEs="hero_body_es" nameEn="hero_body_en" valueEs={v('hero_body_es')} valueEn={v('hero_body_en')} onChange={set} rows={3} />
+                <BilingualFields labelEs={tr(as_.badgeEsLbl, lang)} labelEn={tr(as_.badgeEnLbl, lang)} nameEs="hero_badge_es" nameEn="hero_badge_en" valueEs={v('hero_badge_es')} valueEn={v('hero_badge_en')} onChange={set} />
+                <BilingualFields labelEs={tr(as_.headlineEsLbl, lang)} labelEn={tr(as_.headlineEnLbl, lang)} nameEs="hero_headline_es" nameEn="hero_headline_en" valueEs={v('hero_headline_es')} valueEn={v('hero_headline_en')} onChange={set} rows={2} hintEs={tr(as_.charHint, lang)} hintEn={tr(as_.charHint, lang)} />
+                <BilingualFields labelEs={tr(as_.bodyEsLbl, lang)} labelEn={tr(as_.bodyEnLbl, lang)} nameEs="hero_body_es" nameEn="hero_body_en" valueEs={v('hero_body_es')} valueEn={v('hero_body_en')} onChange={set} rows={3} />
 
                 <div className="border-t border-[#D7C6B2] pt-6 space-y-4">
-                  <p className={lbl}>CTA principal</p>
+                  <p className={lbl}>{tr(as_.ctaPrimary, lang)}</p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Field label="Etiqueta (ES)">
+                    <Field label={tr(as_.ctaEsLbl, lang)}>
                       <input value={v('hero_cta_primary_label_es')} onChange={e => set('hero_cta_primary_label_es', e.target.value)} className={inp} />
                     </Field>
-                    <Field label="Etiqueta (EN)">
+                    <Field label={tr(as_.ctaEnLbl, lang)}>
                       <input value={v('hero_cta_primary_label_en')} onChange={e => set('hero_cta_primary_label_en', e.target.value)} className={inp} />
                     </Field>
-                    <Field label="URL / Enlace" hint="Ej: /experiences">
+                    <Field label={tr(as_.ctaUrlLbl, lang)} hint="Ej: /experiences">
                       <input value={v('hero_cta_primary_href')} onChange={e => set('hero_cta_primary_href', e.target.value)} className={inp} placeholder="/experiences" />
                     </Field>
                   </div>
                 </div>
 
                 <div className="border-t border-[#D7C6B2] pt-6 space-y-4">
-                  <p className={lbl}>CTA secundario</p>
+                  <p className={lbl}>{tr(as_.ctaSecondary, lang)}</p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Field label="Etiqueta (ES)">
+                    <Field label={tr(as_.ctaEsLbl, lang)}>
                       <input value={v('hero_cta_secondary_label_es')} onChange={e => set('hero_cta_secondary_label_es', e.target.value)} className={inp} />
                     </Field>
-                    <Field label="Etiqueta (EN)">
+                    <Field label={tr(as_.ctaEnLbl, lang)}>
                       <input value={v('hero_cta_secondary_label_en')} onChange={e => set('hero_cta_secondary_label_en', e.target.value)} className={inp} />
                     </Field>
-                    <Field label="URL / Enlace" hint="Ej: /events">
+                    <Field label={tr(as_.ctaUrlLbl, lang)} hint="Ej: /events">
                       <input value={v('hero_cta_secondary_href')} onChange={e => set('hero_cta_secondary_href', e.target.value)} className={inp} placeholder="/events" />
                     </Field>
                   </div>
@@ -240,17 +245,17 @@ export default function AdminSettingsPage() {
             {tab === 'brand' && (
               <div className="space-y-8">
                 <p className="font-sans text-xs text-[#5B4638]">
-                  La frase insignia y párrafo descriptivo que aparecen en la sección de identidad de la portada.
+                  {tr(as_.brandDesc, lang)}
                 </p>
-                <BilingualFields labelEs='Frase principal (ES)' labelEn='Frase principal (EN)' nameEs="brand_quote_es" nameEn="brand_quote_en" valueEs={v('brand_quote_es')} valueEn={v('brand_quote_en')} onChange={set} rows={2} hintEs='Ej: "No producimos eventos. Producimos posibilidad."' />
-                <BilingualFields labelEs="Párrafo descriptivo (ES)" labelEn="Párrafo descriptivo (EN)" nameEs="brand_body_es" nameEn="brand_body_en" valueEs={v('brand_body_es')} valueEn={v('brand_body_en')} onChange={set} rows={4} />
+                <BilingualFields labelEs={tr(as_.quoteEsLbl, lang)} labelEn={tr(as_.quoteEnLbl, lang)} nameEs="brand_quote_es" nameEn="brand_quote_en" valueEs={v('brand_quote_es')} valueEn={v('brand_quote_en')} onChange={set} rows={2} hintEs='Ej: "No producimos eventos. Producimos posibilidad."' />
+                <BilingualFields labelEs={tr(as_.bodyParaEsLbl, lang)} labelEn={tr(as_.bodyParaEnLbl, lang)} nameEs="brand_body_es" nameEn="brand_body_en" valueEs={v('brand_body_es')} valueEn={v('brand_body_en')} onChange={set} rows={4} />
               </div>
             )}
 
             {/* ── SOCIAL ── */}
             {tab === 'social' && (
               <div className="space-y-4">
-                <p className="font-sans text-xs text-[#5B4638] mb-4">URLs completas de cada red social. Dejar en blanco para ocultar.</p>
+                <p className="font-sans text-xs text-[#5B4638] mb-4">{tr(as_.socialDesc, lang)}</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {(
                     [
@@ -278,9 +283,9 @@ export default function AdminSettingsPage() {
                 disabled={saving}
                 className="border border-[#2A2421] bg-[#2A2421] px-8 py-3 font-sans text-[10px] tracking-widest uppercase text-[#F7F3EE] transition-all hover:bg-[#5B4638] disabled:opacity-50"
               >
-                {saving ? 'Guardando…' : 'Guardar cambios'}
+                {saving ? 'Guardando…' : tr(as_.saveChanges, lang)}
               </button>
-              <p className="font-sans text-[10px] text-[#5B4638]/60">Los cambios se reflejan inmediatamente en el sitio.</p>
+              <p className="font-sans text-[10px] text-[#5B4638]/60">{tr(as_.saveNote, lang)}</p>
             </div>
           </div>
         )}

@@ -19,6 +19,8 @@ export async function upsertSpeaker(formData: FormData) {
     expertise,
     featured: formData.get('featured') === 'true',
     instagram: (formData.get('instagram') as string) || null,
+    title_en: (formData.get('title_en') as string) || null,
+    bio_en: (formData.get('bio_en') as string) || null,
     updated_at: new Date().toISOString(),
   };
 

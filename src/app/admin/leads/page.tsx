@@ -5,6 +5,8 @@ import AdminLayout from '@/components/layout/AdminLayout';
 import Button from '@/components/ui/Button';
 import { getLeads, updateLeadStatus } from '@/app/actions/leads';
 import type { DBLead } from '@/types/supabase';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { t, tr } from '@/lib/i18n/translations';
 
 type LeadStatus = 'new' | 'contacted' | 'qualified' | 'converted';
 
@@ -12,24 +14,19 @@ function formatDate(d: string) {
   return new Date(d).toLocaleDateString('es-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-const statusConfig: Record<LeadStatus, { label: string; styles: string }> = {
-  new:       { label: 'Nuevo',      styles: 'border-[#A56E52] text-[#A56E52]' },
-  contacted: { label: 'Contactado', styles: 'border-[#D7C6B2] text-[#5B4638] bg-[#EAE1D6]' },
-  qualified: { label: 'Calificado', styles: 'border-[#5B4638] text-[#5B4638]' },
-  converted: { label: 'Convertido', styles: 'border-[#2A2421] bg-[#2A2421] text-[#F7F3EE]' },
+const statusStyles: Record<LeadStatus, string> = {
+  new:       'border-[#A56E52] text-[#A56E52]',
+  contacted: 'border-[#D7C6B2] text-[#5B4638] bg-[#EAE1D6]',
+  qualified: 'border-[#5B4638] text-[#5B4638]',
+  converted: 'border-[#2A2421] bg-[#2A2421] text-[#F7F3EE]',
 };
 
 type FilterStatus = 'all' | LeadStatus;
 
-const filterOptions: { value: FilterStatus; label: string }[] = [
-  { value: 'all',       label: 'Todos' },
-  { value: 'new',       label: 'Nuevo' },
-  { value: 'contacted', label: 'Contactado' },
-  { value: 'qualified', label: 'Calificado' },
-  { value: 'converted', label: 'Convertido' },
-];
-
 export default function AdminLeadsPage() {
+  const { lang } = useLanguage();
+  const al = t.adminLeads;
+
   const [leads, setLeads]           = useState<DBLead[]>([]);
   const [loading, setLoading]       = useState(true);
   const [filter, setFilter]         = useState<FilterStatus>('all');
@@ -38,6 +35,21 @@ export default function AdminLeadsPage() {
   const [panelNotes, setPanelNotes]   = useState('');
   const [saving, setSaving]           = useState(false);
   const [toast, setToast]             = useState('');
+
+  const statusLabels: Record<LeadStatus, string> = {
+    new:       tr(al.statusNew, lang),
+    contacted: tr(al.statusContacted, lang),
+    qualified: tr(al.statusQualified, lang),
+    converted: tr(al.statusConverted, lang),
+  };
+
+  const filterOptions: { value: FilterStatus; label: string }[] = [
+    { value: 'all',       label: tr(al.all, lang) },
+    { value: 'new',       label: tr(al.filterNew, lang) },
+    { value: 'contacted', label: tr(al.filterContacted, lang) },
+    { value: 'qualified', label: tr(al.filterQualified, lang) },
+    { value: 'converted', label: tr(al.filterConverted, lang) },
+  ];
 
   useEffect(() => {
     getLeads().then(({ data }) => {
@@ -71,7 +83,7 @@ export default function AdminLeadsPage() {
     setSaving(true);
     const result = await updateLeadStatus(detailLead.id, panelStatus, panelNotes);
     if (result?.error) {
-      showToast('Error al actualizar');
+      showToast(tr(al.toastError, lang));
     } else {
       setLeads((prev) =>
         prev.map((l) =>
@@ -81,7 +93,7 @@ export default function AdminLeadsPage() {
         )
       );
       setDetailLead(null);
-      showToast('Lead actualizado');
+      showToast(tr(al.toastSaved, lang));
     }
     setSaving(false);
   }
@@ -101,22 +113,22 @@ export default function AdminLeadsPage() {
           <div className="fixed inset-0 z-40 bg-[#2A2421]/30" onClick={() => setDetailLead(null)} />
           <div className="fixed right-0 top-0 z-50 h-full w-full max-w-[320px] bg-[#FDFAF7] shadow-2xl border-l border-[#EAE1D6] overflow-y-auto">
             <div className="border-b border-[#EAE1D6] px-6 py-5 flex items-center justify-between">
-              <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-[#2A2421]">Detalle del Lead</p>
+              <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-[#2A2421]">{tr(al.detailTitle, lang)}</p>
               <button onClick={() => setDetailLead(null)} className="font-sans text-[#5B4638] hover:text-[#2A2421] transition-colors text-xl leading-none">×</button>
             </div>
             <div className="px-6 py-6 space-y-5">
               <div>
-                <span className={`border px-2.5 py-1 font-sans text-[9px] uppercase tracking-widest ${statusConfig[(detailLead.status as LeadStatus) ?? 'new'].styles}`}>
-                  {statusConfig[(detailLead.status as LeadStatus) ?? 'new'].label}
+                <span className={`border px-2.5 py-1 font-sans text-[9px] uppercase tracking-widest ${statusStyles[(detailLead.status as LeadStatus) ?? 'new']}`}>
+                  {statusLabels[(detailLead.status as LeadStatus) ?? 'new']}
                 </span>
               </div>
               {[
-                { label: 'Nombre',   value: detailLead.name },
-                { label: 'Email',    value: detailLead.email },
-                { label: 'Teléfono', value: detailLead.phone ?? '—' },
-                { label: 'Interés',  value: detailLead.interest ?? '—' },
-                { label: 'Fuente',   value: detailLead.source ?? '—' },
-                { label: 'Fecha',    value: formatDate(detailLead.created_at) },
+                { label: tr(al.nameCol, lang),     value: detailLead.name },
+                { label: tr(al.emailCol, lang),    value: detailLead.email },
+                { label: tr(al.phoneCol, lang),    value: detailLead.phone ?? '—' },
+                { label: tr(al.interestCol, lang), value: detailLead.interest ?? '—' },
+                { label: 'Fuente',                 value: detailLead.source ?? '—' },
+                { label: tr(al.dateCol, lang),     value: formatDate(detailLead.created_at) },
               ].map(({ label, value }) => (
                 <div key={label}>
                   <p className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-1">{label}</p>
@@ -131,20 +143,20 @@ export default function AdminLeadsPage() {
               )}
               <div className="pt-4 border-t border-[#EAE1D6] space-y-3">
                 <div>
-                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Cambiar estado</label>
+                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(al.changeStatus, lang)}</label>
                   <select
                     value={panelStatus}
                     onChange={(e) => setPanelStatus(e.target.value as LeadStatus)}
                     className="w-full border border-[#D7C6B2] bg-white px-3 py-2.5 font-sans text-xs text-[#2A2421] outline-none focus:border-[#5B4638] transition-colors mb-3"
                   >
-                    <option value="new">Nuevo</option>
-                    <option value="contacted">Contactado</option>
-                    <option value="qualified">Calificado</option>
-                    <option value="converted">Convertido</option>
+                    <option value="new">{tr(al.statusNew, lang)}</option>
+                    <option value="contacted">{tr(al.statusContacted, lang)}</option>
+                    <option value="qualified">{tr(al.statusQualified, lang)}</option>
+                    <option value="converted">{tr(al.statusConverted, lang)}</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Notas internas</label>
+                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(al.internalNotes, lang)}</label>
                   <textarea
                     value={panelNotes}
                     onChange={(e) => setPanelNotes(e.target.value)}
@@ -158,13 +170,13 @@ export default function AdminLeadsPage() {
                   disabled={saving}
                   className="w-full border border-[#2A2421] bg-[#2A2421] py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#F7F3EE] hover:bg-[#5B4638] transition-colors disabled:opacity-50"
                 >
-                  {saving ? 'Guardando...' : 'Aplicar cambio'}
+                  {saving ? '...' : tr(al.applyChange, lang)}
                 </button>
                 <button
                   onClick={() => setDetailLead(null)}
                   className="w-full border border-[#D7C6B2] py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors"
                 >
-                  Cerrar
+                  {tr(al.close, lang)}
                 </button>
               </div>
             </div>
@@ -175,12 +187,12 @@ export default function AdminLeadsPage() {
       {/* Page header */}
       <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <div>
-          <h2 className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">Leads</h2>
+          <h2 className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">{tr(al.pageTitle, lang)}</h2>
           <p className="mt-1 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">
-            {loading ? 'Cargando...' : `${leads.length} leads en total`}
+            {loading ? tr(al.loading, lang) : `${leads.length} ${tr(al.totalLeads, lang)}`}
           </p>
         </div>
-        <Button variant="ghost" size="sm">Exportar CSV</Button>
+        <Button variant="ghost" size="sm">{tr(al.exportCsv, lang)}</Button>
       </div>
 
       {/* Status count cards */}
@@ -194,7 +206,7 @@ export default function AdminLeadsPage() {
             }`}
           >
             <p className="font-sans text-[9px] uppercase tracking-[0.25em] text-[#5B4638]">
-              {statusConfig[status].label}
+              {statusLabels[status]}
             </p>
             <p className="mt-2 font-sans text-3xl font-light text-[#2A2421]">{count}</p>
           </div>
@@ -224,31 +236,31 @@ export default function AdminLeadsPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-[#EAE1D6]">
-              <th className="px-7 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Nombre</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden md:table-cell">Email</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">Teléfono</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">Interés</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Estado</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden xl:table-cell">Fecha</th>
-              <th className="px-7 py-5 text-right font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Acciones</th>
+              <th className="px-7 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(al.nameCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden md:table-cell">{tr(al.emailCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">{tr(al.phoneCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">{tr(al.interestCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(al.statusCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden xl:table-cell">{tr(al.dateCol, lang)}</th>
+              <th className="px-7 py-5 text-right font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(al.actionsCol, lang)}</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
                 <td colSpan={7} className="px-7 py-14 text-center font-sans text-xs uppercase tracking-widest text-[#5B4638]/50">
-                  Cargando leads...
+                  {tr(al.loading, lang)}
                 </td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-7 py-14 text-center font-sans text-xs uppercase tracking-widest text-[#5B4638]/50">
-                  Sin leads para este filtro
+                  {tr(al.noResults, lang)}
                 </td>
               </tr>
             ) : (
               filtered.map((lead) => {
-                const sc = statusConfig[(lead.status as LeadStatus) ?? 'new'];
+                const status = (lead.status as LeadStatus) ?? 'new';
                 const isSelected = detailLead?.id === lead.id;
                 return (
                   <tr
@@ -270,8 +282,8 @@ export default function AdminLeadsPage() {
                       <p className="font-sans text-xs text-[#2A2421] max-w-[160px] truncate">{lead.interest ?? '—'}</p>
                     </td>
                     <td className="px-4 py-6">
-                      <span className={`border px-2.5 py-1 font-sans text-[9px] uppercase tracking-widest ${sc.styles}`}>
-                        {sc.label}
+                      <span className={`border px-2.5 py-1 font-sans text-[9px] uppercase tracking-widest ${statusStyles[status]}`}>
+                        {statusLabels[status]}
                       </span>
                     </td>
                     <td className="px-4 py-6 hidden xl:table-cell">
@@ -286,7 +298,7 @@ export default function AdminLeadsPage() {
                             : 'border-[#D7C6B2] text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421]'
                         }`}
                       >
-                        {isSelected ? 'Cerrar' : 'Ver detalle'}
+                        {isSelected ? tr(al.close, lang) : tr(al.detailTitle, lang)}
                       </button>
                     </td>
                   </tr>
@@ -298,7 +310,7 @@ export default function AdminLeadsPage() {
       </div>
 
       <p className="mt-4 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]/50">
-        {filtered.length} lead{filtered.length !== 1 ? 's' : ''} mostrados
+        {filtered.length} {tr(al.shown, lang)}
       </p>
     </AdminLayout>
   );

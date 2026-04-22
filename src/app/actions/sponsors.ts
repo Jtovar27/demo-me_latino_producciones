@@ -22,6 +22,7 @@ export async function upsertSponsor(formData: FormData) {
     tier: formData.get('tier') as string,
     website: (formData.get('website') as string) || null,
     description: (formData.get('description') as string) || null,
+    description_en: (formData.get('description_en') as string) || null,
     logo_url: (formData.get('logo_url') as string) || null,
     active: true,
   };

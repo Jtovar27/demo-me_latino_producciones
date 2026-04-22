@@ -1,10 +1,14 @@
 import AdminLayout from '@/components/layout/AdminLayout';
 import { createAdminClient } from '@/lib/supabase/admin';
 import Link from 'next/link';
+import { getLang } from '@/lib/i18n/getLang';
+import { t, tr } from '@/lib/i18n/translations';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboard() {
+  const lang = await getLang();
+  const ad = t.adminDashboard;
   const client = createAdminClient();
 
   // Compute the 12-month window starting from 11 months ago (inclusive of current month)
@@ -54,10 +58,10 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {/* Total Eventos */}
         <div className="border border-[#EAE1D6] bg-[#FDFAF7] p-7">
-          <p className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#5B4638]">Total Eventos</p>
+          <p className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#5B4638]">{tr(ad.totalEvents, lang)}</p>
           <p className="mt-3 font-sans text-4xl font-light text-[#2A2421]">{totalEvents}</p>
           <p className="mt-1 font-sans text-[10px] uppercase tracking-wider text-[#A56E52]">
-            {upcomingEvents} próximos
+            {upcomingEvents} {tr(ad.upcoming, lang)}
           </p>
         </div>
 
@@ -66,7 +70,7 @@ export default async function AdminDashboard() {
           <p className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#5B4638]">Speakers</p>
           <p className="mt-3 font-sans text-4xl font-light text-[#2A2421]">{speakers.length}</p>
           <p className="mt-1 font-sans text-[10px] uppercase tracking-wider text-[#A56E52]">
-            {featuredSpeakers} destacados
+            {featuredSpeakers} {tr(ad.featured, lang)}
           </p>
         </div>
 
@@ -75,7 +79,7 @@ export default async function AdminDashboard() {
           <p className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#5B4638]">Sponsors</p>
           <p className="mt-3 font-sans text-4xl font-light text-[#2A2421]">{activeSponsors}</p>
           <p className="mt-1 font-sans text-[10px] uppercase tracking-wider text-[#A56E52]">
-            activos
+            {tr(ad.active, lang)}
           </p>
         </div>
 
@@ -84,7 +88,7 @@ export default async function AdminDashboard() {
           <p className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#5B4638]">Galería</p>
           <p className="mt-3 font-sans text-4xl font-light text-[#2A2421]">{gallery.length}</p>
           <p className="mt-1 font-sans text-[10px] uppercase tracking-wider text-[#A56E52]">
-            archivos subidos
+            {tr(ad.filesUploaded, lang)}
           </p>
         </div>
       </div>
@@ -95,25 +99,25 @@ export default async function AdminDashboard() {
           href="/admin/events"
           className="inline-flex items-center gap-2 border border-[#2A2421] bg-[#2A2421] px-6 py-3 font-sans text-[11px] uppercase tracking-widest text-[#F7F3EE] transition-colors hover:bg-[#5B4638] hover:border-[#5B4638]"
         >
-          + Nuevo Evento
+          {tr(ad.newEvent, lang)}
         </Link>
         <Link
           href="/admin/speakers"
           className="inline-flex items-center gap-2 border border-[#2A2421] px-6 py-3 font-sans text-[11px] uppercase tracking-widest text-[#2A2421] transition-colors hover:bg-[#2A2421] hover:text-[#F7F3EE]"
         >
-          + Speaker
+          {tr(ad.newSpeaker, lang)}
         </Link>
         <Link
           href="/admin/media"
           className="inline-flex items-center gap-2 border border-[#D7C6B2] px-6 py-3 font-sans text-[11px] uppercase tracking-widest text-[#5B4638] transition-colors hover:bg-[#EAE1D6]"
         >
-          Subir Media
+          {tr(ad.uploadMedia, lang)}
         </Link>
         <Link
           href="/admin/sponsors"
           className="inline-flex items-center gap-2 border border-[#D7C6B2] px-6 py-3 font-sans text-[11px] uppercase tracking-widest text-[#5B4638] transition-colors hover:bg-[#EAE1D6]"
         >
-          + Sponsor
+          {tr(ad.newSponsor, lang)}
         </Link>
       </div>
 
@@ -123,44 +127,44 @@ export default async function AdminDashboard() {
         <div className="xl:col-span-2 border border-[#EAE1D6] bg-[#FDFAF7]">
           <div className="border-b border-[#EAE1D6] px-7 py-5">
             <p className="font-sans text-[11px] uppercase tracking-[0.25em] text-[#2A2421]">
-              Estado del Contenido
+              {tr(ad.contentStatus, lang)}
             </p>
           </div>
           <div className="divide-y divide-[#EAE1D6]/60">
             <div className="flex items-center justify-between px-7 py-5">
               <div>
-                <p className="font-sans text-sm text-[#2A2421]">Eventos</p>
-                <p className="font-sans text-[10px] text-[#5B4638] mt-0.5">{upcomingEvents} próximos · {events.filter(e => e.status === 'past').length} pasados</p>
+                <p className="font-sans text-sm text-[#2A2421]">{tr(ad.events, lang)}</p>
+                <p className="font-sans text-[10px] text-[#5B4638] mt-0.5">{upcomingEvents} {tr(ad.upcoming, lang)} · {events.filter(e => e.status === 'past').length} {tr(ad.past, lang)}</p>
               </div>
               <Link href="/admin/events" className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] hover:text-[#5B4638] transition-colors">
-                Gestionar →
+                {tr(ad.manage, lang)}
               </Link>
             </div>
             <div className="flex items-center justify-between px-7 py-5">
               <div>
                 <p className="font-sans text-sm text-[#2A2421]">Speakers</p>
-                <p className="font-sans text-[10px] text-[#5B4638] mt-0.5">{speakers.length} totales · {featuredSpeakers} destacados</p>
+                <p className="font-sans text-[10px] text-[#5B4638] mt-0.5">{speakers.length} totales · {featuredSpeakers} {tr(ad.featured, lang)}</p>
               </div>
               <Link href="/admin/speakers" className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] hover:text-[#5B4638] transition-colors">
-                Gestionar →
+                {tr(ad.manage, lang)}
               </Link>
             </div>
             <div className="flex items-center justify-between px-7 py-5">
               <div>
                 <p className="font-sans text-sm text-[#2A2421]">Sponsors</p>
-                <p className="font-sans text-[10px] text-[#5B4638] mt-0.5">{activeSponsors} activos · {sponsors.filter(s => !s.active).length} inactivos</p>
+                <p className="font-sans text-[10px] text-[#5B4638] mt-0.5">{activeSponsors} {tr(ad.active, lang)} · {sponsors.filter(s => !s.active).length} inactivos</p>
               </div>
               <Link href="/admin/sponsors" className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] hover:text-[#5B4638] transition-colors">
-                Gestionar →
+                {tr(ad.manage, lang)}
               </Link>
             </div>
             <div className="flex items-center justify-between px-7 py-5">
               <div>
                 <p className="font-sans text-sm text-[#2A2421]">Galería</p>
-                <p className="font-sans text-[10px] text-[#5B4638] mt-0.5">{gallery.length} archivos subidos</p>
+                <p className="font-sans text-[10px] text-[#5B4638] mt-0.5">{gallery.length} {tr(ad.filesUploaded, lang)}</p>
               </div>
               <Link href="/admin/media" className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52] hover:text-[#5B4638] transition-colors">
-                Gestionar →
+                {tr(ad.manage, lang)}
               </Link>
             </div>
           </div>
@@ -169,10 +173,10 @@ export default async function AdminDashboard() {
         {/* Actividad visual */}
         <div className="border border-[#EAE1D6] bg-[#FDFAF7] p-7">
           <p className="font-sans text-[11px] uppercase tracking-[0.25em] text-[#2A2421] mb-1">
-            Actividad
+            {tr(ad.activity, lang)}
           </p>
           <p className="font-sans text-[10px] uppercase tracking-widest text-[#5B4638] mb-6">
-            Últimos 12 meses
+            {tr(ad.last12mo, lang)}
           </p>
 
           <div className="flex items-end gap-1.5 h-32">
@@ -197,17 +201,17 @@ export default async function AdminDashboard() {
 
           <div className="mt-6 border-t border-[#EAE1D6] pt-5 space-y-4">
             <div className="flex justify-between items-center">
-              <p className="font-sans text-[10px] uppercase tracking-wider text-[#5B4638]">Evento destacado</p>
+              <p className="font-sans text-[10px] uppercase tracking-wider text-[#5B4638]">{tr(ad.featuredEvent, lang)}</p>
               <p className="font-sans text-sm text-[#2A2421] font-medium">
                 {events.some(e => e.featured) ? 'Activo' : '—'}
               </p>
             </div>
             <div className="flex justify-between items-center">
-              <p className="font-sans text-[10px] uppercase tracking-wider text-[#5B4638]">Próximos eventos</p>
+              <p className="font-sans text-[10px] uppercase tracking-wider text-[#5B4638]">{tr(ad.upcomingEvents, lang)}</p>
               <p className="font-sans text-sm text-[#2A2421] font-medium">{upcomingEvents}</p>
             </div>
             <div className="flex justify-between items-center">
-              <p className="font-sans text-[10px] uppercase tracking-wider text-[#5B4638]">Media subida</p>
+              <p className="font-sans text-[10px] uppercase tracking-wider text-[#5B4638]">{tr(ad.mediaUploaded, lang)}</p>
               <p className="font-sans text-sm text-[#2A2421] font-medium">{gallery.length}</p>
             </div>
           </div>

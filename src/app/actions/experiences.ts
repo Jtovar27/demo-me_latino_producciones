@@ -52,6 +52,9 @@ export async function upsertExperience(formData: FormData) {
     image_url: (formData.get('image_url') as string)?.trim() || null,
     featured: formData.get('featured') === 'true',
     tags,
+    title_en: (formData.get('title_en') as string)?.trim() || null,
+    short_desc_en: (formData.get('short_desc_en') as string)?.trim() || null,
+    description_en: (formData.get('description_en') as string)?.trim() || null,
     updated_at: new Date().toISOString(),
   };
 

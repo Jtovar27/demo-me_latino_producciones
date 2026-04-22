@@ -5,24 +5,20 @@ import AdminLayout from '@/components/layout/AdminLayout';
 import Button from '@/components/ui/Button';
 import { getBookings } from '@/app/actions/bookings';
 import type { DBBooking } from '@/types/supabase';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { t, tr } from '@/lib/i18n/translations';
 
 type RegistrationStatus = 'confirmed' | 'pending' | 'cancelled' | 'attended';
 type FilterStatus = 'all' | RegistrationStatus;
 
-const statusConfig: Record<RegistrationStatus, { label: string; styles: string }> = {
-  confirmed: { label: 'Confirmado', styles: 'border-[#A56E52] text-[#A56E52]' },
-  pending:   { label: 'Pendiente',  styles: 'border-[#D7C6B2] text-[#5B4638]' },
-  cancelled: { label: 'Cancelado',  styles: 'border-[#2A2421] text-[#2A2421]' },
-  attended:  { label: 'Asistió',    styles: 'border-[#5B4638] bg-[#EAE1D6] text-[#5B4638]' },
+const statusStyles: Record<RegistrationStatus, string> = {
+  confirmed: 'border-[#A56E52] text-[#A56E52]',
+  pending:   'border-[#D7C6B2] text-[#5B4638]',
+  cancelled: 'border-[#2A2421] text-[#2A2421]',
+  attended:  'border-[#5B4638] bg-[#EAE1D6] text-[#5B4638]',
 };
 
-const filterOptions: { value: FilterStatus; label: string }[] = [
-  { value: 'all',       label: 'Todos' },
-  { value: 'confirmed', label: 'Confirmados' },
-  { value: 'pending',   label: 'Pendientes' },
-  { value: 'attended',  label: 'Asistieron' },
-  { value: 'cancelled', label: 'Cancelados' },
-];
+const filterValues: FilterStatus[] = ['all', 'confirmed', 'pending', 'attended', 'cancelled'];
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString('es-US', {
@@ -32,17 +28,10 @@ function formatDate(d: string) {
   });
 }
 
-function formatCurrency(n: number) {
-  return n === 0
-    ? 'Gratis'
-    : new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        maximumFractionDigits: 0,
-      }).format(n);
-}
-
 export default function AdminRegistrationsPage() {
+  const { lang } = useLanguage();
+  const ar = t.adminRegistrations;
+
   const [bookings, setBookings] = useState<DBBooking[]>([]);
   const [loading, setLoading]   = useState(true);
   const [filter, setFilter]     = useState<FilterStatus>('all');
@@ -64,55 +53,80 @@ export default function AdminRegistrationsPage() {
     .filter((b) => b.status === 'confirmed')
     .reduce((sum, b) => sum + (b.amount ?? 0), 0);
 
+  function formatCurrency(n: number) {
+    return n === 0
+      ? tr(ar.free, lang)
+      : new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          maximumFractionDigits: 0,
+        }).format(n);
+  }
+
+  function getStatusLabel(status: RegistrationStatus): string {
+    const map: Record<RegistrationStatus, typeof ar.statusConfirmed> = {
+      confirmed: ar.statusConfirmed,
+      pending:   ar.statusPending,
+      cancelled: ar.statusCancelled,
+      attended:  ar.statusAttended,
+    };
+    return tr(map[status], lang);
+  }
+
+  function getFilterLabel(value: FilterStatus): string {
+    if (value === 'all') return lang === 'es' ? 'Todos' : 'All';
+    return getStatusLabel(value as RegistrationStatus);
+  }
+
   return (
     <AdminLayout>
       {/* Page header */}
       <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <div>
           <h2 className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">
-            Registros
+            {tr(ar.pageTitle, lang)}
           </h2>
           <p className="mt-1 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">
-            {loading ? 'Cargando...' : `${total} registros totales`}
+            {loading ? tr(ar.loading, lang) : `${total} ${tr(ar.totalRegistrations, lang)}`}
           </p>
         </div>
-        <Button variant="ghost" size="sm">Exportar CSV</Button>
+        <Button variant="ghost" size="sm">{tr(ar.exportCsv, lang)}</Button>
       </div>
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-8">
         <div className="border border-[#EAE1D6] bg-[#FDFAF7] px-6 py-5">
-          <p className="font-sans text-[9px] uppercase tracking-[0.25em] text-[#5B4638]">Total Registros</p>
+          <p className="font-sans text-[9px] uppercase tracking-[0.25em] text-[#5B4638]">{tr(ar.totalCard, lang)}</p>
           <p className="mt-2 font-sans text-3xl font-light text-[#2A2421]">{total}</p>
         </div>
         <div className="border border-[#EAE1D6] bg-[#FDFAF7] px-6 py-5">
-          <p className="font-sans text-[9px] uppercase tracking-[0.25em] text-[#5B4638]">Confirmados</p>
+          <p className="font-sans text-[9px] uppercase tracking-[0.25em] text-[#5B4638]">{tr(ar.confirmedCard, lang)}</p>
           <p className="mt-2 font-sans text-3xl font-light text-[#A56E52]">{confirmed}</p>
         </div>
         <div className="border border-[#EAE1D6] bg-[#FDFAF7] px-6 py-5">
-          <p className="font-sans text-[9px] uppercase tracking-[0.25em] text-[#5B4638]">Pendientes</p>
+          <p className="font-sans text-[9px] uppercase tracking-[0.25em] text-[#5B4638]">{tr(ar.pendingCard, lang)}</p>
           <p className="mt-2 font-sans text-3xl font-light text-[#2A2421]">{pending}</p>
         </div>
         <div className="border border-[#A56E52]/30 bg-[#A56E52]/5 px-6 py-5">
-          <p className="font-sans text-[9px] uppercase tracking-[0.25em] text-[#5B4638]">Ingresos</p>
+          <p className="font-sans text-[9px] uppercase tracking-[0.25em] text-[#5B4638]">{tr(ar.revenueCard, lang)}</p>
           <p className="mt-2 font-sans text-3xl font-light text-[#2A2421]">{formatCurrency(totalRev)}</p>
         </div>
       </div>
 
       {/* Filter tabs */}
       <div className="flex flex-wrap gap-0 mb-6">
-        {filterOptions.map((opt) => (
+        {filterValues.map((value) => (
           <button
-            key={opt.value}
-            onClick={() => setFilter(opt.value)}
+            key={value}
+            onClick={() => setFilter(value)}
             className={[
               'px-4 py-2.5 border font-sans text-[10px] uppercase tracking-widest transition-colors -ml-px first:ml-0',
-              filter === opt.value
+              filter === value
                 ? 'border-[#2A2421] bg-[#2A2421] text-[#F7F3EE] z-10 relative'
                 : 'border-[#D7C6B2] text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421]',
             ].join(' ')}
           >
-            {opt.label}
+            {getFilterLabel(value)}
           </button>
         ))}
       </div>
@@ -122,30 +136,31 @@ export default function AdminRegistrationsPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-[#EAE1D6]">
-              <th className="px-7 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Nombre</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden md:table-cell">Email</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden md:table-cell">Evento</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">Fecha</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Estado</th>
-              <th className="px-7 py-5 text-right font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Monto</th>
+              <th className="px-7 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(ar.nameCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden md:table-cell">{tr(ar.emailCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden md:table-cell">{tr(ar.eventCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">{tr(ar.dateCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(ar.statusCol, lang)}</th>
+              <th className="px-7 py-5 text-right font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(ar.amountCol, lang)}</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
                 <td colSpan={6} className="px-7 py-14 text-center font-sans text-xs uppercase tracking-widest text-[#5B4638]/50">
-                  Cargando registros...
+                  {tr(ar.loadingReg, lang)}
                 </td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-7 py-14 text-center font-sans text-xs uppercase tracking-widest text-[#5B4638]/50">
-                  Sin registros para este filtro
+                  {tr(ar.noResults, lang)}
                 </td>
               </tr>
             ) : (
               filtered.map((b) => {
-                const sc = statusConfig[(b.status as RegistrationStatus)] ?? statusConfig.pending;
+                const status = (b.status as RegistrationStatus) ?? 'pending';
+                const styles = statusStyles[status] ?? statusStyles.pending;
                 return (
                   <tr key={b.id} className="border-b border-[#EAE1D6]/60 hover:bg-[#F7F3EE]/30 transition-colors">
                     <td className="px-7 py-6">
@@ -161,8 +176,8 @@ export default function AdminRegistrationsPage() {
                       <p className="font-sans text-xs text-[#5B4638]">{formatDate(b.submitted_at)}</p>
                     </td>
                     <td className="px-4 py-6">
-                      <span className={`border px-2.5 py-1 font-sans text-[9px] uppercase tracking-widest ${sc.styles}`}>
-                        {sc.label}
+                      <span className={`border px-2.5 py-1 font-sans text-[9px] uppercase tracking-widest ${styles}`}>
+                        {getStatusLabel(status)}
                       </span>
                     </td>
                     <td className="px-7 py-6 text-right">
@@ -177,7 +192,7 @@ export default function AdminRegistrationsPage() {
       </div>
 
       <p className="mt-4 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]/50">
-        Mostrando {loading ? '…' : filtered.length} de {loading ? '…' : total} registros
+        {tr({ es: 'Mostrando', en: 'Showing' }, lang)} {loading ? '…' : filtered.length} {tr({ es: 'de', en: 'of' }, lang)} {loading ? '…' : total} {tr(ar.totalRegistrations, lang)}
       </p>
     </AdminLayout>
   );

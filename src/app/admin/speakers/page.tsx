@@ -8,12 +8,14 @@ import Button from '@/components/ui/Button';
 import MediaPicker from '@/components/admin/MediaPicker';
 import { getSpeakers, upsertSpeaker, deleteSpeaker } from '@/app/actions/speakers';
 import type { DBSpeaker } from '@/types/supabase';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { t, tr } from '@/lib/i18n/translations';
 
 type ViewMode = 'grid' | 'list';
 
 const emptyForm = {
-  name: '', title: '', organization: '', bio: '', expertise: '',
-  instagram: '', featured: false, image_url: '',
+  name: '', title: '', title_en: '', organization: '', bio: '', bio_en: '',
+  expertise: '', instagram: '', featured: false, image_url: '',
 };
 type FormState = typeof emptyForm;
 
@@ -27,6 +29,9 @@ function initials(name: string) {
 }
 
 export default function AdminSpeakersPage() {
+  const { lang } = useLanguage();
+  const asp = t.adminSpeakers;
+
   const [speakers, setSpeakers]       = useState<DBSpeaker[]>([]);
   const [loading, setLoading]         = useState(true);
   const [view, setView]               = useState<ViewMode>('grid');
@@ -59,8 +64,10 @@ export default function AdminSpeakersPage() {
     setForm({
       name:         sp.name,
       title:        sp.title ?? '',
+      title_en:     sp.title_en ?? '',
       organization: sp.organization ?? '',
       bio:          sp.bio ?? '',
+      bio_en:       sp.bio_en ?? '',
       expertise:    (sp.expertise ?? []).join(', '),
       instagram:    sp.instagram ?? '',
       featured:     sp.featured,
@@ -75,8 +82,10 @@ export default function AdminSpeakersPage() {
     if (editSpeaker) fd.append('id', editSpeaker.id);
     fd.append('name',         form.name);
     fd.append('title',        form.title);
+    fd.append('title_en',     form.title_en);
     fd.append('organization', form.organization);
     fd.append('bio',          form.bio);
+    fd.append('bio_en',       form.bio_en);
     fd.append('expertise',    form.expertise);
     fd.append('instagram',    form.instagram);
     fd.append('featured',     String(form.featured));
@@ -84,21 +93,21 @@ export default function AdminSpeakersPage() {
 
     const result = await upsertSpeaker(fd);
     if (result?.error) {
-      showToast('Error al guardar');
+      showToast(tr(asp.toastError, lang));
     } else {
       const { data } = await getSpeakers();
       setSpeakers(data as DBSpeaker[]);
-      showToast(editSpeaker ? 'Speaker actualizado' : 'Speaker agregado');
+      showToast(editSpeaker ? tr(asp.toastUpdated, lang) : tr(asp.toastCreated, lang));
       setModalOpen(false);
     }
     setSaving(false);
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Eliminar este speaker? Esta acción no se puede deshacer.')) return;
+    if (!confirm(tr(asp.deleteConfirm, lang))) return;
     await deleteSpeaker(id);
     setSpeakers((prev) => prev.filter((s) => s.id !== id));
-    showToast('Speaker eliminado');
+    showToast(tr(asp.toastDeleted, lang));
   }
 
   function updateForm(field: keyof FormState, value: string | boolean) {
@@ -116,29 +125,29 @@ export default function AdminSpeakersPage() {
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div>
-          <h2 className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">Speakers</h2>
+          <h2 className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">{tr(asp.pageTitle, lang)}</h2>
           <p className="mt-1 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">
-            {loading ? 'Cargando...' : `${speakers.length} speakers registrados`}
+            {loading ? tr(asp.loadingSpeakers, lang) : `${speakers.length} ${tr(asp.totalSpeakers, lang)}`}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex border border-[#D7C6B2]">
-            <button onClick={() => setView('grid')} aria-label="Vista cuadrícula"
+            <button onClick={() => setView('grid')} aria-label={tr(asp.gridView, lang)}
               className={`flex items-center justify-center px-3 py-2 transition-colors ${view === 'grid' ? 'bg-[#2A2421] text-[#F7F3EE]' : 'text-[#5B4638] hover:text-[#2A2421]'}`}>
               <LayoutGrid size={14} strokeWidth={1.75} />
             </button>
-            <button onClick={() => setView('list')} aria-label="Vista lista"
+            <button onClick={() => setView('list')} aria-label={tr(asp.listView, lang)}
               className={`flex items-center justify-center px-3 py-2 transition-colors border-l border-[#D7C6B2] ${view === 'list' ? 'bg-[#2A2421] text-[#F7F3EE]' : 'text-[#5B4638] hover:text-[#2A2421]'}`}>
               <List size={14} strokeWidth={1.75} />
             </button>
           </div>
-          <Button variant="primary" size="sm" onClick={openNew}>+ Agregar Speaker</Button>
+          <Button variant="primary" size="sm" onClick={openNew}>{tr(asp.addSpeaker, lang)}</Button>
         </div>
       </div>
 
       {loading && (
         <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]/50 py-14 text-center">
-          Cargando speakers...
+          {tr(asp.loadingSpeakers, lang)}
         </p>
       )}
 
@@ -147,11 +156,10 @@ export default function AdminSpeakersPage() {
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {speakers.length === 0 ? (
             <p className="col-span-3 font-sans text-xs uppercase tracking-widest text-[#5B4638]/50 py-14 text-center">
-              Sin speakers registrados
+              {tr(asp.noSpeakers, lang)}
             </p>
           ) : speakers.map((sp, i) => (
             <div key={sp.id} className="border border-[#EAE1D6] bg-[#FDFAF7] p-6 hover:border-[#D7C6B2] transition-colors">
-              {/* Avatar / Photo */}
               {sp.image_url ? (
                 <div className="relative h-16 w-16 overflow-hidden mb-5">
                   <Image src={sp.image_url} alt={sp.name} fill className="object-cover" sizes="64px" unoptimized />
@@ -170,7 +178,7 @@ export default function AdminSpeakersPage() {
                 </div>
                 {sp.featured && (
                   <span className="border border-[#A56E52] px-2 py-0.5 font-sans text-[8px] uppercase tracking-widest text-[#A56E52] shrink-0">
-                    Dest.
+                    {tr(asp.featuredBadge, lang)}
                   </span>
                 )}
               </div>
@@ -189,11 +197,11 @@ export default function AdminSpeakersPage() {
               <div className="flex gap-2">
                 <button onClick={() => openEdit(sp)}
                   className="flex-1 border border-[#D7C6B2] py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors">
-                  Editar
+                  {tr(asp.edit, lang)}
                 </button>
                 <button onClick={() => handleDelete(sp.id)}
                   className="flex-1 border border-[#D7C6B2] py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-red-400 hover:text-red-500 transition-colors">
-                  Eliminar
+                  {tr(asp.delete, lang)}
                 </button>
               </div>
             </div>
@@ -207,18 +215,18 @@ export default function AdminSpeakersPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#EAE1D6]">
-                <th className="px-7 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Nombre</th>
-                <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden md:table-cell">Título</th>
-                <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">Organización</th>
-                <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">Expertise</th>
-                <th className="px-7 py-5 text-right font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Acciones</th>
+                <th className="px-7 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(asp.nameCol, lang)}</th>
+                <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden md:table-cell">{tr(asp.titleCol, lang)}</th>
+                <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">{tr(asp.orgCol, lang)}</th>
+                <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">{tr(asp.expertiseCol, lang)}</th>
+                <th className="px-7 py-5 text-right font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(asp.actionsCol, lang)}</th>
               </tr>
             </thead>
             <tbody>
               {speakers.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-7 py-14 text-center font-sans text-xs uppercase tracking-widest text-[#5B4638]/50">
-                    Sin speakers registrados
+                    {tr(asp.noSpeakers, lang)}
                   </td>
                 </tr>
               ) : speakers.map((sp, i) => (
@@ -259,11 +267,11 @@ export default function AdminSpeakersPage() {
                     <div className="flex items-center justify-end gap-2">
                       <button onClick={() => openEdit(sp)}
                         className="border border-[#D7C6B2] px-3 py-2 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors">
-                        Editar
+                        {tr(asp.edit, lang)}
                       </button>
                       <button onClick={() => handleDelete(sp.id)}
                         className="border border-[#D7C6B2] px-3 py-2 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-red-400 hover:text-red-500 transition-colors">
-                        Eliminar
+                        {tr(asp.delete, lang)}
                       </button>
                     </div>
                   </td>
@@ -281,58 +289,92 @@ export default function AdminSpeakersPage() {
           <div className="relative z-10 w-full sm:max-w-lg border border-[#EAE1D6] bg-[#FDFAF7] shadow-2xl mx-0 sm:mx-4 max-h-[92vh] overflow-y-auto rounded-t-lg sm:rounded-none">
             <div className="border-b border-[#EAE1D6] px-6 py-5 flex items-center justify-between">
               <p className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">
-                {editSpeaker ? 'Editar Speaker' : 'Agregar Speaker'}
+                {editSpeaker ? tr(asp.editModal, lang) : tr(asp.newModal, lang)}
               </p>
               <button onClick={() => setModalOpen(false)} className="font-sans text-[#5B4638] hover:text-[#2A2421] transition-colors text-xl leading-none p-1">×</button>
             </div>
             <div className="px-6 py-6 space-y-5">
 
-              {/* Image picker */}
               <MediaPicker
                 value={form.image_url}
                 onChange={(url) => updateForm('image_url', url)}
                 accept="image"
-                label="Foto del speaker"
+                label={tr(asp.photoLbl, lang)}
               />
 
-              {([
-                { field: 'name',         label: 'Nombre completo',     placeholder: 'Ana García' },
-                { field: 'title',        label: 'Cargo / Título',      placeholder: 'CEO, Directora...' },
-                { field: 'organization', label: 'Organización',        placeholder: 'Nombre de organización' },
-                { field: 'instagram',    label: 'Instagram (@handle)', placeholder: '@handle' },
-              ] as const).map(({ field, label, placeholder }) => (
-                <div key={field}>
-                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{label}</label>
-                  <input type="text" value={form[field as keyof FormState] as string}
-                    onChange={(e) => updateForm(field as keyof FormState, e.target.value)}
-                    placeholder={placeholder}
-                    className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
-                </div>
-              ))}
+              <div>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(asp.nameLbl, lang)}</label>
+                <input type="text" value={form.name}
+                  onChange={(e) => updateForm('name', e.target.value)}
+                  placeholder="Ana García"
+                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
+              </div>
 
               <div>
-                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Bio</label>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(asp.titleLbl, lang)}</label>
+                <input type="text" value={form.title}
+                  onChange={(e) => updateForm('title', e.target.value)}
+                  placeholder="CEO, Directora..."
+                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
+              </div>
+
+              <div>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(asp.titleEnLbl, lang)}</label>
+                <input type="text" value={form.title_en}
+                  onChange={(e) => updateForm('title_en', e.target.value)}
+                  placeholder="CEO, Director..."
+                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
+              </div>
+
+              <div>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(asp.orgLbl, lang)}</label>
+                <input type="text" value={form.organization}
+                  onChange={(e) => updateForm('organization', e.target.value)}
+                  placeholder="Nombre de organización"
+                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
+              </div>
+
+              <div>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(asp.instagramLbl, lang)}</label>
+                <input type="text" value={form.instagram}
+                  onChange={(e) => updateForm('instagram', e.target.value)}
+                  placeholder="@handle"
+                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
+              </div>
+
+              <div>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(asp.bioLbl, lang)}</label>
                 <textarea value={form.bio} onChange={(e) => updateForm('bio', e.target.value)} rows={3}
                   className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors resize-none" />
               </div>
+
+              <div>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(asp.bioEnLbl, lang)}</label>
+                <textarea value={form.bio_en} onChange={(e) => updateForm('bio_en', e.target.value)} rows={3}
+                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors resize-none" />
+              </div>
+
               <div>
                 <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">
-                  Expertise (separados por coma)
+                  {tr(asp.expertiseLbl, lang)}
                 </label>
                 <input type="text" value={form.expertise} onChange={(e) => updateForm('expertise', e.target.value)}
                   placeholder="Liderazgo, Wellness, Innovación"
                   className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
               </div>
+
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" checked={form.featured}
                   onChange={(e) => updateForm('featured', e.target.checked)}
                   className="w-4 h-4 accent-[#A56E52]" />
-                <span className="font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Destacar en el sitio</span>
+                <span className="font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(asp.featuredToggle, lang)}</span>
               </label>
             </div>
             <div className="border-t border-[#EAE1D6] px-6 py-5 flex items-center justify-end gap-3">
-              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>Cancelar</Button>
-              <Button variant="primary" size="sm" loading={saving} onClick={handleSave}>Guardar</Button>
+              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>{tr(asp.cancel, lang)}</Button>
+              <Button variant="primary" size="sm" loading={saving} onClick={handleSave}>
+                {saving ? tr(asp.saving, lang) : tr(asp.saveSpeaker, lang)}
+              </Button>
             </div>
           </div>
         </div>

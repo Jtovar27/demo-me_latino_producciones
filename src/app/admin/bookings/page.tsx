@@ -6,27 +6,21 @@ import AdminLayout from '@/components/layout/AdminLayout';
 import Button from '@/components/ui/Button';
 import { getBookings, updateBooking } from '@/app/actions/bookings';
 import type { DBBooking } from '@/types/supabase';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { t, tr } from '@/lib/i18n/translations';
 
 // ── Config ───────────────────────────────────────
 
 type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'attended';
 
-const statusConfig: Record<BookingStatus, { label: string; styles: string }> = {
-  pending:   { label: 'Pendiente',   styles: 'border-[#D7C6B2] text-[#5B4638]' },
-  confirmed: { label: 'Confirmado',  styles: 'border-[#A56E52] text-[#A56E52]' },
-  cancelled: { label: 'Cancelado',   styles: 'border-[#2A2421] text-[#2A2421]' },
-  attended:  { label: 'Asistió',     styles: 'border-[#5B4638] bg-[#EAE1D6] text-[#5B4638]' },
+const statusStyles: Record<BookingStatus, string> = {
+  pending:   'border-[#D7C6B2] text-[#5B4638]',
+  confirmed: 'border-[#A56E52] text-[#A56E52]',
+  cancelled: 'border-[#2A2421] text-[#2A2421]',
+  attended:  'border-[#5B4638] bg-[#EAE1D6] text-[#5B4638]',
 };
 
 type FilterStatus = 'all' | BookingStatus;
-
-const filterOptions: { value: FilterStatus; label: string }[] = [
-  { value: 'all',       label: 'Todos' },
-  { value: 'pending',   label: 'Pendientes' },
-  { value: 'confirmed', label: 'Confirmados' },
-  { value: 'attended',  label: 'Asistieron' },
-  { value: 'cancelled', label: 'Cancelados' },
-];
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString('es-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -43,6 +37,8 @@ export default function AdminBookingsPage() {
   const [internalNote, setInternalNote] = useState('');
   const [saving, setSaving]             = useState(false);
   const [toast, setToast]               = useState('');
+  const { lang } = useLanguage();
+  const ab = t.adminBookings;
 
   useEffect(() => {
     getBookings().then(({ data }) => {
@@ -65,6 +61,21 @@ export default function AdminBookingsPage() {
     cancelled: bookings.filter((b) => b.status === 'cancelled').length,
   };
 
+  const statusLabels: Record<BookingStatus, string> = {
+    pending:   tr(ab.statusPending, lang),
+    confirmed: tr(ab.statusConfirmed, lang),
+    cancelled: tr(ab.statusCancelled, lang),
+    attended:  tr(ab.statusAttended, lang),
+  };
+
+  const filterOptions: { value: FilterStatus; label: string }[] = [
+    { value: 'all',       label: tr(ab.all, lang) },
+    { value: 'pending',   label: tr(ab.filterPending, lang) },
+    { value: 'confirmed', label: tr(ab.filterConfirmed, lang) },
+    { value: 'attended',  label: tr(ab.filterAttended, lang) },
+    { value: 'cancelled', label: tr(ab.filterCancelled, lang) },
+  ];
+
   function openDetail(b: DBBooking) {
     setDetail(b);
     setPanelStatus((b.status as BookingStatus) || 'pending');
@@ -79,7 +90,7 @@ export default function AdminBookingsPage() {
       internal_notes: internalNote,
     });
     if (result.error) {
-      showToast('Error al guardar');
+      showToast(tr(ab.toastError, lang));
     } else {
       setBookings((prev) =>
         prev.map((b) =>
@@ -89,7 +100,7 @@ export default function AdminBookingsPage() {
         )
       );
       setDetail(null);
-      showToast('Reserva actualizada');
+      showToast(tr(ab.toastSaved, lang));
     }
     setSaving(false);
   }
@@ -141,7 +152,7 @@ export default function AdminBookingsPage() {
           <div className="fixed inset-0 z-40 bg-[#2A2421]/30" onClick={() => setDetail(null)} />
           <div className="fixed right-0 top-0 z-50 h-full w-full max-w-[320px] bg-[#FDFAF7] shadow-2xl border-l border-[#EAE1D6] overflow-y-auto">
             <div className="border-b border-[#EAE1D6] px-6 py-5 flex items-center justify-between">
-              <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-[#2A2421]">Detalle Reserva</p>
+              <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-[#2A2421]">{tr(ab.detailTitle, lang)}</p>
               <button onClick={() => setDetail(null)} className="text-[#5B4638] hover:text-[#2A2421] text-xl leading-none">×</button>
             </div>
             <div className="px-6 py-6 space-y-4">
@@ -168,20 +179,20 @@ export default function AdminBookingsPage() {
               )}
               <div className="pt-4 border-t border-[#EAE1D6] space-y-3">
                 <div>
-                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Cambiar estado</label>
+                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(ab.changeStatus, lang)}</label>
                   <select
                     value={panelStatus}
                     onChange={(e) => setPanelStatus(e.target.value as BookingStatus)}
                     className="w-full border border-[#D7C6B2] bg-white px-3 py-2.5 font-sans text-xs text-[#2A2421] outline-none focus:border-[#5B4638] transition-colors"
                   >
-                    <option value="pending">Pendiente</option>
-                    <option value="confirmed">Confirmado</option>
-                    <option value="attended">Asistió</option>
-                    <option value="cancelled">Cancelado</option>
+                    <option value="pending">{tr(ab.statusPending, lang)}</option>
+                    <option value="confirmed">{tr(ab.statusConfirmed, lang)}</option>
+                    <option value="attended">{tr(ab.statusAttended, lang)}</option>
+                    <option value="cancelled">{tr(ab.statusCancelled, lang)}</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Notas internas</label>
+                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(ab.internalNotes, lang)}</label>
                   <textarea
                     value={internalNote}
                     onChange={(e) => setInternalNote(e.target.value)}
@@ -195,13 +206,13 @@ export default function AdminBookingsPage() {
                   disabled={saving}
                   className="w-full border border-[#2A2421] bg-[#2A2421] py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#F7F3EE] hover:bg-[#5B4638] transition-colors disabled:opacity-50"
                 >
-                  {saving ? 'Guardando...' : 'Guardar cambios'}
+                  {saving ? tr(ab.saving, lang) : tr(ab.saveChanges, lang)}
                 </button>
                 <button
                   onClick={() => setDetail(null)}
                   className="w-full border border-[#D7C6B2] py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors"
                 >
-                  Cerrar
+                  {tr(ab.close, lang)}
                 </button>
               </div>
             </div>
@@ -212,12 +223,12 @@ export default function AdminBookingsPage() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <div>
-          <h2 className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">Reservas</h2>
+          <h2 className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">{tr(ab.pageTitle, lang)}</h2>
           <p className="mt-1 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">
-            {loading ? 'Cargando...' : `${bookings.length} reservas en total`}
+            {loading ? tr(ab.loading, lang) : `${bookings.length} ${tr(ab.totalBookings, lang)}`}
           </p>
         </div>
-        <Button variant="ghost" size="sm" onClick={exportCSV}>Exportar CSV</Button>
+        <Button variant="ghost" size="sm" onClick={exportCSV}>{tr(ab.exportCsv, lang)}</Button>
       </div>
 
       {/* Stat cards */}
@@ -231,7 +242,7 @@ export default function AdminBookingsPage() {
             }`}
           >
             <p className="font-sans text-[9px] uppercase tracking-[0.25em] text-[#5B4638]">
-              {statusConfig[status].label}
+              {statusLabels[status]}
             </p>
             <p className="mt-2 font-sans text-3xl font-light text-[#2A2421]">{count}</p>
           </div>
@@ -265,11 +276,11 @@ export default function AdminBookingsPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-[#EAE1D6]">
-              <th className="px-7 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Persona</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden md:table-cell">Evento</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">Fecha</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">Fuente</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Estado</th>
+              <th className="px-7 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(ab.personCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden md:table-cell">{tr(ab.eventCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">{tr(ab.dateCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">{tr(ab.sourceCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(ab.statusCol, lang)}</th>
               <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden xl:table-cell">Seguim.</th>
               <th className="px-7 py-5 text-right font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Acciones</th>
             </tr>
@@ -278,18 +289,19 @@ export default function AdminBookingsPage() {
             {loading ? (
               <tr>
                 <td colSpan={7} className="px-7 py-14 text-center font-sans text-xs uppercase tracking-widest text-[#5B4638]/50">
-                  Cargando reservas...
+                  {tr(ab.loadingBookings, lang)}
                 </td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-7 py-14 text-center font-sans text-xs uppercase tracking-widest text-[#5B4638]/50">
-                  Sin reservas para este filtro
+                  {tr(ab.noResults, lang)}
                 </td>
               </tr>
             ) : (
               filtered.map((b) => {
-                const sc = statusConfig[(b.status as BookingStatus)] ?? statusConfig.pending;
+                const styles = statusStyles[(b.status as BookingStatus)] ?? statusStyles.pending;
+                const label = statusLabels[(b.status as BookingStatus)] ?? statusLabels.pending;
                 const isOpen = detail?.id === b.id;
                 return (
                   <tr key={b.id} className={`border-b border-[#EAE1D6]/60 transition-colors ${isOpen ? 'bg-[#EAE1D6]' : 'hover:bg-[#F7F3EE]'}`}>
@@ -309,8 +321,8 @@ export default function AdminBookingsPage() {
                       <p className="font-sans text-[10px] uppercase tracking-wider text-[#5B4638]">{b.source ?? '—'}</p>
                     </td>
                     <td className="px-4 py-6">
-                      <span className={`border px-2.5 py-1 font-sans text-[9px] uppercase tracking-widest ${sc.styles}`}>
-                        {sc.label}
+                      <span className={`border px-2.5 py-1 font-sans text-[9px] uppercase tracking-widest ${styles}`}>
+                        {label}
                       </span>
                     </td>
                     <td className="px-4 py-6 hidden xl:table-cell">
@@ -335,7 +347,7 @@ export default function AdminBookingsPage() {
                         }`}
                       >
                         <Eye size={11} strokeWidth={1.5} />
-                        {isOpen ? 'Cerrar' : 'Ver'}
+                        {isOpen ? tr(ab.close, lang) : 'Ver'}
                       </button>
                     </td>
                   </tr>
@@ -347,7 +359,7 @@ export default function AdminBookingsPage() {
       </div>
 
       <p className="mt-4 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]/50">
-        {filtered.length} reserva{filtered.length !== 1 ? 's' : ''} mostradas
+        {filtered.length} {tr(ab.shown, lang)}
       </p>
     </AdminLayout>
   );

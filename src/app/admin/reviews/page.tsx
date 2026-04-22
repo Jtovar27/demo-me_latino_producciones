@@ -6,15 +6,17 @@ import AdminLayout from '@/components/layout/AdminLayout';
 import Button from '@/components/ui/Button';
 import { getReviews, upsertReview, deleteReview, setReviewStatus, setReviewFeatured } from '@/app/actions/reviews';
 import type { DBReview } from '@/types/supabase';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { t, tr } from '@/lib/i18n/translations';
 
 // ── Helpers ──────────────────────────────────────
 
 type ReviewStatus = 'published' | 'hidden' | 'pending';
 
-const statusConfig: Record<ReviewStatus, { label: string; styles: string }> = {
-  published: { label: 'Publicado',  styles: 'border-[#A56E52] text-[#A56E52]' },
-  hidden:    { label: 'Oculto',     styles: 'border-[#D7C6B2] text-[#5B4638]' },
-  pending:   { label: 'Pendiente',  styles: 'border-[#2A2421] text-[#2A2421]' },
+const statusStyles: Record<ReviewStatus, string> = {
+  published: 'border-[#A56E52] text-[#A56E52]',
+  hidden:    'border-[#D7C6B2] text-[#5B4638]',
+  pending:   'border-[#2A2421] text-[#2A2421]',
 };
 
 const emptyForm = {
@@ -26,11 +28,11 @@ const emptyForm = {
 type FormState = typeof emptyForm;
 type FilterStatus = 'all' | ReviewStatus;
 
-const filterOptions: { value: FilterStatus; label: string }[] = [
-  { value: 'all',       label: 'Todos' },
-  { value: 'published', label: 'Publicados' },
-  { value: 'hidden',    label: 'Ocultos' },
-  { value: 'pending',   label: 'Pendientes' },
+const filterKeys: { value: FilterStatus; labelKey: keyof typeof t.adminReviews }[] = [
+  { value: 'all',       labelKey: 'all' },
+  { value: 'published', labelKey: 'filterPublished' },
+  { value: 'hidden',    labelKey: 'filterHidden' },
+  { value: 'pending',   labelKey: 'filterPending' },
 ];
 
 function StarRating({ rating }: { rating: number }) {
@@ -51,6 +53,9 @@ function StarRating({ rating }: { rating: number }) {
 // ── Page ─────────────────────────────────────────
 
 export default function AdminReviewsPage() {
+  const { lang } = useLanguage();
+  const arv = t.adminReviews;
+
   const [reviews, setReviews]       = useState<DBReview[]>([]);
   const [loading, setLoading]       = useState(true);
   const [filter, setFilter]         = useState<FilterStatus>('all');
@@ -118,11 +123,11 @@ export default function AdminReviewsPage() {
 
     const result = await upsertReview(fd);
     if (result?.error) {
-      showToast('Error al guardar');
+      showToast(tr(arv.toastError, lang));
     } else {
       const { data } = await getReviews();
       setReviews(data as DBReview[]);
-      showToast(editReview ? 'Review actualizado' : 'Review agregado');
+      showToast(editReview ? tr(arv.toastUpdated, lang) : tr(arv.toastCreated, lang));
       setModalOpen(false);
     }
     setSaving(false);
@@ -131,7 +136,7 @@ export default function AdminReviewsPage() {
   async function toggleStatus(id: string, status: ReviewStatus) {
     await setReviewStatus(id, status);
     setReviews((prev) => prev.map((r) => r.id === id ? { ...r, status } : r));
-    showToast(status === 'published' ? 'Review publicado' : 'Review ocultado');
+    showToast(status === 'published' ? tr(arv.toastPublished, lang) : tr(arv.toastHidden, lang));
   }
 
   async function toggleFeatured(id: string) {
@@ -142,10 +147,10 @@ export default function AdminReviewsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Eliminar este review? Esta acción no se puede deshacer.')) return;
+    if (!confirm(tr(arv.deleteConfirm, lang))) return;
     await deleteReview(id);
     setReviews((prev) => prev.filter((r) => r.id !== id));
-    showToast('Review eliminado');
+    showToast(tr(arv.toastDeleted, lang));
   }
 
   function updateForm(field: keyof FormState, value: string | boolean) {
@@ -164,13 +169,13 @@ export default function AdminReviewsPage() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <div>
-          <h2 className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">Reviews</h2>
+          <h2 className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">{tr(arv.pageTitle, lang)}</h2>
           <p className="mt-1 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">
-            {loading ? 'Cargando...' : `${reviews.length} reviews en total`}
+            {loading ? tr(arv.loading, lang) : `${reviews.length} ${tr(arv.totalReviews, lang)}`}
           </p>
         </div>
         <Button variant="primary" size="sm" onClick={openNew}>
-          + Agregar Review
+          {tr(arv.addReview, lang)}
         </Button>
       </div>
 
@@ -185,7 +190,7 @@ export default function AdminReviewsPage() {
             }`}
           >
             <p className="font-sans text-[9px] uppercase tracking-[0.25em] text-[#5B4638]">
-              {statusConfig[status].label}
+              {status === 'published' ? tr(arv.statusPublished, lang) : status === 'hidden' ? tr(arv.statusHidden, lang) : tr(arv.statusPending, lang)}
             </p>
             <p className="mt-2 font-sans text-3xl font-light text-[#2A2421]">{count}</p>
           </div>
@@ -194,7 +199,7 @@ export default function AdminReviewsPage() {
 
       {/* Filter tabs */}
       <div className="flex gap-0 mb-6">
-        {filterOptions.map((opt) => {
+        {filterKeys.map((opt) => {
           const count = opt.value === 'all' ? reviews.length : counts[opt.value as ReviewStatus];
           return (
             <button
@@ -207,7 +212,7 @@ export default function AdminReviewsPage() {
                   : 'border-[#D7C6B2] text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421]',
               ].join(' ')}
             >
-              {opt.label}
+              {tr(arv[opt.labelKey], lang)}
               <span className="ml-1.5 opacity-60">{count}</span>
             </button>
           );
@@ -219,30 +224,31 @@ export default function AdminReviewsPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-[#EAE1D6]">
-              <th className="px-7 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Persona</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden md:table-cell">Testimonio</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">Evento</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Estado</th>
-              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden xl:table-cell">Dest.</th>
-              <th className="px-7 py-5 text-right font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Acciones</th>
+              <th className="px-7 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(arv.personCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden md:table-cell">{tr(arv.quoteCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">{tr(arv.eventCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(arv.statusCol, lang)}</th>
+              <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden xl:table-cell">{tr(arv.featuredCol, lang)}</th>
+              <th className="px-7 py-5 text-right font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(arv.actionsCol, lang)}</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
                 <td colSpan={6} className="px-7 py-14 text-center font-sans text-xs uppercase tracking-widest text-[#5B4638]/50">
-                  Cargando reviews...
+                  {tr(arv.loading, lang)}
                 </td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-7 py-14 text-center font-sans text-xs uppercase tracking-widest text-[#5B4638]/50">
-                  Sin reviews para este filtro
+                  {tr(arv.noResults, lang)}
                 </td>
               </tr>
             ) : (
               filtered.map((r) => {
-                const sc = statusConfig[(r.status as ReviewStatus)] ?? statusConfig.pending;
+                const scStyles = statusStyles[(r.status as ReviewStatus)] ?? statusStyles.pending;
+                const statusLabel = r.status === 'published' ? tr(arv.statusPublished, lang) : r.status === 'hidden' ? tr(arv.statusHidden, lang) : tr(arv.statusPending, lang);
                 return (
                   <tr key={r.id} className="border-b border-[#EAE1D6]/60 hover:bg-[#F7F3EE] transition-colors">
                     <td className="px-7 py-6">
@@ -262,8 +268,8 @@ export default function AdminReviewsPage() {
                       <p className="font-sans text-xs text-[#2A2421] max-w-[160px] truncate">{r.event_name ?? '—'}</p>
                     </td>
                     <td className="px-4 py-6">
-                      <span className={`border px-2.5 py-1 font-sans text-[9px] uppercase tracking-widest ${sc.styles}`}>
-                        {sc.label}
+                      <span className={`border px-2.5 py-1 font-sans text-[9px] uppercase tracking-widest ${scStyles}`}>
+                        {statusLabel}
                       </span>
                     </td>
                     <td className="px-4 py-6 hidden xl:table-cell">
@@ -272,7 +278,6 @@ export default function AdminReviewsPage() {
                         className={`transition-colors ${
                           r.featured ? 'text-[#A56E52]' : 'text-[#D7C6B2] hover:text-[#A56E52]'
                         }`}
-                        title={r.featured ? 'Quitar destacado' : 'Destacar'}
                       >
                         <Star size={14} strokeWidth={1.5} className={r.featured ? 'fill-[#A56E52]' : ''} />
                       </button>
@@ -284,27 +289,27 @@ export default function AdminReviewsPage() {
                             onClick={() => toggleStatus(r.id, 'hidden')}
                             className="border border-[#D7C6B2] px-3 py-1.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors"
                           >
-                            Ocultar
+                            {tr(arv.hide, lang)}
                           </button>
                         ) : (
                           <button
                             onClick={() => toggleStatus(r.id, 'published')}
                             className="border border-[#A56E52] px-3 py-1.5 font-sans text-[9px] uppercase tracking-widest text-[#A56E52] hover:bg-[#A56E52] hover:text-white transition-colors"
                           >
-                            Publicar
+                            {tr(arv.publish, lang)}
                           </button>
                         )}
                         <button
                           onClick={() => openEdit(r)}
                           className="border border-[#D7C6B2] px-3 py-1.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors"
                         >
-                          Editar
+                          {tr(arv.edit, lang)}
                         </button>
                         <button
                           onClick={() => handleDelete(r.id)}
                           className="border border-[#D7C6B2] px-3 py-1.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-red-400 hover:text-red-500 transition-colors"
                         >
-                          Eliminar
+                          {tr(arv.delete, lang)}
                         </button>
                       </div>
                     </td>
@@ -317,7 +322,7 @@ export default function AdminReviewsPage() {
       </div>
 
       <p className="mt-4 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]/50">
-        {filtered.length} review{filtered.length !== 1 ? 's' : ''} mostrados
+        {filtered.length} review{filtered.length !== 1 ? 's' : ''} {tr(arv.shown, lang)}
       </p>
 
       {/* Modal */}
@@ -327,19 +332,19 @@ export default function AdminReviewsPage() {
           <div className="relative z-10 w-full sm:max-w-lg border border-[#EAE1D6] bg-[#FDFAF7] shadow-2xl mx-0 sm:mx-4 max-h-[92vh] overflow-y-auto rounded-t-lg sm:rounded-none">
             <div className="border-b border-[#EAE1D6] px-6 py-5 flex items-center justify-between">
               <p className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">
-                {editReview ? 'Editar Review' : 'Agregar Review'}
+                {editReview ? tr(arv.editModal, lang) : tr(arv.newModal, lang)}
               </p>
               <button onClick={() => setModalOpen(false)} className="font-sans text-[#5B4638] hover:text-[#2A2421] transition-colors text-xl leading-none p-1">×</button>
             </div>
             <div className="px-6 py-6 space-y-5">
               {[
-                { field: 'name',      label: 'Nombre completo',    placeholder: 'Ana García' },
-                { field: 'role',      label: 'Cargo / Rol',        placeholder: 'CEO, Directora...' },
-                { field: 'company',   label: 'Empresa',            placeholder: 'Nombre de empresa' },
-                { field: 'eventName', label: 'Evento relacionado', placeholder: 'The Real Happiness...' },
-              ].map(({ field, label, placeholder }) => (
+                { field: 'name',      labelKey: 'nameLbl'  as const, placeholder: 'Ana García' },
+                { field: 'role',      labelKey: 'roleLbl'  as const, placeholder: 'CEO, Directora...' },
+                { field: 'company',   labelKey: 'companyLbl' as const, placeholder: 'Nombre de empresa' },
+                { field: 'eventName', labelKey: 'eventLbl' as const, placeholder: 'The Real Happiness...' },
+              ].map(({ field, labelKey, placeholder }) => (
                 <div key={field}>
-                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{label}</label>
+                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(arv[labelKey], lang)}</label>
                   <input
                     type="text"
                     value={form[field as keyof FormState] as string}
@@ -350,7 +355,7 @@ export default function AdminReviewsPage() {
                 </div>
               ))}
               <div>
-                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Testimonio</label>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(arv.quoteLbl, lang)}</label>
                 <textarea
                   value={form.quote}
                   onChange={(e) => updateForm('quote', e.target.value)}
@@ -361,7 +366,7 @@ export default function AdminReviewsPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Rating (1–5)</label>
+                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(arv.ratingLbl, lang)}</label>
                   <select
                     value={form.rating}
                     onChange={(e) => updateForm('rating', e.target.value)}
@@ -371,15 +376,15 @@ export default function AdminReviewsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Estado</label>
+                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(arv.statusLbl, lang)}</label>
                   <select
                     value={form.status}
                     onChange={(e) => updateForm('status', e.target.value as ReviewStatus)}
                     className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors"
                   >
-                    <option value="published">Publicado</option>
-                    <option value="hidden">Oculto</option>
-                    <option value="pending">Pendiente</option>
+                    <option value="published">{tr(arv.statusPublished, lang)}</option>
+                    <option value="hidden">{tr(arv.statusHidden, lang)}</option>
+                    <option value="pending">{tr(arv.statusPending, lang)}</option>
                   </select>
                 </div>
               </div>
@@ -390,12 +395,12 @@ export default function AdminReviewsPage() {
                   onChange={(e) => updateForm('featured', e.target.checked)}
                   className="w-4 h-4 accent-[#A56E52]"
                 />
-                <span className="font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">Destacar este review</span>
+                <span className="font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(arv.featuredToggle, lang)}</span>
               </label>
             </div>
             <div className="border-t border-[#EAE1D6] px-6 py-5 flex items-center justify-end gap-3">
-              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>Cancelar</Button>
-              <Button variant="primary" size="sm" onClick={handleSave} loading={saving}>Guardar</Button>
+              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>{tr(arv.cancel, lang)}</Button>
+              <Button variant="primary" size="sm" onClick={handleSave} loading={saving}>{saving ? tr(arv.saving, lang) : tr(arv.saveReview, lang)}</Button>
             </div>
           </div>
         </div>

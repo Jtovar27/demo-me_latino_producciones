@@ -7,6 +7,8 @@ import AdminLayout from '@/components/layout/AdminLayout';
 import Button from '@/components/ui/Button';
 import { getGalleryItems, getSignedUploadUrl, createGalleryItem, deleteMediaFile, updateGalleryItem } from '@/app/actions/gallery';
 import type { DBGalleryItem } from '@/types/supabase';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { t, tr } from '@/lib/i18n/translations';
 
 type FilterCat = 'all' | string;
 
@@ -19,7 +21,7 @@ const categoryConfig: Record<string, { label: string; bg: string; text: string }
 };
 
 const filterOptions = [
-  { value: 'all',       label: 'Todos' },
+  { value: 'all',       labelKey: 'all' as const },
   { value: 'stage',     label: 'Stage' },
   { value: 'moments',   label: 'Moments' },
   { value: 'backstage', label: 'Backstage' },
@@ -32,6 +34,8 @@ function getCatConfig(cat: string | null) {
 }
 
 export default function AdminMediaPage() {
+  const { lang } = useLanguage();
+  const am = t.adminMedia;
   const [items, setItems]         = useState<DBGalleryItem[]>([]);
   const [loading, setLoading]     = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -64,13 +68,13 @@ export default function AdminMediaPage() {
   );
 
   async function handleDelete(item: DBGalleryItem) {
-    if (!confirm('¿Eliminar este archivo? Esta acción no se puede deshacer.')) return;
+    if (!confirm(tr(am.deleteConfirm, lang))) return;
     const res = await deleteMediaFile(item.id, item.storage_path);
     if (res?.error) {
-      showToast('Error al eliminar');
+      showToast(tr(am.toastDeleteError, lang));
     } else {
       setItems((prev) => prev.filter((i) => i.id !== item.id));
-      showToast('Archivo eliminado');
+      showToast(tr(am.toastDeleted, lang));
     }
   }
 
@@ -130,7 +134,7 @@ export default function AdminMediaPage() {
 
       // 5. Actualizar UI inmediatamente
       if (meta.item) setItems((prev) => [meta.item as DBGalleryItem, ...prev]);
-      showToast('¡Imagen subida a la galería!');
+      showToast(tr(am.toastUploaded, lang));
       setUploadAlt('');
       setSelectedFile(null);
       setPreview(null);
@@ -160,7 +164,7 @@ export default function AdminMediaPage() {
           <div className="absolute inset-0 bg-[#2A2421]/80 backdrop-blur-sm" onClick={() => setViewItem(null)} />
           <div className="relative z-10 w-full max-w-lg border border-[#EAE1D6] bg-[#FDFAF7] shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
             <div className="border-b border-[#EAE1D6] px-6 py-5 flex items-center justify-between">
-              <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-[#2A2421]">Vista previa</p>
+              <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-[#2A2421]">{tr(am.preview, lang)}</p>
               <button onClick={() => setViewItem(null)} className="text-[#5B4638] hover:text-[#2A2421] text-xl leading-none p-1">×</button>
             </div>
             <div className="p-6">
@@ -174,7 +178,7 @@ export default function AdminMediaPage() {
                 </div>
               )}
               <div className="mt-4 space-y-2">
-                <p className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">Descripción</p>
+                <p className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">{tr(am.descriptionLbl, lang)}</p>
                 <p className="font-sans text-sm text-[#2A2421]">{viewItem.alt ?? '—'}</p>
                 <div className="flex items-center gap-3 pt-2">
                   <span className="border border-[#D7C6B2] px-2 py-0.5 font-sans text-[8px] uppercase tracking-widest text-[#5B4638]">
@@ -182,7 +186,7 @@ export default function AdminMediaPage() {
                   </span>
                   {viewItem.featured && (
                     <span className="border border-[#A56E52] px-2 py-0.5 font-sans text-[8px] uppercase tracking-widest text-[#A56E52]">
-                      Destacado
+                      {tr(am.featured, lang)}
                     </span>
                   )}
                   <span className="border border-[#D7C6B2] px-2 py-0.5 font-sans text-[8px] uppercase tracking-widest text-[#5B4638]">
@@ -194,12 +198,12 @@ export default function AdminMediaPage() {
                 <button
                   onClick={() => { handleToggleFeatured(viewItem); setViewItem(null); }}
                   className="flex-1 border border-[#D7C6B2] py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-[#A56E52] hover:text-[#A56E52] transition-colors">
-                  {viewItem.featured ? 'Quitar destacado' : '★ Destacar'}
+                  {viewItem.featured ? tr(am.removeFeature, lang) : tr(am.setFeature, lang)}
                 </button>
                 <button
                   onClick={() => { handleDelete(viewItem); setViewItem(null); }}
                   className="flex-1 border border-[#D7C6B2] py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-red-400 hover:text-red-500 transition-colors">
-                  Eliminar
+                  {tr(am.delete, lang)}
                 </button>
               </div>
             </div>
@@ -213,18 +217,18 @@ export default function AdminMediaPage() {
           <div className="absolute inset-0 bg-[#2A2421]/60 backdrop-blur-sm" onClick={() => { setShowUploadForm(false); setSelectedFile(null); setPreview(null); setUploadAlt(''); }} />
           <div className="relative z-10 w-full sm:max-w-md border border-[#EAE1D6] bg-[#FDFAF7] shadow-2xl mx-0 sm:mx-4 rounded-t-lg sm:rounded-none">
             <div className="border-b border-[#EAE1D6] px-6 py-5 flex items-center justify-between">
-              <p className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">Subir archivo</p>
+              <p className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">{tr(am.uploadTitle, lang)}</p>
               <button onClick={() => { setShowUploadForm(false); setSelectedFile(null); setPreview(null); setUploadAlt(''); }} className="text-[#5B4638] hover:text-[#2A2421] text-xl leading-none p-1">×</button>
             </div>
             <div className="px-6 py-6 space-y-5">
               <div>
-                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Descripción (alt text)</label>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(am.descriptionAlt, lang)}</label>
                 <input type="text" value={uploadAlt} onChange={(e) => setUploadAlt(e.target.value)}
                   placeholder="Descripción del archivo..."
                   className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
               </div>
               <div>
-                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Categoría</label>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(am.categoryLbl, lang)}</label>
                 <select value={uploadCat} onChange={(e) => setUploadCat(e.target.value)}
                   className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors">
                   {Object.entries(categoryConfig).map(([k, v]) => (
@@ -246,13 +250,13 @@ export default function AdminMediaPage() {
                 <div className="relative w-full overflow-hidden rounded-sm border border-[#D7C6B2]">
                   {/* blob: URL preview — next/image cannot handle blob URLs, suppress intentionally */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={preview} alt="Vista previa" className="w-full max-h-48 object-cover" />
+                  <img src={preview} alt={tr(am.preview, lang)} className="w-full max-h-48 object-cover" />
                   <button
                     type="button"
                     onClick={() => { setSelectedFile(null); setPreview(null); setUploadAlt(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}
                     className="absolute top-2 right-2 bg-[#2A2421]/70 text-white text-xs px-2 py-1 rounded"
                   >
-                    ✕ Cambiar
+                    ✕ {tr(am.changeFile, lang)}
                   </button>
                 </div>
               ) : selectedFile && selectedFile.type.startsWith('video/') ? (
@@ -264,7 +268,7 @@ export default function AdminMediaPage() {
                     onClick={() => { setSelectedFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
                     className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638] underline"
                   >
-                    Cambiar
+                    {tr(am.changeFile, lang)}
                   </button>
                 </div>
               ) : (
@@ -278,8 +282,8 @@ export default function AdminMediaPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                       d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                   </svg>
-                  <p className="font-sans text-sm text-[#2A2421]">Toca para elegir archivo</p>
-                  <p className="font-sans text-xs text-[#5B4638]">Galería, cámara o archivos · máx 100 MB</p>
+                  <p className="font-sans text-sm text-[#2A2421]">{tr(am.uploadPrompt, lang)}</p>
+                  <p className="font-sans text-xs text-[#5B4638]">{tr(am.uploadHint, lang)}</p>
                 </button>
               )}
 
@@ -292,7 +296,7 @@ export default function AdminMediaPage() {
                     disabled={uploading}
                     className="flex-1 border border-[#D7C6B2] py-3 font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hover:border-[#5B4638] transition-colors disabled:opacity-40"
                   >
-                    Cambiar archivo
+                    {tr(am.changeFile, lang)}
                   </button>
                 )}
                 <button
@@ -301,7 +305,7 @@ export default function AdminMediaPage() {
                   disabled={uploading}
                   className="flex-1 border border-[#2A2421] bg-[#2A2421] py-3 font-sans text-[10px] uppercase tracking-widest text-[#F7F3EE] hover:bg-[#5B4638] transition-colors disabled:opacity-40"
                 >
-                  {uploading ? 'Subiendo...' : selectedFile ? 'Subir a galería' : 'Seleccionar'}
+                  {uploading ? tr(am.uploading, lang) : selectedFile ? tr(am.uploadToGallery, lang) : tr(am.select, lang)}
                 </button>
               </div>
             </div>
@@ -312,13 +316,13 @@ export default function AdminMediaPage() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <div>
-          <h2 className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">Media</h2>
+          <h2 className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">{tr(am.pageTitle, lang)}</h2>
           <p className="mt-1 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">
-            {loading ? 'Cargando...' : `${items.length} archivo${items.length !== 1 ? 's' : ''} en la galería`}
+            {loading ? tr(am.uploading, lang) : `${items.length} ${tr(am.totalFiles, lang)}`}
           </p>
         </div>
         <Button variant="primary" size="sm" onClick={() => setShowUploadForm(true)}>
-          + Subir Archivos
+          {tr(am.uploadFiles, lang)}
         </Button>
       </div>
 
@@ -332,7 +336,7 @@ export default function AdminMediaPage() {
                 ? 'border-[#2A2421] bg-[#2A2421] text-[#F7F3EE]'
                 : 'border-[#D7C6B2] text-[#5B4638] hover:border-[#5B4638]',
             ].join(' ')}>
-            {opt.label}
+            {'labelKey' in opt ? tr(am[opt.labelKey], lang) : opt.label}
           </button>
         ))}
       </div>
@@ -340,7 +344,7 @@ export default function AdminMediaPage() {
       {/* Loading state */}
       {loading && (
         <div className="border border-[#EAE1D6] bg-[#FDFAF7] py-20 text-center">
-          <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]/50">Cargando galería...</p>
+          <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]/50">{tr(am.loadingGallery, lang)}</p>
         </div>
       )}
 
@@ -348,10 +352,10 @@ export default function AdminMediaPage() {
       {!loading && filtered.length === 0 && (
         <div className="border border-dashed border-[#D7C6B2] py-20 text-center">
           <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]/50 mb-4">
-            {filter === 'all' ? 'Galería vacía — sube tu primer archivo' : 'Sin ítems en esta categoría'}
+            {filter === 'all' ? tr(am.emptyGallery, lang) : tr(am.noItemsCategory, lang)}
           </p>
           {filter === 'all' && (
-            <Button variant="primary" size="sm" onClick={() => setShowUploadForm(true)}>+ Subir archivo</Button>
+            <Button variant="primary" size="sm" onClick={() => setShowUploadForm(true)}>{tr(am.uploadFiles, lang)}</Button>
           )}
         </div>
       )}
@@ -396,7 +400,7 @@ export default function AdminMediaPage() {
                     </span>
                     {item.media_type === 'video' && (
                       <span className="border border-[#D7C6B2] px-1.5 py-0.5 font-sans text-[8px] uppercase tracking-widest text-[#5B4638]">
-                        Video
+                        {tr(am.video, lang)}
                       </span>
                     )}
                   </div>
@@ -409,7 +413,7 @@ export default function AdminMediaPage() {
                   <div className="flex gap-1.5">
                     <button onClick={() => setViewItem(item)}
                       className="flex-1 border border-[#D7C6B2] py-2 font-sans text-[8px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors">
-                      Ver
+                      {tr(am.preview, lang)}
                     </button>
                     <button onClick={() => handleToggleFeatured(item)}
                       className={['flex-1 border py-2 font-sans text-[8px] uppercase tracking-widest transition-colors',
@@ -433,7 +437,7 @@ export default function AdminMediaPage() {
 
       {!loading && filtered.length > 0 && (
         <p className="mt-6 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]/40">
-          {filtered.length} ítem{filtered.length !== 1 ? 's' : ''} mostrados
+          {filtered.length} {tr(am.shown, lang)}
         </p>
       )}
     </AdminLayout>

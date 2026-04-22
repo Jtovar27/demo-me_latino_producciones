@@ -8,6 +8,8 @@ import Button from '@/components/ui/Button';
 import MediaPicker from '@/components/admin/MediaPicker';
 import { getSponsors, upsertSponsor, deleteSponsor } from '@/app/actions/sponsors';
 import type { DBSponsor } from '@/types/supabase';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { t, tr } from '@/lib/i18n/translations';
 
 type SponsorTier = 'platinum' | 'silver' | 'blue' | 'pink';
 
@@ -28,11 +30,12 @@ const tierBadgeVariant: Record<SponsorTier, SponsorTier> = {
 };
 
 const emptyForm = {
-  name:        '',
-  tier:        'pink' as SponsorTier,
-  website:     '',
-  description: '',
-  logo_url:    '',
+  name:           '',
+  tier:           'pink' as SponsorTier,
+  website:        '',
+  description:    '',
+  description_en: '',
+  logo_url:       '',
 };
 type FormState = typeof emptyForm;
 
@@ -45,13 +48,16 @@ function safeTier(t: string): SponsorTier {
 }
 
 export default function AdminSponsorsPage() {
-  const [sponsors, setSponsors]     = useState<DBSponsor[]>([]);
-  const [loading, setLoading]       = useState(true);
-  const [modalOpen, setModalOpen]   = useState(false);
+  const { lang } = useLanguage();
+  const asp = t.adminSponsors;
+
+  const [sponsors, setSponsors]       = useState<DBSponsor[]>([]);
+  const [loading, setLoading]         = useState(true);
+  const [modalOpen, setModalOpen]     = useState(false);
   const [editSponsor, setEditSponsor] = useState<DBSponsor | null>(null);
-  const [form, setForm]             = useState<FormState>(emptyForm);
-  const [saving, setSaving]         = useState(false);
-  const [toast, setToast]           = useState('');
+  const [form, setForm]               = useState<FormState>(emptyForm);
+  const [saving, setSaving]           = useState(false);
+  const [toast, setToast]             = useState('');
 
   useEffect(() => {
     getSponsors().then(({ data }) => {
@@ -74,11 +80,12 @@ export default function AdminSponsorsPage() {
   function openEdit(sp: DBSponsor) {
     setEditSponsor(sp);
     setForm({
-      name:        sp.name,
-      tier:        safeTier(sp.tier),
-      website:     sp.website ?? '',
-      description: sp.description ?? '',
-      logo_url:    sp.logo_url ?? '',
+      name:           sp.name,
+      tier:           safeTier(sp.tier),
+      website:        sp.website ?? '',
+      description:    sp.description ?? '',
+      description_en: sp.description_en ?? '',
+      logo_url:       sp.logo_url ?? '',
     });
     setModalOpen(true);
   }
@@ -87,29 +94,30 @@ export default function AdminSponsorsPage() {
     setSaving(true);
     const fd = new FormData();
     if (editSponsor) fd.append('id', editSponsor.id);
-    fd.append('name',        form.name);
-    fd.append('tier',        form.tier);
-    fd.append('website',     form.website);
-    fd.append('description', form.description);
-    fd.append('logo_url',    form.logo_url);
+    fd.append('name',           form.name);
+    fd.append('tier',           form.tier);
+    fd.append('website',        form.website);
+    fd.append('description',    form.description);
+    fd.append('description_en', form.description_en);
+    fd.append('logo_url',       form.logo_url);
 
     const result = await upsertSponsor(fd);
     if (result?.error) {
-      showToast('Error al guardar');
+      showToast(tr(asp.toastError, lang));
     } else {
       const { data } = await getSponsors();
       setSponsors(data as DBSponsor[]);
-      showToast(editSponsor ? 'Sponsor actualizado' : 'Sponsor agregado');
+      showToast(editSponsor ? tr(asp.toastUpdated, lang) : tr(asp.toastCreated, lang));
       setModalOpen(false);
     }
     setSaving(false);
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Eliminar este sponsor? Esta acción no se puede deshacer.')) return;
+    if (!confirm(tr(asp.deleteConfirm, lang))) return;
     await deleteSponsor(id);
     setSponsors((prev) => prev.filter((s) => s.id !== id));
-    showToast('Sponsor eliminado');
+    showToast(tr(asp.toastDeleted, lang));
   }
 
   function updateForm(field: keyof FormState, value: string) {
@@ -125,44 +133,41 @@ export default function AdminSponsorsPage() {
 
   return (
     <AdminLayout>
-      {/* Toast */}
       {toast && (
         <div className="fixed top-6 right-6 z-50 border border-[#A56E52] bg-[#FDFAF7] px-6 py-4 shadow-lg">
           <p className="font-sans text-xs uppercase tracking-widest text-[#A56E52]">{toast}</p>
         </div>
       )}
 
-      {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <div>
           <h2 className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">
-            Sponsors &amp; Partners
+            {tr(asp.pageTitle, lang)}
           </h2>
           <p className="mt-1 font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">
-            {loading ? 'Cargando...' : `${sponsors.length} sponsors en total`}
+            {loading ? tr(asp.loading, lang) : `${sponsors.length} ${tr(asp.totalSponsors, lang)}`}
           </p>
         </div>
         <Button variant="primary" size="sm" onClick={openNew}>
-          + Agregar Sponsor
+          {tr(asp.addSponsor, lang)}
         </Button>
       </div>
 
       {loading && (
         <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]/50 py-14 text-center">
-          Cargando sponsors...
+          {tr(asp.loading, lang)}
         </p>
       )}
 
       {!loading && sponsors.length === 0 && (
         <div className="border border-dashed border-[#D7C6B2] py-20 text-center">
           <p className="font-sans text-xs uppercase tracking-widest text-[#5B4638]/50 mb-4">
-            Sin sponsors registrados
+            {tr(asp.noSponsors, lang)}
           </p>
-          <Button variant="primary" size="sm" onClick={openNew}>+ Agregar el primero</Button>
+          <Button variant="primary" size="sm" onClick={openNew}>{tr(asp.addFirst, lang)}</Button>
         </div>
       )}
 
-      {/* Grouped by tier */}
       {!loading && sponsors.length > 0 && (
         <div className="space-y-10">
           {sponsorsByTier.map(({ tier, items }) => (
@@ -179,7 +184,6 @@ export default function AdminSponsorsPage() {
                 {items.map((sp) => (
                   <div key={sp.id} className="border border-[#EAE1D6] bg-[#FDFAF7] p-6 hover:border-[#D7C6B2] transition-colors">
                     <div className="flex items-center gap-4 mb-4">
-                      {/* Logo */}
                       {sp.logo_url ? (
                         <div className="relative h-12 w-12 overflow-hidden border border-[#EAE1D6] shrink-0">
                           <Image src={sp.logo_url} alt={sp.name} fill className="object-contain p-1" sizes="48px" unoptimized />
@@ -211,11 +215,11 @@ export default function AdminSponsorsPage() {
                     <div className="flex gap-2">
                       <button onClick={() => openEdit(sp)}
                         className="flex-1 border border-[#D7C6B2] py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors">
-                        Editar
+                        {tr(asp.edit, lang)}
                       </button>
                       <button onClick={() => handleDelete(sp.id)}
                         className="flex-1 border border-[#D7C6B2] py-2.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-red-400 hover:text-red-500 transition-colors">
-                        Eliminar
+                        {tr(asp.delete, lang)}
                       </button>
                     </div>
                   </div>
@@ -226,14 +230,13 @@ export default function AdminSponsorsPage() {
         </div>
       )}
 
-      {/* Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
           <div className="absolute inset-0 bg-[#2A2421]/60 backdrop-blur-sm" onClick={() => setModalOpen(false)} />
           <div className="relative z-10 w-full sm:max-w-lg border border-[#EAE1D6] bg-[#FDFAF7] shadow-2xl mx-0 sm:mx-4 max-h-[92vh] overflow-y-auto rounded-t-lg sm:rounded-none">
             <div className="border-b border-[#EAE1D6] px-6 py-5 flex items-center justify-between">
               <p className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#2A2421]">
-                {editSponsor ? 'Editar Sponsor' : 'Agregar Sponsor'}
+                {editSponsor ? tr(asp.editModal, lang) : tr(asp.newModal, lang)}
               </p>
               <button onClick={() => setModalOpen(false)}
                 className="font-sans text-[#5B4638] hover:text-[#2A2421] transition-colors text-xl leading-none p-1">
@@ -242,22 +245,21 @@ export default function AdminSponsorsPage() {
             </div>
             <div className="px-6 py-6 space-y-5">
 
-              {/* Logo picker */}
               <MediaPicker
                 value={form.logo_url}
                 onChange={(url) => updateForm('logo_url', url)}
                 accept="image"
-                label="Logo del sponsor"
+                label={tr(asp.logoLbl, lang)}
               />
 
               <div>
-                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Nombre</label>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(asp.nameLbl, lang)}</label>
                 <input type="text" value={form.name} onChange={(e) => updateForm('name', e.target.value)}
-                  placeholder="Nombre del sponsor"
+                  placeholder={tr(asp.nameLbl, lang)}
                   className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
               </div>
               <div>
-                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Tier</label>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(asp.tierLbl, lang)}</label>
                 <select value={form.tier} onChange={(e) => updateForm('tier', e.target.value)}
                   className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors">
                   {tierOrder.map((t) => (
@@ -266,20 +268,27 @@ export default function AdminSponsorsPage() {
                 </select>
               </div>
               <div>
-                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Website</label>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(asp.websiteLbl, lang)}</label>
                 <input type="text" value={form.website} onChange={(e) => updateForm('website', e.target.value)}
                   placeholder="https://..."
                   className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
               </div>
               <div>
-                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">Descripción</label>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(asp.descLbl, lang)}</label>
                 <textarea value={form.description} onChange={(e) => updateForm('description', e.target.value)} rows={3}
+                  className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors resize-none" />
+              </div>
+              <div>
+                <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(asp.descEnLbl, lang)}</label>
+                <textarea value={form.description_en} onChange={(e) => updateForm('description_en', e.target.value)} rows={3}
                   className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors resize-none" />
               </div>
             </div>
             <div className="border-t border-[#EAE1D6] px-6 py-5 flex items-center justify-end gap-3">
-              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>Cancelar</Button>
-              <Button variant="primary" size="sm" loading={saving} onClick={handleSave}>Guardar</Button>
+              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>{tr(asp.cancel, lang)}</Button>
+              <Button variant="primary" size="sm" loading={saving} onClick={handleSave}>
+                {saving ? tr(asp.saving, lang) : tr(asp.saveSponsor, lang)}
+              </Button>
             </div>
           </div>
         </div>
