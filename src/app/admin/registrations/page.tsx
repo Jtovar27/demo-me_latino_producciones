@@ -64,7 +64,7 @@ export default function AdminRegistrationsPage() {
   }
 
   function getStatusLabel(status: RegistrationStatus): string {
-    const map: Record<RegistrationStatus, typeof ar.statusConfirmed> = {
+    const map: Record<RegistrationStatus, { es: string; en: string }> = {
       confirmed: ar.statusConfirmed,
       pending:   ar.statusPending,
       cancelled: ar.statusCancelled,

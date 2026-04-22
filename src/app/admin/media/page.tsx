@@ -336,7 +336,7 @@ export default function AdminMediaPage() {
                 ? 'border-[#2A2421] bg-[#2A2421] text-[#F7F3EE]'
                 : 'border-[#D7C6B2] text-[#5B4638] hover:border-[#5B4638]',
             ].join(' ')}>
-            {'labelKey' in opt ? tr(am[opt.labelKey], lang) : opt.label}
+            {'labelKey' in opt ? tr(am[opt.labelKey as keyof typeof am], lang) : opt.label}
           </button>
         ))}
       </div>
