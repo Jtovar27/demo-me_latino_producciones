@@ -7,7 +7,7 @@ import { getSponsors } from '@/app/actions/sponsors';
 import { getLang } from '@/lib/i18n/getLang';
 import type { DBSponsor } from '@/types/supabase';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 // ── Types & constants ───────────────────────────────────
 

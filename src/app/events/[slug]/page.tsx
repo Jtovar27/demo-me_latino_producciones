@@ -8,7 +8,7 @@ import { getPublishedReviewsForEvent } from '@/app/actions/reviews';
 import ReviewSubmitForm from './ReviewSubmitForm';
 import EventTicketButtons from '@/components/events/EventTicketButtons';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 // ── Helpers ───────────────────────────────────────────────────────
 

@@ -4,7 +4,7 @@ import EventsFilter from '@/components/events/EventsFilter';
 import { getEvents } from '@/app/actions/events';
 import { getLang } from '@/lib/i18n/getLang';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export default async function EventsPage() {
   const lang = await getLang();

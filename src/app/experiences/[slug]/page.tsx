@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button';
 import { getExperienceBySlug } from '@/app/actions/experiences';
 import { getLang } from '@/lib/i18n/getLang';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1600&q=80';

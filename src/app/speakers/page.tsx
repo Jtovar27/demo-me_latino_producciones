@@ -7,7 +7,7 @@ import { getSpeakers } from '@/app/actions/speakers';
 import { getLang } from '@/lib/i18n/getLang';
 import type { DBSpeaker } from '@/types/supabase';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 function ExpertiseTag({ label }: { label: string }) {
   return (
