@@ -43,10 +43,10 @@ const categoryLabels: Record<string, string> = {
 };
 
 const emptyForm = {
-  title: '', slug: '', date: '', end_date: '', city: '', state: '',
+  title: '', title_en: '', slug: '', date: '', end_date: '', city: '', state: '',
   venue: '', category: 'flagship', capacity: '', status: 'upcoming', price: '',
   price_vip: '', vip_benefits: '',
-  description: '', featured: 'false', image_url: '', tags: '',
+  description: '', description_en: '', featured: 'false', image_url: '', tags: '',
 };
 
 type FormState = typeof emptyForm;
@@ -90,23 +90,25 @@ export default function AdminEventsPage() {
   function openEdit(ev: DBEvent) {
     setEditEvent(ev);
     setForm({
-      title:       ev.title,
-      slug:        ev.slug,
-      date:        ev.date,
-      end_date:    ev.end_date ?? '',
-      city:        ev.city,
-      state:       ev.state,
-      venue:       ev.venue,
-      category:    ev.category,
-      capacity:    String(ev.capacity),
-      status:      ev.status,
-      price:        String(ev.price),
-      price_vip:    ev.price_vip != null ? String(ev.price_vip) : '',
-      vip_benefits: (ev.vip_benefits ?? []).join('\n'),
-      description:  ev.description ?? '',
-      featured:    String(ev.featured),
-      image_url:   ev.image_url ?? '',
-      tags:        (ev.tags ?? []).join(', '),
+      title:          ev.title,
+      title_en:       ev.title_en ?? '',
+      slug:           ev.slug,
+      date:           ev.date,
+      end_date:       ev.end_date ?? '',
+      city:           ev.city,
+      state:          ev.state,
+      venue:          ev.venue,
+      category:       ev.category,
+      capacity:       String(ev.capacity),
+      status:         ev.status,
+      price:          String(ev.price),
+      price_vip:      ev.price_vip != null ? String(ev.price_vip) : '',
+      vip_benefits:   (ev.vip_benefits ?? []).join('\n'),
+      description:    ev.description ?? '',
+      description_en: ev.description_en ?? '',
+      featured:       String(ev.featured),
+      image_url:      ev.image_url ?? '',
+      tags:           (ev.tags ?? []).join(', '),
     });
     setModalOpen(true);
   }
@@ -127,8 +129,9 @@ export default function AdminEventsPage() {
     try {
       const fd = new FormData();
       if (editEvent) fd.append('id', editEvent.id);
-      fd.append('title',       form.title);
-      fd.append('slug',        form.slug);
+      fd.append('title',          form.title);
+      fd.append('title_en',       form.title_en);
+      fd.append('slug',           form.slug);
       fd.append('date',        form.date);
       fd.append('end_date',    form.end_date);
       fd.append('city',        form.city);
@@ -140,8 +143,9 @@ export default function AdminEventsPage() {
       fd.append('price',        form.price);
       fd.append('price_vip',    form.price_vip);
       fd.append('vip_benefits', form.vip_benefits);
-      fd.append('description',  form.description);
-      fd.append('featured',    form.featured);
+      fd.append('description',    form.description);
+      fd.append('description_en', form.description_en);
+      fd.append('featured',       form.featured);
       fd.append('image_url',   form.image_url);
       fd.append('tags',        form.tags);
 
@@ -382,6 +386,12 @@ export default function AdminEventsPage() {
                     className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
                 </div>
                 <div className="sm:col-span-2">
+                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(ae.nameEnLbl, lang)}</label>
+                  <input type="text" value={form.title_en} onChange={(e) => updateForm('title_en', e.target.value)}
+                    placeholder="e.g. The Real Happiness — Miami 2026"
+                    className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
+                </div>
+                <div className="sm:col-span-2">
                   <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(ae.slugLbl, lang)}</label>
                   <input type="text" value={form.slug} onChange={(e) => updateForm('slug', e.target.value)}
                     placeholder="the-real-happiness-miami-2026"
@@ -445,6 +455,13 @@ export default function AdminEventsPage() {
                   <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(ae.descriptionLbl, lang)}</label>
                   <textarea value={form.description} onChange={(e) => updateForm('description', e.target.value)} rows={3}
                     placeholder="Descripción del evento..."
+                    className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors resize-none" />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(ae.descriptionEnLbl, lang)}</label>
+                  <textarea value={form.description_en} onChange={(e) => updateForm('description_en', e.target.value)} rows={3}
+                    placeholder="Event description..."
                     className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors resize-none" />
                 </div>
 
