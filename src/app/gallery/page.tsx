@@ -1,13 +1,15 @@
 import PublicLayout from '@/components/layout/PublicLayout';
 import GalleryGrid from '@/components/gallery/GalleryGrid';
-import { getGalleryItems } from '@/app/actions/gallery';
+import { getPublicGalleryItems } from '@/app/actions/gallery';
 import { getLang } from '@/lib/i18n/getLang';
 
 export const revalidate = 60;
 
 export default async function GalleryPage() {
   const lang = await getLang();
-  const { data: galleryItems } = await getGalleryItems();
+  // Public gallery MUST NOT show speaker/sponsor/uncategorized items —
+  // those have their own pages and the server-side filter guarantees it.
+  const { data: galleryItems } = await getPublicGalleryItems();
 
   return (
     <PublicLayout>

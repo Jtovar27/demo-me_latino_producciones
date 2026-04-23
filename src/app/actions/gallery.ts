@@ -147,3 +147,19 @@ export async function getGalleryItems(type?: 'image' | 'video') {
   if (error) return { data: [], error: error.message };
   return { data: data ?? [], error: null };
 }
+
+// Public-only gallery fetch. Hard-filters to the 5 real gallery categories so
+// speaker / sponsor / uncategorized items never reach the public /gallery page,
+// even if they end up in the gallery_items table.
+const PUBLIC_GALLERY_CATEGORIES = ['backstage', 'moments', 'audience', 'stage', 'details'] as const;
+
+export async function getPublicGalleryItems() {
+  const client = createAdminClient();
+  const { data, error } = await client
+    .from('gallery_items')
+    .select('*')
+    .in('category', PUBLIC_GALLERY_CATEGORIES as unknown as string[])
+    .order('created_at', { ascending: false });
+  if (error) return { data: [], error: error.message };
+  return { data: data ?? [], error: null };
+}
