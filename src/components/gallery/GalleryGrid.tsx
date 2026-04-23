@@ -25,6 +25,17 @@ const CATEGORY_LABELS: Record<GalleryCategory, string> = {
   details: 'Detalles',
 };
 
+// Speakers and sponsors have their own dedicated sections. The public gallery
+// is exclusively for event/media imagery, so we whitelist only real gallery
+// categories and exclude anything else (speakers, sponsors, uncategorized).
+const ALLOWED_GALLERY_CATEGORIES = new Set<GalleryCategory>([
+  'backstage',
+  'moments',
+  'audience',
+  'stage',
+  'details',
+]);
+
 // Background color variants for placeholder variety
 const BG_VARIANTS = [
   'bg-[#D7C6B2]',
@@ -42,10 +53,18 @@ interface GalleryGridProps {
 export default function GalleryGrid({ galleryItems }: GalleryGridProps) {
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
 
+  // Exclude any item whose category isn't a real gallery category —
+  // keeps speaker/sponsor/legacy items out of the public gallery.
+  const galleryOnly = galleryItems.filter(
+    (item): item is typeof item =>
+      item.category !== null &&
+      ALLOWED_GALLERY_CATEGORIES.has(item.category as GalleryCategory),
+  );
+
   const filtered =
     activeTab === 'all'
-      ? galleryItems
-      : galleryItems.filter((item) => item.category === activeTab);
+      ? galleryOnly
+      : galleryOnly.filter((item) => item.category === activeTab);
 
   return (
     <div>
