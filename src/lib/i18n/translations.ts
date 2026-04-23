@@ -317,6 +317,8 @@ export const t = {
     eventbriteTitle:     { es: 'Pagar con Eventbrite',      en: 'Pay with Eventbrite' },
     eventbriteDesc:      { es: 'Compra tus tickets con tarjeta de crédito o débito en el sitio oficial de Eventbrite.', en: 'Buy your tickets with credit or debit card on the official Eventbrite site.' },
     eventbriteBtn:       { es: 'Continuar en Eventbrite',   en: 'Continue on Eventbrite' },
+    eventbriteBuyBtn:    { es: 'Comprar en Eventbrite',     en: 'Buy on Eventbrite' },
+    eventbriteSoon:      { es: 'Link de Eventbrite próximamente', en: 'Eventbrite link coming soon' },
   },
 
   // ── Ticket Purchase Modal ─────────────────────────────────

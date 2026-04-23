@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import TicketPurchaseModal from './TicketPurchaseModal';
+import EventbriteButton from '@/components/events/EventbriteButton';
 
 const WA_NUMBER = '13055252555';
 const POPUP_SESSION_KEY = 'me_promo_v1';
@@ -194,7 +195,10 @@ export default function PromoPopup() {
                   </span>
                 </button>
 
-                {/* Botón 2: Más Información */}
+                {/* Botón 2: Comprar en Eventbrite (o aviso "próximamente") */}
+                <EventbriteButton url={event.eventbrite_url} variant="full" />
+
+                {/* Botón 3: Más Información */}
                 <a
                   href={waInfoUrl}
                   target="_blank"

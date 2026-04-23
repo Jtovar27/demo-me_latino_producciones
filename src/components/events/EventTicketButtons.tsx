@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import TicketPurchaseModal from '@/components/ui/TicketPurchaseModal';
+import EventbriteButton from '@/components/events/EventbriteButton';
 
 interface EventData {
   title: string;
@@ -14,6 +15,10 @@ interface EventData {
   vip_benefits: string[] | null;
   eventbrite_url: string | null;
   status: string;
+}
+
+function isFutureEvent(status: string) {
+  return status !== 'past';
 }
 
 const WA_NUMBER = '13055252555';
@@ -33,30 +38,35 @@ export default function EventTicketButtons({ event }: { event: EventData }) {
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row gap-3 pt-2">
-        {isSoldOut ? (
-          <a
-            href={`https://wa.me/${WA_NUMBER}?text=${waWaitlist}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 border border-[#2A2421] bg-[#2A2421] px-8 py-4 font-sans text-[10px] uppercase tracking-widest text-[#F7F3EE] hover:bg-[#5B4638] transition-colors"
+      <div className="flex flex-col gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row gap-3">
+          {isSoldOut ? (
+            <a
+              href={`https://wa.me/${WA_NUMBER}?text=${waWaitlist}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 border border-[#2A2421] bg-[#2A2421] px-8 py-4 font-sans text-[10px] uppercase tracking-widest text-[#F7F3EE] hover:bg-[#5B4638] transition-colors"
+            >
+              Lista de espera (WhatsApp)
+            </a>
+          ) : (
+            <button
+              onClick={() => setModalOpen(true)}
+              className="inline-flex items-center justify-center gap-2 border border-[#2A2421] bg-[#2A2421] px-8 py-4 font-sans text-[10px] uppercase tracking-widest text-[#F7F3EE] hover:bg-[#5B4638] transition-colors"
+            >
+              {event.price === 0 && !event.price_vip ? 'Reservar lugar' : 'Comprar tickets'}
+            </button>
+          )}
+          <Link
+            href="/contact"
+            className="inline-flex items-center justify-center gap-2 border border-[#D7C6B2] px-8 py-4 font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors"
           >
-            Lista de espera (WhatsApp)
-          </a>
-        ) : (
-          <button
-            onClick={() => setModalOpen(true)}
-            className="inline-flex items-center justify-center gap-2 border border-[#2A2421] bg-[#2A2421] px-8 py-4 font-sans text-[10px] uppercase tracking-widest text-[#F7F3EE] hover:bg-[#5B4638] transition-colors"
-          >
-            {event.price === 0 && !event.price_vip ? 'Reservar lugar' : 'Comprar tickets'}
-          </button>
+            Contactar al equipo
+          </Link>
+        </div>
+        {isFutureEvent(event.status) && (
+          <EventbriteButton url={event.eventbrite_url} variant="full" />
         )}
-        <Link
-          href="/contact"
-          className="inline-flex items-center justify-center gap-2 border border-[#D7C6B2] px-8 py-4 font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] transition-colors"
-        >
-          Contactar al equipo
-        </Link>
       </div>
 
       {modalOpen && (

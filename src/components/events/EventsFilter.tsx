@@ -5,6 +5,7 @@ import Image from 'next/image';
 import type { DBEvent } from '@/types/supabase';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import TicketPurchaseModal from '@/components/ui/TicketPurchaseModal';
+import EventbriteButton from '@/components/events/EventbriteButton';
 
 const WA_NUMBER = '13055252555';
 
@@ -325,6 +326,7 @@ export default function EventsFilter({ events }: EventsFilterProps) {
                                 ? (lang === 'en' ? 'Waitlist' : 'Lista de espera')
                                 : (lang === 'en' ? 'Buy Tickets' : 'Comprar Tickets')}
                             </button>
+                            <EventbriteButton url={event.eventbrite_url} variant="compact" />
                             <a
                               href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lang === 'en' ? `Hi! I'd like more info about "${event.title}" on ${new Date(event.date+'T00:00:00').toLocaleDateString('en-US',{day:'numeric',month:'long',year:'numeric'})} in ${event.city}, ${event.state}.` : `Hola! Me interesa saber más sobre "${event.title}" el ${new Date(event.date+'T00:00:00').toLocaleDateString('es-US',{day:'numeric',month:'long',year:'numeric'})} en ${event.city}, ${event.state}.`)}`}
                               target="_blank" rel="noopener noreferrer"
