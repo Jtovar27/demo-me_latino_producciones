@@ -18,6 +18,7 @@ interface Props {
   eventPrice: number;
   eventPriceVip?: number | null;
   vipBenefits?: string[] | null;
+  eventbriteUrl?: string | null;
   onClose: () => void;
 }
 
@@ -42,6 +43,7 @@ export default function TicketPurchaseModal({
   eventPrice,
   eventPriceVip,
   vipBenefits,
+  eventbriteUrl,
   onClose,
 }: Props) {
   const [name, setName]         = useState('');
@@ -174,6 +176,31 @@ export default function TicketPurchaseModal({
               </div>
             </div>
 
+            {!isFree && eventbriteUrl && (
+              /* Alternativa: pagar en Eventbrite */
+              <div className="border border-[#A56E52] bg-[#FDF7F3] px-5 py-4 space-y-3">
+                <p className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">{tr(pf.eventbriteTitle, lang)}</p>
+                <p className="font-sans text-[11px] leading-relaxed text-[#5B4638]">{tr(pf.eventbriteDesc, lang)}</p>
+                <a
+                  href={eventbriteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full bg-[#D1410C] px-6 py-3.5 font-sans text-[11px] uppercase tracking-widest text-white hover:bg-[#B3370A] transition-colors"
+                >
+                  {tr(pf.eventbriteBtn, lang)}
+                </a>
+              </div>
+            )}
+
+            {!isFree && eventbriteUrl && (
+              /* Separador entre métodos de pago */
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-[#D7C6B2]" />
+                <span className="font-sans text-[9px] uppercase tracking-[0.3em] text-[#5B4638]">{tr(pf.orDivider, lang)}</span>
+                <div className="flex-1 h-px bg-[#D7C6B2]" />
+              </div>
+            )}
+
             {!isFree && (
               /* Instrucciones de Zelle */
               <div className="border border-[#2A2421] bg-[#2A2421] px-5 py-5 space-y-4">
@@ -262,6 +289,29 @@ export default function TicketPurchaseModal({
                   {formatDate(eventDate)} · {eventCity}, {eventState}
                 </p>
               </div>
+
+              {!isFree && eventbriteUrl && (
+                /* Acceso directo a Eventbrite antes de llenar el formulario */
+                <>
+                  <div className="border border-[#A56E52] bg-[#FDF7F3] px-4 py-3.5 space-y-2.5">
+                    <p className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">{tr(pf.eventbriteTitle, lang)}</p>
+                    <p className="font-sans text-[11px] leading-relaxed text-[#5B4638]">{tr(pf.eventbriteDesc, lang)}</p>
+                    <a
+                      href={eventbriteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full bg-[#D1410C] px-5 py-3 font-sans text-[10px] uppercase tracking-widest text-white hover:bg-[#B3370A] transition-colors"
+                    >
+                      {tr(pf.eventbriteBtn, lang)}
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-px bg-[#D7C6B2]" />
+                    <span className="font-sans text-[9px] uppercase tracking-[0.3em] text-[#5B4638]">{tr(pf.orDivider, lang)}</span>
+                    <div className="flex-1 h-px bg-[#D7C6B2]" />
+                  </div>
+                </>
+              )}
 
               <p className="font-sans text-xs leading-relaxed text-[#5B4638]">
                 {isFree ? tr(tm.enterDetails, lang) : tr(tm.enterDetailsPaid, lang)}

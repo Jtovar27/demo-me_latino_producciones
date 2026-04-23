@@ -45,7 +45,7 @@ const categoryLabels: Record<string, string> = {
 const emptyForm = {
   title: '', title_en: '', slug: '', date: '', end_date: '', city: '', state: '',
   venue: '', category: 'flagship', capacity: '', status: 'upcoming', price: '',
-  price_vip: '', vip_benefits: '',
+  price_vip: '', vip_benefits: '', eventbrite_url: '',
   description: '', description_en: '', featured: 'false', image_url: '', tags: '',
 };
 
@@ -104,6 +104,7 @@ export default function AdminEventsPage() {
       price:          String(ev.price),
       price_vip:      ev.price_vip != null ? String(ev.price_vip) : '',
       vip_benefits:   (ev.vip_benefits ?? []).join('\n'),
+      eventbrite_url: ev.eventbrite_url ?? '',
       description:    ev.description ?? '',
       description_en: ev.description_en ?? '',
       featured:       String(ev.featured),
@@ -143,6 +144,7 @@ export default function AdminEventsPage() {
       fd.append('price',        form.price);
       fd.append('price_vip',    form.price_vip);
       fd.append('vip_benefits', form.vip_benefits);
+      fd.append('eventbrite_url', form.eventbrite_url);
       fd.append('description',    form.description);
       fd.append('description_en', form.description_en);
       fd.append('featured',       form.featured);
@@ -450,6 +452,12 @@ export default function AdminEventsPage() {
                   <textarea value={form.vip_benefits} onChange={(e) => updateForm('vip_benefits', e.target.value)} rows={4}
                     placeholder={"Acceso a meet & greet con speakers\nAsiento preferencial en primera fila\nKit de bienvenida premium\nCóctel VIP privado antes del evento"}
                     className="w-full border border-[#A56E52]/50 bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors resize-none" />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(ae.eventbriteUrlLbl, lang)} <span className="normal-case text-[#A56E52]">{tr(ae.eventbriteUrlHint, lang)}</span></label>
+                  <input type="url" value={form.eventbrite_url} onChange={(e) => updateForm('eventbrite_url', e.target.value)}
+                    placeholder="https://www.eventbrite.com/e/..."
+                    className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(ae.descriptionLbl, lang)}</label>

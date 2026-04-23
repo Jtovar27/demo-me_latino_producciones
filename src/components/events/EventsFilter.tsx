@@ -359,6 +359,7 @@ export default function EventsFilter({ events }: EventsFilterProps) {
         eventPrice={ticketEvent.price ?? 0}
         eventPriceVip={ticketEvent.price_vip}
         vipBenefits={ticketEvent.vip_benefits}
+        eventbriteUrl={ticketEvent.eventbrite_url}
         onClose={closeTickets}
       />
     )}

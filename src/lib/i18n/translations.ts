@@ -313,6 +313,10 @@ export const t = {
     copyZelleBtn:        { es: 'Copiar número Zelle de Monica', en: "Copy Monica's Zelle number" },
     sendScreenshotWA:    { es: 'Enviar Captura por WhatsApp', en: 'Send Screenshot via WhatsApp' },
     close:               { es: 'Cerrar',                    en: 'Close' },
+    orDivider:           { es: 'o',                         en: 'or' },
+    eventbriteTitle:     { es: 'Pagar con Eventbrite',      en: 'Pay with Eventbrite' },
+    eventbriteDesc:      { es: 'Compra tus tickets con tarjeta de crédito o débito en el sitio oficial de Eventbrite.', en: 'Buy your tickets with credit or debit card on the official Eventbrite site.' },
+    eventbriteBtn:       { es: 'Continuar en Eventbrite',   en: 'Continue on Eventbrite' },
   },
 
   // ── Ticket Purchase Modal ─────────────────────────────────
@@ -392,6 +396,8 @@ export const t = {
     priceVipLbl:      { es: 'Precio VIP (USD)',           en: 'VIP Price (USD)' },
     vipBenefitsLbl:   { es: 'Beneficios VIP',             en: 'VIP Benefits' },
     vipBenefitsHint:  { es: '(uno por línea)',            en: '(one per line)' },
+    eventbriteUrlLbl: { es: 'Link de Eventbrite',         en: 'Eventbrite link' },
+    eventbriteUrlHint:{ es: '(opcional — se mostrará como segunda opción de pago)', en: '(optional — will appear as a second payment option)' },
     descriptionLbl:   { es: 'Descripción (ES)',            en: 'Description (ES)' },
     descriptionEnLbl: { es: 'Descripción (EN)',            en: 'Description (EN)' },
     tagsLbl:          { es: 'Etiquetas (separadas por coma)', en: 'Tags (comma-separated)' },

@@ -6,7 +6,7 @@ export async function GET() {
     const client = createAdminClient();
     const { data, error } = await client
       .from('events')
-      .select('id, title, date, city, state, venue, image_url, price, price_vip, vip_benefits')
+      .select('id, title, date, city, state, venue, image_url, price, price_vip, vip_benefits, eventbrite_url')
       .eq('featured', true)
       .eq('status', 'upcoming')
       .order('date', { ascending: true })

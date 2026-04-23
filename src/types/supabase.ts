@@ -18,6 +18,7 @@ type EventRow = {
   price_vip: number | null; vip_benefits: string[] | null;
   featured: boolean; tags: string[]; created_at: string; updated_at: string;
   title_en: string | null; description_en: string | null;
+  eventbrite_url: string | null;
 };
 
 type SpeakerRow = {

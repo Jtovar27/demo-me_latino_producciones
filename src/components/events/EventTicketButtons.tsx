@@ -12,6 +12,7 @@ interface EventData {
   price: number;
   price_vip: number | null;
   vip_benefits: string[] | null;
+  eventbrite_url: string | null;
   status: string;
 }
 
@@ -67,6 +68,7 @@ export default function EventTicketButtons({ event }: { event: EventData }) {
           eventPrice={event.price}
           eventPriceVip={event.price_vip}
           vipBenefits={event.vip_benefits}
+          eventbriteUrl={event.eventbrite_url}
           onClose={() => setModalOpen(false)}
         />
       )}

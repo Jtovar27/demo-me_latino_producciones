@@ -18,6 +18,7 @@ interface FeaturedEvent {
   price: number;
   price_vip: number | null;
   vip_benefits: string[] | null;
+  eventbrite_url: string | null;
 }
 
 function formatDate(dateStr: string) {
@@ -231,6 +232,7 @@ export default function PromoPopup() {
           eventPrice={event.price}
           eventPriceVip={event.price_vip}
           vipBenefits={event.vip_benefits}
+          eventbriteUrl={event.eventbrite_url}
           onClose={() => setModalOpen(false)}
         />
       )}

@@ -189,6 +189,7 @@ export default async function EventDetailPage({ params }: Props) {
                     price: event.price,
                     price_vip: event.price_vip,
                     vip_benefits: event.vip_benefits,
+                    eventbrite_url: event.eventbrite_url,
                     status: event.status,
                   }}
                 />
