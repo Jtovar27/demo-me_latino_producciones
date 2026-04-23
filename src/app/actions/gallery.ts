@@ -155,11 +155,31 @@ const PUBLIC_GALLERY_CATEGORIES = ['backstage', 'moments', 'audience', 'stage', 
 
 export async function getPublicGalleryItems() {
   const client = createAdminClient();
+
+  // The admin MediaPicker uploads speaker/sponsor photos into gallery_items
+  // with a default category of "moments", so a category filter alone isn't
+  // enough. Fetch every URL currently in use as a speaker photo or sponsor
+  // logo and exclude them from the public gallery.
+  const [speakersRes, sponsorsRes] = await Promise.all([
+    client.from('speakers').select('image_url'),
+    client.from('sponsors').select('logo_url'),
+  ]);
+
+  const excludedUrls = new Set<string>();
+  for (const row of speakersRes.data ?? []) {
+    if (row.image_url) excludedUrls.add(row.image_url);
+  }
+  for (const row of sponsorsRes.data ?? []) {
+    if (row.logo_url) excludedUrls.add(row.logo_url);
+  }
+
   const { data, error } = await client
     .from('gallery_items')
     .select('*')
     .in('category', PUBLIC_GALLERY_CATEGORIES as unknown as string[])
     .order('created_at', { ascending: false });
   if (error) return { data: [], error: error.message };
-  return { data: data ?? [], error: null };
+
+  const filtered = (data ?? []).filter((item) => !excludedUrls.has(item.public_url));
+  return { data: filtered, error: null };
 }
