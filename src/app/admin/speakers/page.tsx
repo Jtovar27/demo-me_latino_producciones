@@ -195,9 +195,9 @@ export default function AdminSpeakersPage() {
 
               <div className="flex items-start justify-between gap-2 mb-3">
                 <div className="flex-1 min-w-0">
-                  <p className="font-sans text-sm font-medium text-[#2A2421] leading-snug">{sp.name}</p>
-                  <p className="font-sans text-[10px] uppercase tracking-wider text-[#5B4638] mt-0.5">{sp.title ?? ''}</p>
-                  <p className="font-sans text-[10px] text-[#A56E52] mt-0.5">{sp.organization ?? ''}</p>
+                  <p className="font-sans text-sm font-medium text-[#2A2421] leading-snug truncate">{sp.name}</p>
+                  <p className="font-sans text-[10px] uppercase tracking-wider text-[#5B4638] mt-0.5 truncate">{sp.title ?? ''}</p>
+                  <p className="font-sans text-[10px] text-[#A56E52] mt-0.5 truncate">{sp.organization ?? ''}</p>
                 </div>
                 {sp.featured && (
                   <span className="border border-[#A56E52] px-2 py-0.5 font-sans text-[8px] uppercase tracking-widest text-[#A56E52] shrink-0">
@@ -246,7 +246,7 @@ export default function AdminSpeakersPage() {
                   <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(asp.nameCol, lang)}</th>
                   <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden md:table-cell">{tr(asp.titleCol, lang)}</th>
                   <th className="px-4 py-5 text-left font-sans text-[10px] uppercase tracking-widest text-[#5B4638] hidden lg:table-cell">{tr(asp.expertiseCol, lang)}</th>
-                  <th className="px-4 py-5 text-center font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(asp.orderingTitle, lang)}</th>
+                  <th className="px-4 py-5 text-center font-sans text-[10px] uppercase tracking-widest text-[#5B4638] whitespace-nowrap">{tr(asp.orderingTitle, lang)}</th>
                   <th className="px-7 py-5 text-right font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{tr(asp.actionsCol, lang)}</th>
                 </tr>
               </thead>

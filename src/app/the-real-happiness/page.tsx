@@ -404,12 +404,12 @@ export default async function TheRealHappinessPage() {
         <div className="relative mx-auto max-w-7xl px-6 md:px-12">
           <div className="flex items-center gap-3 mb-6">
             <div className="h-px w-8 bg-[#A56E52] shrink-0" />
-            <span className="font-sans text-[11px] font-medium uppercase tracking-[0.25em] text-[#A56E52]">
+            <span className="font-sans text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.22em] sm:tracking-[0.25em] text-[#A56E52]">
               {copy.eyebrow}
             </span>
           </div>
 
-          <h1 className="font-serif text-4xl font-normal leading-[1.05] text-[#F7F3EE] md:text-6xl lg:text-7xl">
+          <h1 className="font-serif text-[2.25rem] sm:text-4xl md:text-6xl lg:text-7xl font-normal leading-[1.05] text-[#F7F3EE] break-words">
             {copy.h1Lead}<br />
             <span className="italic text-[#D7C6B2]">{copy.h1Tail}</span>
           </h1>
@@ -418,7 +418,7 @@ export default async function TheRealHappinessPage() {
             {copy.sub}
           </p>
 
-          <div className="mt-10 flex flex-col sm:flex-row flex-wrap gap-4">
+          <div className="mt-10 flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
             <CTAButton href="#sponsor" variant="terracotta" size="lg">{copy.ctaSponsor}</CTAButton>
             <CTAButton href="#speaker-package" variant="secondary" size="lg">{copy.ctaSpeaker}</CTAButton>
             <CTAButton href="#contact" variant="ghost" size="lg">{copy.ctaInfo}</CTAButton>
@@ -431,10 +431,10 @@ export default async function TheRealHappinessPage() {
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-[#3D342F]">
               {venues.map((v) => (
-                <div key={`${v.city}-${v.region}`} className="bg-[#2A2421] px-6 py-5">
-                  <p className="font-serif text-2xl text-[#F7F3EE]">{v.city}</p>
-                  <p className="font-sans text-[11px] text-[#D7C6B2] mt-0.5">{v.region}</p>
-                  <p className="font-sans text-[11px] uppercase tracking-widest text-[#A56E52] mt-2">
+                <div key={`${v.city}-${v.region}`} className="bg-[#2A2421] px-5 sm:px-6 py-5 min-w-0">
+                  <p className="font-serif text-xl sm:text-2xl text-[#F7F3EE] break-words">{v.city}</p>
+                  <p className="font-sans text-[11px] text-[#D7C6B2] mt-0.5 break-words">{v.region}</p>
+                  <p className="font-sans text-[10px] sm:text-[11px] uppercase tracking-widest text-[#A56E52] mt-2 break-words">
                     {lang === 'en' ? v.date_en : v.date_es}
                   </p>
                 </div>
@@ -558,9 +558,9 @@ export default async function TheRealHappinessPage() {
               { name: copy.host1Name, role: copy.host1Role, body: copy.host1Body, db: dbSpeakerByName(dbSpeakers ?? [], 'Mónica Espinoza') },
               { name: copy.host2Name, role: copy.host2Role, body: copy.host2Body, db: dbSpeakerByName(dbSpeakers ?? [], 'Joyce Urdaneta') },
             ].map((h) => (
-              <div key={h.name} className="flex flex-col bg-[#FDFAF7] p-8 md:p-10">
-                <div className="flex items-start gap-5">
-                  <div className="relative h-20 w-20 shrink-0 overflow-hidden border border-[#D7C6B2] bg-[#EAE1D6]">
+              <div key={h.name} className="flex flex-col bg-[#FDFAF7] p-6 sm:p-8 md:p-10">
+                <div className="flex items-start gap-4 sm:gap-5">
+                  <div className="relative h-16 w-16 sm:h-20 sm:w-20 shrink-0 overflow-hidden border border-[#D7C6B2] bg-[#EAE1D6]">
                     {h.db?.image_url ? (
                       <Image src={h.db.image_url} alt={h.name} fill className="object-cover object-top" sizes="80px" unoptimized />
                     ) : (
@@ -571,9 +571,9 @@ export default async function TheRealHappinessPage() {
                       </div>
                     )}
                   </div>
-                  <div>
-                    <h3 className="font-serif text-2xl font-normal text-[#2A2421]">{h.name}</h3>
-                    <p className="font-sans text-[11px] uppercase tracking-widest text-[#A56E52] mt-1">{h.role}</p>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-serif text-xl sm:text-2xl font-normal text-[#2A2421] break-words">{h.name}</h3>
+                    <p className="font-sans text-[10px] sm:text-[11px] uppercase tracking-widest text-[#A56E52] mt-1 break-words">{h.role}</p>
                   </div>
                 </div>
                 <p className="mt-6 font-sans text-sm leading-relaxed text-[#5B4638]">{h.body}</p>
@@ -601,8 +601,8 @@ export default async function TheRealHappinessPage() {
             {featuredSpeakerCards
               .filter((s) => !featuredHosts.includes(s.name))
               .map((s) => (
-                <article key={s.name} className="bg-[#FDFAF7] p-6 md:p-8 flex gap-5">
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden border border-[#D7C6B2] bg-[#EAE1D6]">
+                <article key={s.name} className="bg-[#FDFAF7] p-5 sm:p-6 md:p-8 flex gap-4 sm:gap-5">
+                  <div className="relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden border border-[#D7C6B2] bg-[#EAE1D6]">
                     {s.db?.image_url ? (
                       <Image src={s.db.image_url} alt={s.name} fill className="object-cover object-top" sizes="64px" unoptimized />
                     ) : (
@@ -613,8 +613,8 @@ export default async function TheRealHappinessPage() {
                       </div>
                     )}
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="font-serif text-lg font-normal text-[#2A2421] leading-snug">{s.name}</h3>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-serif text-base sm:text-lg font-normal text-[#2A2421] leading-snug break-words">{s.name}</h3>
                     <p className="mt-2 font-sans text-sm leading-relaxed text-[#5B4638]">
                       {lang === 'en' ? s.topicEn : s.topicEs}
                     </p>
@@ -684,10 +684,10 @@ export default async function TheRealHappinessPage() {
               <p className="mt-6 font-sans text-base leading-relaxed text-[#F7F3EE]/85">
                 {copy.spPkgSub}
               </p>
-              <p className="mt-8 font-serif text-5xl md:text-6xl text-[#F7F3EE]">
+              <p className="mt-8 font-serif text-4xl sm:text-5xl md:text-6xl text-[#F7F3EE] break-words">
                 {copy.spPkgPrice}
               </p>
-              <p className="mt-2 font-sans text-[11px] uppercase tracking-widest text-[#F7F3EE]/70">
+              <p className="mt-2 font-sans text-[10px] sm:text-[11px] uppercase tracking-widest text-[#F7F3EE]/70 break-words">
                 {lang === 'en' ? 'Per city · single investment' : 'Por ciudad · inversión única'}
               </p>
               <div className="mt-8">
@@ -697,7 +697,7 @@ export default async function TheRealHappinessPage() {
               </div>
             </div>
 
-            <div className="lg:col-span-7 bg-[#2A2421] p-8 md:p-10">
+            <div className="lg:col-span-7 bg-[#2A2421] p-6 sm:p-8 md:p-10">
               <p className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#F7F3EE]/70 mb-6">
                 {lang === 'en' ? 'What is included' : 'Qué incluye'}
               </p>
@@ -765,9 +765,9 @@ export default async function TheRealHappinessPage() {
                 { value: 'M+', label: lang === 'en' ? 'Digital impressions per campaign' : 'Impactos digitales por campaña' },
                 { value: '97%', label: lang === 'en' ? 'Average satisfaction' : 'Satisfacción promedio' },
               ].map((m) => (
-                <div key={m.label} className="bg-[#FDFAF7] flex flex-col items-center text-center gap-2 px-4 py-8 md:py-12">
-                  <span className="font-serif text-3xl md:text-4xl text-[#2A2421]">{m.value}</span>
-                  <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">{m.label}</span>
+                <div key={m.label} className="bg-[#FDFAF7] flex flex-col items-center text-center gap-3 px-4 py-8 md:py-12 min-w-0">
+                  <span className="font-serif text-2xl sm:text-3xl md:text-4xl text-[#2A2421] break-words">{m.value}</span>
+                  <span className="font-sans text-[9px] sm:text-[10px] uppercase tracking-widest text-[#A56E52] leading-relaxed break-words">{m.label}</span>
                 </div>
               ))}
             </div>
@@ -790,11 +790,15 @@ export default async function TheRealHappinessPage() {
           <div className="divide-y divide-[#EAE1D6] border-y border-[#EAE1D6]">
             {copy.faqs.map((f) => (
               <details key={f.q} className="group py-5">
-                <summary className="flex items-center justify-between gap-6 cursor-pointer list-none">
-                  <h3 className="font-serif text-lg md:text-xl font-normal text-[#2A2421]">{f.q}</h3>
-                  <span className="font-sans text-2xl text-[#A56E52] transition-transform group-open:rotate-45">+</span>
+                <summary className="flex items-start justify-between gap-4 sm:gap-6 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                  <h3 className="font-serif text-base sm:text-lg md:text-xl font-normal text-[#2A2421] leading-snug min-w-0 break-words pr-1">
+                    {f.q}
+                  </h3>
+                  <span className="shrink-0 inline-flex items-center justify-center h-7 w-7 font-sans text-2xl leading-none text-[#A56E52] transition-transform duration-200 group-open:rotate-45">
+                    +
+                  </span>
                 </summary>
-                <p className="mt-3 font-sans text-base leading-relaxed text-[#5B4638]">{f.a}</p>
+                <p className="mt-3 font-sans text-sm sm:text-base leading-relaxed text-[#5B4638]">{f.a}</p>
               </details>
             ))}
           </div>
@@ -820,13 +824,13 @@ export default async function TheRealHappinessPage() {
               <div className="mt-10 flex flex-col gap-3">
                 <a
                   href="tel:+13055252555"
-                  className="font-sans text-sm text-[#F7F3EE] hover:text-[#A56E52] transition-colors"
+                  className="font-sans text-sm text-[#F7F3EE] hover:text-[#A56E52] transition-colors break-all min-h-[44px] inline-flex items-center"
                 >
                   {copy.ctaPhone}
                 </a>
                 <a
                   href="mailto:melatinoevents@gmail.com"
-                  className="font-sans text-sm text-[#F7F3EE] hover:text-[#A56E52] transition-colors"
+                  className="font-sans text-sm text-[#F7F3EE] hover:text-[#A56E52] transition-colors break-all min-h-[44px] inline-flex items-center"
                 >
                   {copy.ctaEmail}
                 </a>
@@ -834,7 +838,7 @@ export default async function TheRealHappinessPage() {
                   href="https://instagram.com/melatinoproducciones"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-sans text-sm text-[#F7F3EE] hover:text-[#A56E52] transition-colors"
+                  className="font-sans text-sm text-[#F7F3EE] hover:text-[#A56E52] transition-colors break-all min-h-[44px] inline-flex items-center"
                 >
                   {copy.ctaIg}
                 </a>
@@ -844,18 +848,18 @@ export default async function TheRealHappinessPage() {
                 <p className="font-sans text-[11px] uppercase tracking-widest text-[#A56E52]">
                   {lang === 'en' ? 'Other links' : 'Otros enlaces'}
                 </p>
-                <div className="mt-3 flex flex-wrap gap-3">
-                  <Link href="/contact" className="font-sans text-xs uppercase tracking-widest text-[#D7C6B2] hover:text-[#F7F3EE] underline underline-offset-4">
+                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+                  <Link href="/contact" className="font-sans text-xs uppercase tracking-widest text-[#D7C6B2] hover:text-[#F7F3EE] underline underline-offset-4 min-h-[36px] inline-flex items-center">
                     {lang === 'en' ? 'General contact form' : 'Formulario general'}
                   </Link>
-                  <Link href="/events" className="font-sans text-xs uppercase tracking-widest text-[#D7C6B2] hover:text-[#F7F3EE] underline underline-offset-4">
+                  <Link href="/events" className="font-sans text-xs uppercase tracking-widest text-[#D7C6B2] hover:text-[#F7F3EE] underline underline-offset-4 min-h-[36px] inline-flex items-center">
                     {lang === 'en' ? 'See all events' : 'Ver todos los eventos'}
                   </Link>
                 </div>
               </div>
             </div>
 
-            <div className="lg:col-span-7 bg-[#FDFAF7] p-6 md:p-10">
+            <div className="lg:col-span-7 bg-[#FDFAF7] p-5 sm:p-6 md:p-10">
               <RealHappinessLeadForm />
             </div>
           </div>

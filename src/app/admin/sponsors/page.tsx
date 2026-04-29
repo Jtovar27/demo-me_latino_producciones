@@ -221,7 +221,7 @@ export default function AdminSponsorsPage() {
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {items.map((sp, idx) => (
-                  <div key={sp.id} className="border border-[#EAE1D6] bg-[#FDFAF7] p-6 hover:border-[#D7C6B2] transition-colors">
+                  <div key={sp.id} className="border border-[#EAE1D6] bg-[#FDFAF7] p-5 sm:p-6 hover:border-[#D7C6B2] transition-colors flex flex-col">
                     <div className="flex items-center gap-4 mb-4">
                       {sp.logo_url ? (
                         <div className="relative h-12 w-12 overflow-hidden border border-[#EAE1D6] shrink-0">
@@ -233,8 +233,8 @@ export default function AdminSponsorsPage() {
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="font-sans text-sm font-medium text-[#2A2421] leading-tight">{sp.name}</p>
-                        <div className="mt-1 flex items-center gap-2">
+                        <p className="font-sans text-sm font-medium text-[#2A2421] leading-tight truncate">{sp.name}</p>
+                        <div className="mt-1 flex items-center gap-2 flex-wrap">
                           <Badge variant={tierBadgeVariant[safeTier(sp.tier)]} />
                           <span className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">
                             #{idx + 1}

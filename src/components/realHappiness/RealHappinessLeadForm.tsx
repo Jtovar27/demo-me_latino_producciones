@@ -286,14 +286,14 @@ export default function RealHappinessLeadForm() {
 
       <div className="flex flex-col gap-2">
         <label className={labelCls}>{labels.interest} <span className="text-[#A56E52]">*</span></label>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
           {interestOptions.map((opt) => {
             const checked = form.interest === opt.value;
             return (
               <label
                 key={opt.value}
                 className={[
-                  'cursor-pointer border px-3 py-3 font-sans text-xs text-center transition-colors min-h-[44px] flex items-center justify-center',
+                  'cursor-pointer border px-3 py-3 font-sans text-[11px] sm:text-xs text-center leading-tight transition-colors min-h-[48px] flex items-center justify-center break-words',
                   checked
                     ? 'border-[#2A2421] bg-[#2A2421] text-[#F7F3EE]'
                     : 'border-[#D7C6B2] text-[#5B4638] hover:border-[#2A2421]',

@@ -83,22 +83,22 @@ export default function Header() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden items-center gap-5 xl:gap-7 lg:flex" aria-label="Main navigation">
+          <nav className="hidden items-center gap-4 xl:gap-7 lg:flex" aria-label="Main navigation">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="nav-underline whitespace-nowrap font-sans text-[10.5px] xl:text-[11px] font-medium uppercase tracking-widest text-[#5B4638] transition-colors duration-200 hover:text-[#A56E52]"
+                className="nav-underline whitespace-nowrap font-sans text-[10px] xl:text-[11px] font-medium uppercase tracking-[0.18em] xl:tracking-widest text-[#5B4638] transition-colors duration-200 hover:text-[#A56E52]"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          {/* Desktop lang toggle + CTA */}
-          <div className="hidden lg:flex items-center gap-5">
+          {/* Desktop lang toggle + CTA — Book Now only shows at xl to avoid overflow at lg */}
+          <div className="hidden lg:flex items-center gap-4 xl:gap-5">
             <LangToggle />
-            <Button variant="primary" size="sm" href="/contact">
+            <Button variant="primary" size="sm" href="/contact" className="hidden xl:inline-flex">
               {lang === 'en' ? 'Book Now' : 'Reservar'}
             </Button>
           </div>

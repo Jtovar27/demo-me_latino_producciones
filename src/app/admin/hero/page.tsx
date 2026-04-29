@@ -175,7 +175,7 @@ export default function AdminHeroPage() {
         ) : (
           <div className="divide-y divide-[#EAE1D6] border border-[#EAE1D6]">
             {slides.map((slide, index) => (
-              <div key={slide.id} className={`flex items-center gap-4 px-5 py-4 bg-[#FDFAF7] transition-colors ${!slide.active ? 'opacity-50' : ''}`}>
+              <div key={slide.id} className={`flex flex-wrap items-center gap-3 sm:gap-4 px-4 sm:px-5 py-4 bg-[#FDFAF7] transition-colors ${!slide.active ? 'opacity-50' : ''}`}>
                 {/* Thumbnail */}
                 <div className="relative w-20 h-14 shrink-0 overflow-hidden bg-[#EAE1D6]">
                   <Image src={slide.image_url} alt={slide.title_es} fill className="object-cover" unoptimized />
@@ -194,9 +194,9 @@ export default function AdminHeroPage() {
                 </span>
 
                 {/* Actions */}
-                <div className="flex items-center gap-1 shrink-0">
-                  <button onClick={() => handleMoveUp(index)} disabled={index === 0} className="px-2 py-1.5 text-[#5B4638] hover:text-[#2A2421] disabled:opacity-25 text-xs transition-colors" aria-label="Subir">↑</button>
-                  <button onClick={() => handleMoveDown(index)} disabled={index === slides.length - 1} className="px-2 py-1.5 text-[#5B4638] hover:text-[#2A2421] disabled:opacity-25 text-xs transition-colors" aria-label="Bajar">↓</button>
+                <div className="flex items-center gap-1 flex-wrap shrink-0">
+                  <button onClick={() => handleMoveUp(index)} disabled={index === 0} className="min-h-[36px] min-w-[36px] flex items-center justify-center text-[#5B4638] hover:text-[#2A2421] disabled:opacity-25 text-xs transition-colors" aria-label="Subir">↑</button>
+                  <button onClick={() => handleMoveDown(index)} disabled={index === slides.length - 1} className="min-h-[36px] min-w-[36px] flex items-center justify-center text-[#5B4638] hover:text-[#2A2421] disabled:opacity-25 text-xs transition-colors" aria-label="Bajar">↓</button>
 
                   <button
                     onClick={() => handleToggle(slide)}
