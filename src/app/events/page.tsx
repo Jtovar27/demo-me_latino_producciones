@@ -42,8 +42,8 @@ export default async function EventsPage() {
             <div className="flex flex-col gap-8">
               <p className="font-sans text-base leading-relaxed text-[#5B4638] max-w-lg">
                 {lang === 'en'
-                  ? 'From Miami to Chicago, ME Producciones produces events that combine editorial purpose, authentic community, and world-class production. Find the experience designed for this moment in your life.'
-                  : 'Desde Miami hasta Chicago, ME Producciones produce eventos que combinan propósito editorial, comunidad auténtica y producción de clase mundial. Encuentra la experiencia diseñada para este momento de tu vida.'}
+                  ? 'From Miami and Orlando to Ecuador, ME Producciones produces events that combine editorial purpose, authentic community, and world-class production. Find the experience designed for this moment in your life.'
+                  : 'Desde Miami y Orlando hasta Ecuador, ME Producciones produce eventos que combinan propósito editorial, comunidad auténtica y producción de clase mundial. Encuentra la experiencia diseñada para este momento de tu vida.'}
               </p>
 
               {/* Stat strip */}
