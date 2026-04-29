@@ -2,12 +2,15 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
+import type { DBSponsor } from '@/types/supabase';
 
 export async function getSponsors() {
   const client = createAdminClient();
   const { data, error } = await client
     .from('sponsors')
     .select('*')
+    .order('tier', { ascending: true })
+    .order('sort_order', { ascending: true })
     .order('created_at', { ascending: false });
   if (error) return { data: [], error: error.message };
   return { data: data ?? [], error: null };
@@ -17,9 +20,11 @@ export async function upsertSponsor(formData: FormData) {
   const client = createAdminClient();
   const id = formData.get('id') as string | null;
 
-  const payload = {
+  const tier = (formData.get('tier') as string) || 'pink';
+
+  const payload: Partial<DBSponsor> = {
     name: formData.get('name') as string,
-    tier: formData.get('tier') as string,
+    tier,
     website: (formData.get('website') as string) || null,
     description: (formData.get('description') as string) || null,
     description_en: (formData.get('description_en') as string) || null,
@@ -31,9 +36,42 @@ export async function upsertSponsor(formData: FormData) {
     const { error } = await client.from('sponsors').update(payload).eq('id', id);
     if (error) return { error: error.message };
   } else {
+    // New rows go to the end of their tier
+    const { data: maxRow } = await client
+      .from('sponsors')
+      .select('sort_order')
+      .eq('tier', tier)
+      .order('sort_order', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    payload.sort_order = ((maxRow?.sort_order as number | undefined) ?? -1) + 1;
+
     const { error } = await client.from('sponsors').insert(payload);
     if (error) return { error: error.message };
   }
+
+  revalidatePath('/admin/sponsors');
+  revalidatePath('/sponsors');
+  revalidatePath('/');
+  return { success: true };
+}
+
+/**
+ * Rewrites sort_order for sponsors in a single tier: position 0..n.
+ * Other tiers are untouched.
+ */
+export async function reorderSponsors(tier: string, orderedIds: string[]) {
+  if (!tier || !Array.isArray(orderedIds) || orderedIds.length === 0) {
+    return { error: 'No sponsors to reorder.' };
+  }
+  const client = createAdminClient();
+
+  const updates = orderedIds.map((id, index) =>
+    client.from('sponsors').update({ sort_order: index }).eq('id', id),
+  );
+  const results = await Promise.all(updates);
+  const failed = results.find((r) => r.error);
+  if (failed?.error) return { error: failed.error.message };
 
   revalidatePath('/admin/sponsors');
   revalidatePath('/sponsors');

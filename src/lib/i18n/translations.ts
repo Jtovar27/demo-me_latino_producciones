@@ -697,6 +697,17 @@ export const t = {
     toastUpdated:    { es: 'Speaker actualizado',                                     en: 'Speaker updated' },
     toastCreated:    { es: 'Speaker agregado',                                        en: 'Speaker added' },
     toastDeleted:    { es: 'Speaker eliminado',                                       en: 'Speaker deleted' },
+    orderingTitle:   { es: 'Ordenar speakers',                                        en: 'Reorder speakers' },
+    orderingHelp:    { es: 'Usa los controles para definir el orden en el que aparecen en la web.', en: 'Use the controls below to set the order they appear on the website.' },
+    moveUp:          { es: 'Subir',                                                   en: 'Move up' },
+    moveDown:        { es: 'Bajar',                                                   en: 'Move down' },
+    moveTop:         { es: 'Al inicio',                                                en: 'To top' },
+    moveBottom:      { es: 'Al final',                                                en: 'To bottom' },
+    saved:           { es: 'Orden guardado',                                          en: 'Order saved' },
+    saveFailed:      { es: 'No se pudo guardar el orden',                              en: 'Could not save the order' },
+    rankLabel:       { es: 'Posición',                                                en: 'Position' },
+    featuredOnly:    { es: 'Mostrar solo destacados',                                  en: 'Featured only' },
+    showAll:         { es: 'Ver todos',                                                en: 'Show all' },
   },
 
   // ─── Admin: Sponsors ─────────────────────────────────────────────────────
@@ -725,6 +736,15 @@ export const t = {
     toastUpdated:   { es: 'Sponsor actualizado',                                      en: 'Sponsor updated' },
     toastCreated:   { es: 'Sponsor agregado',                                         en: 'Sponsor added' },
     toastDeleted:   { es: 'Sponsor eliminado',                                        en: 'Sponsor deleted' },
+    orderingTitle:  { es: 'Ordenar dentro de este nivel',                              en: 'Reorder inside this tier' },
+    orderingHelp:   { es: 'El orden afecta cómo aparecen los sponsors en la web — dentro de cada nivel.', en: 'Order controls how sponsors appear on the website — within each tier.' },
+    moveUp:         { es: 'Subir',                                                    en: 'Move up' },
+    moveDown:       { es: 'Bajar',                                                    en: 'Move down' },
+    moveTop:        { es: 'Al inicio',                                                en: 'To top' },
+    moveBottom:     { es: 'Al final',                                                 en: 'To bottom' },
+    saved:          { es: 'Orden guardado',                                           en: 'Order saved' },
+    saveFailed:     { es: 'No se pudo guardar el orden',                               en: 'Could not save the order' },
+    rankLabel:      { es: 'Posición',                                                 en: 'Position' },
   },
 
   // ─── Admin: Flagship ─────────────────────────────────────────────────────

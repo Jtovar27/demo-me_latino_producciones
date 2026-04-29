@@ -26,6 +26,7 @@ type SpeakerRow = {
   bio: string | null; image_url: string | null; expertise: string[];
   featured: boolean; instagram: string | null; created_at: string; updated_at: string;
   title_en: string | null; bio_en: string | null;
+  sort_order: number;
 };
 
 type ExperienceRow = {
@@ -39,6 +40,7 @@ type SponsorRow = {
   id: string; name: string; tier: string; website: string | null;
   logo_url: string | null; description: string | null; active: boolean; created_at: string;
   description_en: string | null;
+  sort_order: number;
 };
 
 type GalleryItemRow = {

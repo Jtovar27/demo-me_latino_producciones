@@ -3,6 +3,7 @@
 import AdminLayout from '@/components/layout/AdminLayout';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import MediaPicker from '@/components/admin/MediaPicker';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { t, tr } from '@/lib/i18n/translations';
 import {
@@ -235,13 +236,21 @@ export default function AdminHeroPage() {
             </div>
 
             <div className="px-7 py-6 space-y-6">
-              {/* Image URL */}
+              {/* Image — pick from gallery / upload from device / paste URL */}
               <div>
-                <label className={lbl}>{tr(ah.imageUrlLbl, lang)} <span className="text-red-400">*</span></label>
-                <input value={form.image_url} onChange={e => set('image_url', e.target.value)} className={inp} placeholder="https://..." />
-                <p className="mt-1 text-[10px] text-[#5B4638]/55">URL de Supabase Storage o externa. Tamaño ideal: 1400×900px.</p>
+                <MediaPicker
+                  value={form.image_url}
+                  onChange={(url) => set('image_url', url)}
+                  accept="image"
+                  label={`${tr(ah.imageUrlLbl, lang)} *`}
+                />
+                <p className="mt-2 text-[10px] text-[#5B4638]/55">
+                  {lang === 'en'
+                    ? 'Pick from the media gallery, upload from your device, or paste a URL. Ideal size: 1400×900px.'
+                    : 'Elige desde la galería, sube desde tu dispositivo o pega una URL. Tamaño ideal: 1400×900px.'}
+                </p>
                 {form.image_url && (
-                  <div className="relative mt-2 h-28 w-full overflow-hidden border border-[#EAE1D6]">
+                  <div className="relative mt-3 h-28 w-full overflow-hidden border border-[#EAE1D6]">
                     <Image src={form.image_url} alt="preview" fill className="object-cover" unoptimized />
                   </div>
                 )}

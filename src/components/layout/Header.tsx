@@ -7,14 +7,15 @@ import Logo from '@/components/ui/Logo';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 const NAV = [
-  { es: 'Inicio',       en: 'Home',        href: '/' },
-  { es: 'Nosotros',     en: 'About',       href: '/about' },
-  { es: 'Experiencias', en: 'Experiences', href: '/experiences' },
-  { es: 'Eventos',      en: 'Events',      href: '/events' },
-  { es: 'Speakers',     en: 'Speakers',    href: '/speakers' },
-  { es: 'Galería',      en: 'Gallery',     href: '/gallery' },
-  { es: 'Sponsors',     en: 'Sponsors',    href: '/sponsors' },
-  { es: 'Contacto',     en: 'Contact',     href: '/contact' },
+  { es: 'Inicio',             en: 'Home',                href: '/' },
+  { es: 'Nosotros',           en: 'About',               href: '/about' },
+  { es: 'Experiencias',       en: 'Experiences',         href: '/experiences' },
+  { es: 'Eventos',            en: 'Events',              href: '/events' },
+  { es: 'The Real Happiness', en: 'The Real Happiness',  href: '/the-real-happiness' },
+  { es: 'Speakers',           en: 'Speakers',            href: '/speakers' },
+  { es: 'Galería',            en: 'Gallery',             href: '/gallery' },
+  { es: 'Sponsors',           en: 'Sponsors',            href: '/sponsors' },
+  { es: 'Contacto',           en: 'Contact',             href: '/contact' },
 ];
 
 function LangToggle({ className = '' }: { className?: string }) {
@@ -82,12 +83,12 @@ export default function Header() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden items-center gap-7 lg:flex" aria-label="Main navigation">
+          <nav className="hidden items-center gap-5 xl:gap-7 lg:flex" aria-label="Main navigation">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="nav-underline font-sans text-[11px] font-medium uppercase tracking-widest text-[#5B4638] transition-colors duration-200 hover:text-[#A56E52]"
+                className="nav-underline whitespace-nowrap font-sans text-[10.5px] xl:text-[11px] font-medium uppercase tracking-widest text-[#5B4638] transition-colors duration-200 hover:text-[#A56E52]"
               >
                 {link.label}
               </Link>

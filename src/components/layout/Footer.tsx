@@ -26,7 +26,7 @@ export default async function Footer() {
     { label: 'Personal Happiness',                href: '/experiences#personal-happiness' },
     { label: 'Corporate Happiness',               href: '/experiences#corporate-happiness' },
     { label: 'Experience & Business Summit',      href: '/experiences#summit' },
-    { label: 'The Real Happiness MasterClass',    href: '/events' },
+    { label: 'The Real Happiness MasterClass',    href: '/the-real-happiness' },
     { label: lang === 'en' ? 'Speakers & Community' : 'Speakers & Comunidad', href: '/speakers' },
   ];
 

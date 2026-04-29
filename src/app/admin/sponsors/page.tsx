@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { ArrowUp, ArrowDown, ChevronsUp, ChevronsDown } from 'lucide-react';
 import AdminLayout from '@/components/layout/AdminLayout';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import MediaPicker from '@/components/admin/MediaPicker';
-import { getSponsors, upsertSponsor, deleteSponsor } from '@/app/actions/sponsors';
+import { getSponsors, upsertSponsor, deleteSponsor, reorderSponsors } from '@/app/actions/sponsors';
 import type { DBSponsor } from '@/types/supabase';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { t, tr } from '@/lib/i18n/translations';
@@ -120,6 +121,38 @@ export default function AdminSponsorsPage() {
     showToast(tr(asp.toastDeleted, lang));
   }
 
+  async function moveSponsor(tier: SponsorTier, sponsorId: string, direction: 'up' | 'down' | 'top' | 'bottom') {
+    const tierSorted = sponsors
+      .filter((s) => safeTier(s.tier) === tier)
+      .slice()
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    const index = tierSorted.findIndex((s) => s.id === sponsorId);
+    if (index < 0 || tierSorted.length < 2) return;
+
+    const next = [...tierSorted];
+    const [item] = next.splice(index, 1);
+    let target = index;
+    if (direction === 'up')      target = Math.max(0, index - 1);
+    if (direction === 'down')    target = Math.min(next.length, index + 1);
+    if (direction === 'top')     target = 0;
+    if (direction === 'bottom')  target = next.length;
+    next.splice(target, 0, item);
+
+    // Optimistic update — apply new sort_order to this tier in local state
+    const reordered = next.map((s, i) => ({ ...s, sort_order: i }));
+    setSponsors((prev) => {
+      const others = prev.filter((s) => safeTier(s.tier) !== tier);
+      return [...others, ...reordered];
+    });
+
+    const result = await reorderSponsors(tier, next.map((s) => s.id));
+    if (result?.error) {
+      showToast(tr(asp.saveFailed, lang));
+    } else {
+      showToast(tr(asp.saved, lang));
+    }
+  }
+
   function updateForm(field: keyof FormState, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
@@ -127,7 +160,10 @@ export default function AdminSponsorsPage() {
   const sponsorsByTier = tierOrder
     .map((tier) => ({
       tier,
-      items: sponsors.filter((s) => safeTier(s.tier) === tier),
+      items: sponsors
+        .filter((s) => safeTier(s.tier) === tier)
+        .slice()
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)),
     }))
     .filter((g) => g.items.length > 0);
 
@@ -170,6 +206,9 @@ export default function AdminSponsorsPage() {
 
       {!loading && sponsors.length > 0 && (
         <div className="space-y-10">
+          <p className="font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">
+            {tr(asp.orderingHelp, lang)}
+          </p>
           {sponsorsByTier.map(({ tier, items }) => (
             <div key={tier}>
               <div className="flex items-center gap-4 mb-5">
@@ -181,7 +220,7 @@ export default function AdminSponsorsPage() {
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {items.map((sp) => (
+                {items.map((sp, idx) => (
                   <div key={sp.id} className="border border-[#EAE1D6] bg-[#FDFAF7] p-6 hover:border-[#D7C6B2] transition-colors">
                     <div className="flex items-center gap-4 mb-4">
                       {sp.logo_url ? (
@@ -195,8 +234,11 @@ export default function AdminSponsorsPage() {
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="font-sans text-sm font-medium text-[#2A2421] leading-tight">{sp.name}</p>
-                        <div className="mt-1">
+                        <div className="mt-1 flex items-center gap-2">
                           <Badge variant={tierBadgeVariant[safeTier(sp.tier)]} />
+                          <span className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">
+                            #{idx + 1}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -211,6 +253,50 @@ export default function AdminSponsorsPage() {
                         {sp.website}
                       </p>
                     )}
+
+                    {/* Per-tier ordering controls */}
+                    <div className="flex gap-1 mb-3">
+                      <button
+                        type="button"
+                        onClick={() => moveSponsor(tier, sp.id, 'top')}
+                        disabled={idx === 0}
+                        aria-label={tr(asp.moveTop, lang)}
+                        title={tr(asp.moveTop, lang)}
+                        className="min-h-[36px] flex-1 flex items-center justify-center border border-[#D7C6B2] text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <ChevronsUp size={14} strokeWidth={1.75} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveSponsor(tier, sp.id, 'up')}
+                        disabled={idx === 0}
+                        aria-label={tr(asp.moveUp, lang)}
+                        title={tr(asp.moveUp, lang)}
+                        className="min-h-[36px] flex-1 flex items-center justify-center border border-[#D7C6B2] text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <ArrowUp size={14} strokeWidth={1.75} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveSponsor(tier, sp.id, 'down')}
+                        disabled={idx === items.length - 1}
+                        aria-label={tr(asp.moveDown, lang)}
+                        title={tr(asp.moveDown, lang)}
+                        className="min-h-[36px] flex-1 flex items-center justify-center border border-[#D7C6B2] text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <ArrowDown size={14} strokeWidth={1.75} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveSponsor(tier, sp.id, 'bottom')}
+                        disabled={idx === items.length - 1}
+                        aria-label={tr(asp.moveBottom, lang)}
+                        title={tr(asp.moveBottom, lang)}
+                        className="min-h-[36px] flex-1 flex items-center justify-center border border-[#D7C6B2] text-[#5B4638] hover:border-[#2A2421] hover:text-[#2A2421] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <ChevronsDown size={14} strokeWidth={1.75} />
+                      </button>
+                    </div>
 
                     <div className="flex gap-2">
                       <button onClick={() => openEdit(sp)}
