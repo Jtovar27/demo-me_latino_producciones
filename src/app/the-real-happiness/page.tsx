@@ -85,19 +85,28 @@ function CTAButton({
   href,
   variant = 'primary',
   size = 'md',
+  className = '',
   children,
 }: {
   href: string;
   variant?: 'primary' | 'secondary' | 'terracotta' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <Button href={href} variant={variant} size={size}>
+    <Button href={href} variant={variant} size={size} className={className}>
       {children}
     </Button>
   );
 }
+
+// Tailwind override classes to make secondary/ghost buttons readable on the
+// dark hero background (default colors are dark text on dark bg = invisible).
+const onDarkSecondary =
+  '!text-[#F7F3EE] !border-[#F7F3EE] hover:!bg-[#F7F3EE] hover:!text-[#2A2421]';
+const onDarkGhost =
+  '!text-[#D7C6B2] hover:!border-[#D7C6B2] hover:!bg-[#3D342F] hover:!text-[#F7F3EE]';
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
@@ -420,8 +429,8 @@ export default async function TheRealHappinessPage() {
 
           <div className="mt-10 flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
             <CTAButton href="#sponsor" variant="terracotta" size="lg">{copy.ctaSponsor}</CTAButton>
-            <CTAButton href="#speaker-package" variant="secondary" size="lg">{copy.ctaSpeaker}</CTAButton>
-            <CTAButton href="#contact" variant="ghost" size="lg">{copy.ctaInfo}</CTAButton>
+            <CTAButton href="#speaker-package" variant="secondary" size="lg" className={onDarkSecondary}>{copy.ctaSpeaker}</CTAButton>
+            <CTAButton href="#contact" variant="ghost" size="lg" className={onDarkGhost}>{copy.ctaInfo}</CTAButton>
           </div>
 
           {/* Cities strip */}
@@ -706,7 +715,7 @@ export default async function TheRealHappinessPage() {
                 {lang === 'en' ? 'Per city · single investment' : 'Por ciudad · inversión única'}
               </p>
               <div className="mt-8">
-                <CTAButton href="#contact" variant="secondary" size="lg">
+                <CTAButton href="#contact" variant="secondary" size="lg" className={onDarkSecondary}>
                   {copy.ctaInfo}
                 </CTAButton>
               </div>
