@@ -443,7 +443,7 @@ export default function TicketPurchaseModal({
                 disabled={loading}
                 className="border border-[#A56E52] bg-[#A56E52] px-6 py-2.5 font-sans text-[9px] uppercase tracking-widest text-white hover:bg-[#8B5A42] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? tr(tm.processing, lang) : isFree ? tr(tm.reserveSpot, lang) : tr(tm.continuePayment, lang)}
+                {loading ? tr(tm.processing, lang) : isFree ? tr(tm.buyTickets, lang) : tr(tm.continuePayment, lang)}
               </button>
             </div>
           </form>

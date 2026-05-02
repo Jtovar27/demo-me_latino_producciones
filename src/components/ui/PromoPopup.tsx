@@ -188,7 +188,7 @@ export default function PromoPopup() {
                 >
                   <span className="flex items-center gap-2.5">
                     <TicketIcon />
-                    {event.price > 0 ? 'Comprar Ticket' : 'Reservar Lugar'}
+                    Comprar Tickets
                   </span>
                   <span className="group-hover:translate-x-0.5 transition-transform">
                     <ArrowIcon />
