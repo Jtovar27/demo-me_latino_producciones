@@ -107,12 +107,19 @@ export default async function TheRealHappinessPage() {
   // Hosts are rendered separately in section 5 — defensively skip them if an
   // admin happened to add them to the speakers table.
   const featuredHosts = ['Mónica Espinoza', 'Joyce Urdaneta', 'Joyceleine Scarleth'];
+  // Image priority for each card:
+  //   1. The image_url set on the real_happiness_speakers row (admin upload)
+  //   2. A name match in the general speakers table (legacy behaviour)
+  //   3. Fallback initials placeholder rendered by the card itself
   const featuredSpeakerCards = rhSpeakers.map((s) => ({
     id:       s.id,
     name:     s.name,
     topicEs:  s.topic_es,
     topicEn:  s.topic_en,
-    imageUrl: s.image_url,
+    imageUrl:
+      s.image_url ??
+      dbSpeakerByName(dbSpeakers ?? [], s.name)?.image_url ??
+      null,
   }));
 
   // Use the latest active flagship venues if present, otherwise show curated cities
