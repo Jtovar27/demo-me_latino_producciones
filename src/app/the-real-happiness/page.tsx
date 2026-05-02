@@ -63,12 +63,12 @@ const CONFIRMED_SPEAKERS: ConfirmedSpeaker[] = [
   { name: 'Alexandra Ramírez',     topicEs: 'Cómo la felicidad libera emociones y nos protege de la enfermedad.', topicEn: 'How happiness unlocks emotions and frees us from disease.' },
   { name: 'Yordamis Megret',       topicEs: 'Felicidad financiera: salud, libertad y decisiones.', topicEn: 'Financial happiness: health, freedom, and decisions.' },
   { name: 'Carlos Calderón',       topicEs: 'Soy feliz: relaciones significativas y una sana relación con uno mismo.', topicEn: 'I am happy: meaningful relationships and a healthy relationship with yourself.' },
-  { name: 'Jesmig Hernández',      topicEs: 'Inteligencia emocional aplicada a la vida diaria.', topicEn: 'Emotional intelligence applied to everyday life.' },
+  { name: 'Jesmig Hernández',      topicEs: 'Cómo construir una relación sana. Los 7 pilares de una relación consciente.', topicEn: 'How to build a healthy relationship. The 7 pillars of a conscious relationship.' },
   { name: 'Jhonny Aponza',         topicEs: 'Felicidad: entrenando la mente más allá del éxito.', topicEn: 'Happiness: training the mind beyond success.' },
-  { name: 'César Jaime',           topicEs: 'Propósito, disciplina y bienestar sostenible.', topicEn: 'Purpose, discipline, and sustainable well-being.' },
+  { name: 'César Jaime',           topicEs: 'Cómo construir una relación sana. Los 7 pilares de una relación consciente.', topicEn: 'How to build a healthy relationship. The 7 pillars of a conscious relationship.' },
   { name: 'Eliecer Marte',         topicEs: 'Gratitud: la práctica que transforma vidas.', topicEn: 'Thankfulness: the practice that transforms lives.' },
-  { name: 'Jimmy Arenas',          topicEs: 'El poder de la comunicación genuina.', topicEn: 'The power of genuine communication.' },
-  { name: 'Silvia Cobos',          topicEs: 'Bienestar integral y comunidad.', topicEn: 'Integral well-being and community.' },
+  { name: 'Jimmy Arenas',          topicEs: 'Tu conocimiento es tu mayor activo.', topicEn: 'Your knowledge is your greatest asset.' },
+  { name: 'Silvia Cobos',          topicEs: 'Invierte en ti: convierte los miedos que te paralizan en tu mayor punto de venta.', topicEn: 'Invest in yourself: turn the fears that paralyze you into your greatest selling point.' },
 ];
 
 function dbSpeakerByName(speakers: DBSpeaker[], name: string): DBSpeaker | undefined {
