@@ -156,13 +156,15 @@ const PUBLIC_GALLERY_CATEGORIES = ['backstage', 'moments', 'audience', 'stage', 
 export async function getPublicGalleryItems() {
   const client = createAdminClient();
 
-  // The admin MediaPicker uploads speaker/sponsor photos into gallery_items
-  // with a default category of "moments", so a category filter alone isn't
-  // enough. Fetch every URL currently in use as a speaker photo or sponsor
-  // logo and exclude them from the public gallery.
-  const [speakersRes, sponsorsRes] = await Promise.all([
+  // The admin MediaPicker uploads speaker/sponsor/real-happiness photos into
+  // gallery_items with a default category of "moments", so a category filter
+  // alone isn't enough. Fetch every URL currently in use as a speaker photo,
+  // sponsor logo, or real-happiness speaker photo and exclude them from the
+  // public gallery.
+  const [speakersRes, sponsorsRes, rhSpeakersRes] = await Promise.all([
     client.from('speakers').select('image_url'),
     client.from('sponsors').select('logo_url'),
+    client.from('real_happiness_speakers').select('image_url'),
   ]);
 
   const excludedUrls = new Set<string>();
@@ -171,6 +173,12 @@ export async function getPublicGalleryItems() {
   }
   for (const row of sponsorsRes.data ?? []) {
     if (row.logo_url) excludedUrls.add(row.logo_url);
+  }
+  // Tolerate the table not existing yet (pre-migration 007).
+  if (!rhSpeakersRes.error) {
+    for (const row of rhSpeakersRes.data ?? []) {
+      if (row.image_url) excludedUrls.add(row.image_url);
+    }
   }
 
   const { data, error } = await client
