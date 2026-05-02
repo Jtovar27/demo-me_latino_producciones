@@ -555,14 +555,29 @@ export default async function TheRealHappinessPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#C4B09A]">
             {[
-              { name: copy.host1Name, role: copy.host1Role, body: copy.host1Body, db: dbSpeakerByName(dbSpeakers ?? [], 'Mónica Espinoza') },
-              { name: copy.host2Name, role: copy.host2Role, body: copy.host2Body, db: dbSpeakerByName(dbSpeakers ?? [], 'Joyce Urdaneta') },
+              {
+                name: copy.host1Name,
+                role: copy.host1Role,
+                body: copy.host1Body,
+                image:
+                  dbSpeakerByName(dbSpeakers ?? [], 'Mónica Espinoza')?.image_url ??
+                  '/MEspinoza.jpg.png',
+              },
+              {
+                name: copy.host2Name,
+                role: copy.host2Role,
+                body: copy.host2Body,
+                image:
+                  dbSpeakerByName(dbSpeakers ?? [], 'Joyceleine Scarleth')?.image_url ??
+                  dbSpeakerByName(dbSpeakers ?? [], 'Joyce Urdaneta')?.image_url ??
+                  null,
+              },
             ].map((h) => (
               <div key={h.name} className="flex flex-col bg-[#FDFAF7] p-6 sm:p-8 md:p-10">
                 <div className="flex items-start gap-4 sm:gap-5">
                   <div className="relative h-16 w-16 sm:h-20 sm:w-20 shrink-0 overflow-hidden border border-[#D7C6B2] bg-[#EAE1D6]">
-                    {h.db?.image_url ? (
-                      <Image src={h.db.image_url} alt={h.name} fill className="object-cover object-top" sizes="80px" unoptimized />
+                    {h.image ? (
+                      <Image src={h.image} alt={h.name} fill className="object-cover object-top" sizes="80px" unoptimized />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center">
                         <span className="font-serif text-2xl text-[#5B4638]">
