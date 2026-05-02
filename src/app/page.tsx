@@ -336,12 +336,17 @@ export default async function HomePage() {
                       </div>
                       <div className="px-5 pb-5 flex items-center justify-between">
                         <div className="flex flex-col">
-                          {event.price === 0 ? (
+                          {event.price === 0 && (!event.price_vip || event.price_vip === 0) ? (
                             <span className="font-serif text-base text-[#2A2421]">{lang === 'en' ? 'Free entry' : 'Entrada libre'}</span>
-                          ) : (
+                          ) : event.price > 0 ? (
                             <>
                               <span className="font-serif text-xl text-[#2A2421]">${event.price}</span>
                               <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'per person' : 'por persona'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="font-serif text-xl text-[#A56E52]">${event.price_vip}</span>
+                              <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'VIP — per person' : 'VIP — por persona'}</span>
                             </>
                           )}
                         </div>
@@ -380,12 +385,17 @@ export default async function HomePage() {
                     </div>
                     <div className="px-8 pb-8 flex items-center justify-between">
                       <div className="flex flex-col">
-                        {event.price === 0 ? (
+                        {event.price === 0 && (!event.price_vip || event.price_vip === 0) ? (
                           <span className="font-serif text-lg text-[#2A2421]">{lang === 'en' ? 'Free entry' : 'Entrada libre'}</span>
-                        ) : (
+                        ) : event.price > 0 ? (
                           <>
                             <span className="font-serif text-2xl text-[#2A2421]">${event.price}</span>
                             <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'per person' : 'por persona'}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="font-serif text-2xl text-[#A56E52]">${event.price_vip}</span>
+                            <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'VIP — per person' : 'VIP — por persona'}</span>
                           </>
                         )}
                       </div>
