@@ -188,7 +188,7 @@ export default function PromoPopup() {
                 >
                   <span className="flex items-center gap-2.5">
                     <TicketIcon />
-                    Comprar Tickets
+                    Compra por Zelle (no fees)
                   </span>
                   <span className="group-hover:translate-x-0.5 transition-transform">
                     <ArrowIcon />

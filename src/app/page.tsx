@@ -345,7 +345,7 @@ export default async function HomePage() {
                             </>
                           )}
                         </div>
-                        <Button href={`/events/${event.slug}`} variant="ghost" size="sm">{lang === 'en' ? 'Buy tickets' : 'Comprar tickets'}</Button>
+                        <Button href={`/events/${event.slug}`} variant="ghost" size="sm">{lang === 'en' ? 'Pay with Zelle (no fees)' : 'Compra por Zelle (no fees)'}</Button>
                       </div>
                     </div>
                   );
@@ -389,7 +389,7 @@ export default async function HomePage() {
                           </>
                         )}
                       </div>
-                      <Button href={`/events/${event.slug}`} variant="ghost" size="sm">{lang === 'en' ? 'Buy tickets' : 'Comprar tickets'}</Button>
+                      <Button href={`/events/${event.slug}`} variant="ghost" size="sm">{lang === 'en' ? 'Pay with Zelle (no fees)' : 'Compra por Zelle (no fees)'}</Button>
                     </div>
                   </div>
                 );

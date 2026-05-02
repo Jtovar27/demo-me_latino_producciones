@@ -54,7 +54,7 @@ export default function EventTicketButtons({ event }: { event: EventData }) {
               onClick={() => setModalOpen(true)}
               className="inline-flex items-center justify-center gap-2 border border-[#2A2421] bg-[#2A2421] px-8 py-4 font-sans text-[10px] uppercase tracking-widest text-[#F7F3EE] hover:bg-[#5B4638] transition-colors"
             >
-              Comprar tickets
+              Compra por Zelle (no fees)
             </button>
           )}
           <Link
