@@ -7,6 +7,7 @@ import SponsorPackagesSection from '@/components/sponsors/SponsorPackagesSection
 import RealHappinessLeadForm from '@/components/realHappiness/RealHappinessLeadForm';
 import { getSpeakers } from '@/app/actions/speakers';
 import { getFlagshipEvents } from '@/app/actions/flagship';
+import { getRealHappinessSpeakers } from '@/app/actions/realHappiness';
 import { getLang } from '@/lib/i18n/getLang';
 import type { DBSpeaker, FlagshipVenue } from '@/types/supabase';
 
@@ -48,28 +49,9 @@ export const metadata: Metadata = {
 };
 
 // ── Static, polished copy rewritten from the OCR brief ───────────────────────
-// Speakers come from DB (preferred). If a featured speaker matches by name we
-// surface the DB photo. Otherwise we fall back to this curated topic list.
-
-type ConfirmedSpeaker = {
-  name: string;
-  topicEs: string;
-  topicEn: string;
-};
-
-const CONFIRMED_SPEAKERS: ConfirmedSpeaker[] = [
-  { name: 'María Alejandra Celis', topicEs: 'El ritmo de la felicidad: pausa, siente, avanza.', topicEn: 'The rhythm of happiness: pause, feel, move forward.' },
-  { name: 'Antonella Baricelli',   topicEs: 'Liderazgo consciente y comunicación con propósito.', topicEn: 'Conscious leadership and purposeful communication.' },
-  { name: 'Alexandra Ramírez',     topicEs: 'Cómo la felicidad libera emociones y nos protege de la enfermedad.', topicEn: 'How happiness unlocks emotions and frees us from disease.' },
-  { name: 'Yordamis Megret',       topicEs: 'Felicidad financiera: salud, libertad y decisiones.', topicEn: 'Financial happiness: health, freedom, and decisions.' },
-  { name: 'Carlos Calderón',       topicEs: 'Soy feliz: relaciones significativas y una sana relación con uno mismo.', topicEn: 'I am happy: meaningful relationships and a healthy relationship with yourself.' },
-  { name: 'Jesmig Hernández',      topicEs: 'Cómo construir una relación sana. Los 7 pilares de una relación consciente.', topicEn: 'How to build a healthy relationship. The 7 pillars of a conscious relationship.' },
-  { name: 'Jhonny Aponza',         topicEs: 'Felicidad: entrenando la mente más allá del éxito.', topicEn: 'Happiness: training the mind beyond success.' },
-  { name: 'César Jaime',           topicEs: 'Cómo construir una relación sana. Los 7 pilares de una relación consciente.', topicEn: 'How to build a healthy relationship. The 7 pillars of a conscious relationship.' },
-  { name: 'Eliecer Marte',         topicEs: 'Gratitud: la práctica que transforma vidas.', topicEn: 'Thankfulness: the practice that transforms lives.' },
-  { name: 'Jimmy Arenas',          topicEs: 'Tu conocimiento es tu mayor activo.', topicEn: 'Your knowledge is your greatest asset.' },
-  { name: 'Silvia Cobos',          topicEs: 'Invierte en ti: convierte los miedos que te paralizan en tu mayor punto de venta.', topicEn: 'Invest in yourself: turn the fears that paralyze you into your greatest selling point.' },
-];
+// Confirmed speakers come from the real_happiness_speakers table (managed in
+// /admin/real-happiness). The general speakers table is still used to look up
+// the host (Mónica/Joyceleine) photos.
 
 function dbSpeakerByName(speakers: DBSpeaker[], name: string): DBSpeaker | undefined {
   // Strip combining diacritical marks (Unicode block U+0300–U+036F) so
@@ -112,15 +94,25 @@ const onDarkGhost =
 
 export default async function TheRealHappinessPage() {
   const lang = await getLang();
-  const [{ data: dbSpeakers }, { data: flagship }] = await Promise.all([
+  const [
+    { data: dbSpeakers },
+    { data: flagship },
+    { data: rhSpeakers },
+  ] = await Promise.all([
     getSpeakers(),
     getFlagshipEvents(),
+    getRealHappinessSpeakers(),
   ]);
 
-  const featuredHosts = ['Mónica Espinoza', 'Joyce Urdaneta'];
-  const featuredSpeakerCards = CONFIRMED_SPEAKERS.map((cs) => ({
-    ...cs,
-    db: dbSpeakerByName(dbSpeakers ?? [], cs.name),
+  // Hosts are rendered separately in section 5 — defensively skip them if an
+  // admin happened to add them to the speakers table.
+  const featuredHosts = ['Mónica Espinoza', 'Joyce Urdaneta', 'Joyceleine Scarleth'];
+  const featuredSpeakerCards = rhSpeakers.map((s) => ({
+    id:       s.id,
+    name:     s.name,
+    topicEs:  s.topic_es,
+    topicEn:  s.topic_en,
+    imageUrl: s.image_url,
   }));
 
   // Use the latest active flagship venues if present, otherwise show curated cities
@@ -624,10 +616,10 @@ export default async function TheRealHappinessPage() {
             {featuredSpeakerCards
               .filter((s) => !featuredHosts.includes(s.name))
               .map((s) => (
-                <article key={s.name} className="bg-[#FDFAF7] p-5 sm:p-6 md:p-8 flex gap-4 sm:gap-5">
+                <article key={s.id} className="bg-[#FDFAF7] p-5 sm:p-6 md:p-8 flex gap-4 sm:gap-5">
                   <div className="relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden border border-[#D7C6B2] bg-[#EAE1D6]">
-                    {s.db?.image_url ? (
-                      <Image src={s.db.image_url} alt={s.name} fill className="object-cover object-top" sizes="64px" unoptimized />
+                    {s.imageUrl ? (
+                      <Image src={s.imageUrl} alt={s.name} fill className="object-cover object-top" sizes="64px" unoptimized />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center">
                         <span className="font-serif text-lg text-[#5B4638]">

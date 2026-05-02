@@ -21,6 +21,7 @@ import {
   Sparkles,
   GalleryHorizontal,
   Trophy,
+  Heart,
 } from 'lucide-react';
 
 const navItems = [
@@ -28,6 +29,7 @@ const navItems = [
   { label: 'Sitio',        href: '/admin/settings',       icon: Settings },
   { label: 'Hero',         href: '/admin/hero',           icon: GalleryHorizontal },
   { label: 'Insignia',     href: '/admin/flagship',       icon: Trophy },
+  { label: 'Real Happiness', href: '/admin/real-happiness', icon: Heart },
   { label: 'Eventos',      href: '/admin/events',         icon: Calendar },
   { label: 'Experiencias', href: '/admin/experiences',    icon: Sparkles },
   { label: 'Reservas',     href: '/admin/bookings',       icon: BookOpen },
