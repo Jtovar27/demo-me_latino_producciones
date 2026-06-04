@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { submitBooking } from '@/app/actions/bookings';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { t, tr } from '@/lib/i18n/translations';
+import type { TicketTier } from '@/types/supabase';
 
 const WA_NUMBER        = '13055252555';
 const ZELLE_PHONE      = '786-599-9520';
@@ -15,9 +16,7 @@ interface Props {
   eventDate: string;
   eventCity: string;
   eventState: string;
-  eventPrice: number;
-  eventPriceVip?: number | null;
-  vipBenefits?: string[] | null;
+  tiers: TicketTier[];
   eventbriteUrl?: string | null;
   onClose: () => void;
 }
@@ -40,9 +39,7 @@ export default function TicketPurchaseModal({
   eventDate,
   eventCity,
   eventState,
-  eventPrice,
-  eventPriceVip,
-  vipBenefits,
+  tiers,
   eventbriteUrl,
   onClose,
 }: Props) {
@@ -50,21 +47,21 @@ export default function TicketPurchaseModal({
   const [email, setEmail]       = useState('');
   const [phone, setPhone]       = useState('');
   const [qtyStr, setQtyStr]     = useState('1');
-  const [ticketType, setTicketType] = useState<'regular' | 'vip'>('regular');
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
   const [done, setDone]         = useState(false);
   const [copied, setCopied]     = useState(false);
 
   const qty = Math.max(1, parseInt(qtyStr) || 1);
-  const hasRegular = eventPrice > 0;
-  const hasVip = !!eventPriceVip && eventPriceVip > 0;
-  // Show the Regular/VIP toggle only when both prices exist.
-  const showTypeSelector = hasRegular && hasVip;
-  // If only VIP exists, force VIP regardless of state. If only Regular exists, force regular.
-  const activeType: 'regular' | 'vip' =
-    !hasRegular && hasVip ? 'vip' : !hasVip ? 'regular' : ticketType;
-  const effectivePrice = activeType === 'vip' ? (eventPriceVip ?? 0) : eventPrice;
+
+  // Resolved tiers come in already sanitized. A multi-tier selector shows only
+  // when there is more than one tier; a single tier shows as a static card.
+  const hasTiers      = tiers.length > 0;
+  const showSelector  = tiers.length > 1;
+  const selectedTier  = hasTiers ? tiers[Math.min(selectedIndex, tiers.length - 1)] : null;
+  const benefits      = selectedTier?.benefits ?? [];
+  const effectivePrice = selectedTier?.price ?? 0;
 
   const { lang } = useLanguage();
   const tm = t.ticketModal;
@@ -79,6 +76,11 @@ export default function TicketPurchaseModal({
 
   const total = effectivePrice * qty;
   const isFree = effectivePrice === 0;
+  const tierLabel = selectedTier ? ` (${selectedTier.name})` : '';
+
+  function priceLabel(price: number) {
+    return price > 0 ? `$${price.toLocaleString('en-US')}` : tr(tm.freeEntry, lang);
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -96,8 +98,8 @@ export default function TicketPurchaseModal({
     fd.append('event_name', eventTitle);
     fd.append('guests',     String(qty));
     fd.append('message',    isFree
-      ? `Asistencia gratuita · ${qty} persona(s)`
-      : `${qty} ticket(s) ${hasVip ? `(${activeType.toUpperCase()}) ` : ''}· Total: $${total.toLocaleString('en-US')}`);
+      ? `Asistencia gratuita${selectedTier ? ` — ${selectedTier.name}` : ''} · ${qty} persona(s)`
+      : `${qty} × ${selectedTier?.name ?? 'ticket'} · Total: $${total.toLocaleString('en-US')}`);
 
     const result = await submitBooking(fd);
     setLoading(false);
@@ -107,7 +109,7 @@ export default function TicketPurchaseModal({
   }
 
   const waConfirmMsg = encodeURIComponent(
-    `Hola! Acabo de pagar por Zelle para "${eventTitle}" el ${formatDate(eventDate)} en ${eventCity}, ${eventState}.\n\nNombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\nTickets: ${qty}${hasVip ? ` (${activeType.toUpperCase()})` : ''}${!isFree ? `\nTotal pagado: $${total.toLocaleString('en-US')}` : ''}\n\nAdjunto la captura del pago. ✅`
+    `Hola! Acabo de pagar por Zelle para "${eventTitle}" el ${formatDate(eventDate)} en ${eventCity}, ${eventState}.\n\nNombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\nTickets: ${qty}${tierLabel}${!isFree ? `\nTotal pagado: $${total.toLocaleString('en-US')}` : ''}\n\nAdjunto la captura del pago. ✅`
   );
   const waConfirmUrl = `https://wa.me/${WA_NUMBER}?text=${waConfirmMsg}`;
 
@@ -170,12 +172,12 @@ export default function TicketPurchaseModal({
               <p className="font-sans text-[9px] uppercase tracking-widest text-[#5B4638]">{tr(pf.summary, lang)}</p>
               <p className="font-sans text-sm text-[#2A2421] font-medium">{eventTitle}</p>
               <p className="font-sans text-xs text-[#5B4638]">{formatDate(eventDate)} · {eventCity}, {eventState}</p>
-              <div className="pt-2 flex justify-between items-center">
+              <div className="pt-2 flex justify-between items-center gap-3">
                 <span className="font-sans text-xs text-[#5B4638]">
-                  {qty} ticket{qty > 1 ? 's' : ''}{hasVip ? ` ${activeType.toUpperCase()}` : ''}{isFree ? ` (${tr(tm.freeEntry, lang)})` : ` × $${effectivePrice.toLocaleString('en-US')}`}
+                  {qty} × {selectedTier?.name ?? tr(tm.freeEntry, lang)}{!isFree && ` · $${effectivePrice.toLocaleString('en-US')}`}
                 </span>
                 {!isFree && (
-                  <span className="font-sans text-sm font-semibold text-[#A56E52]">
+                  <span className="font-sans text-sm font-semibold text-[#A56E52] shrink-0">
                     {tr(tm.total, lang)} ${total.toLocaleString('en-US')}
                   </span>
                 )}
@@ -323,50 +325,45 @@ export default function TicketPurchaseModal({
                 {isFree ? tr(tm.enterDetails, lang) : tr(tm.enterDetailsPaid, lang)}
               </p>
 
-              {showTypeSelector && (
+              {/* Selector de tipo de ticket — solo si hay 2+ tipos */}
+              {showSelector && (
                 <div>
                   <p className={labelCls}>{tr(tm.ticketType, lang)}</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setTicketType('regular')}
-                      className={`border p-4 text-left transition-colors ${
-                        activeType === 'regular'
-                          ? 'border-[#2A2421] bg-[#2A2421] text-white'
-                          : 'border-[#D7C6B2] text-[#2A2421] hover:border-[#A56E52]'
-                      }`}
-                    >
-                      <p className="font-sans text-[9px] uppercase tracking-widest opacity-70">Regular</p>
-                      <p className="font-serif text-xl mt-1">${eventPrice.toLocaleString('en-US')}</p>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setTicketType('vip')}
-                      className={`border p-4 text-left transition-colors ${
-                        activeType === 'vip'
-                          ? 'border-[#A56E52] bg-[#A56E52] text-white'
-                          : 'border-[#D7C6B2] text-[#2A2421] hover:border-[#A56E52]'
-                      }`}
-                    >
-                      <p className="font-sans text-[9px] uppercase tracking-widest opacity-70">VIP</p>
-                      <p className="font-serif text-xl mt-1">${eventPriceVip!.toLocaleString('en-US')}</p>
-                    </button>
+                  <div className="flex flex-col gap-2">
+                    {tiers.map((tier, i) => {
+                      const active = i === Math.min(selectedIndex, tiers.length - 1);
+                      return (
+                        <button
+                          key={`${tier.name}-${i}`}
+                          type="button"
+                          onClick={() => setSelectedIndex(i)}
+                          className={`flex items-center justify-between gap-3 border p-4 text-left transition-colors ${
+                            active
+                              ? 'border-[#A56E52] bg-[#A56E52] text-white'
+                              : 'border-[#D7C6B2] text-[#2A2421] hover:border-[#A56E52]'
+                          }`}
+                        >
+                          <span className="font-sans text-sm font-medium">{tier.name}</span>
+                          <span className="font-serif text-xl shrink-0">{priceLabel(tier.price)}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
 
-              {/* VIP-only event: show a single VIP price card (no toggle) */}
-              {!hasRegular && hasVip && (
-                <div className="border border-[#A56E52] bg-[#A56E52] text-white p-4">
-                  <p className="font-sans text-[9px] uppercase tracking-widest opacity-70">VIP</p>
-                  <p className="font-serif text-xl mt-1">${eventPriceVip!.toLocaleString('en-US')}</p>
+              {/* Un solo tipo (de pago): tarjeta estática */}
+              {!showSelector && selectedTier && effectivePrice > 0 && (
+                <div className="border border-[#A56E52] bg-[#A56E52] text-white p-4 flex items-center justify-between gap-3">
+                  <span className="font-sans text-sm font-medium">{selectedTier.name}</span>
+                  <span className="font-serif text-xl shrink-0">${effectivePrice.toLocaleString('en-US')}</span>
                 </div>
               )}
 
-              {/* VIP benefits — visible whenever VIP is the active selection */}
-              {activeType === 'vip' && vipBenefits && vipBenefits.length > 0 && (
+              {/* Beneficios del tipo seleccionado */}
+              {benefits.length > 0 && (
                 <ul className="space-y-1.5 border border-[#A56E52]/30 bg-[#FDF7F3] px-4 py-3">
-                  {vipBenefits.map((b) => (
+                  {benefits.map((b) => (
                     <li key={b} className="flex items-start gap-2">
                       <span className="mt-[5px] h-1 w-1 shrink-0 rounded-full bg-[#A56E52]" />
                       <span className="font-sans text-xs text-[#5B4638]">{b}</span>
@@ -428,11 +425,11 @@ export default function TicketPurchaseModal({
                 </div>
 
                 {!isFree && (
-                  <div className="flex justify-between items-center border-t border-[#EAE1D6] pt-3">
+                  <div className="flex justify-between items-center border-t border-[#EAE1D6] pt-3 gap-3">
                     <span className="font-sans text-xs text-[#5B4638]">
-                      {qty} ticket{qty > 1 ? 's' : ''}{hasVip ? ` ${activeType.toUpperCase()}` : ''} × ${effectivePrice.toLocaleString('en-US')}
+                      {qty} × {selectedTier?.name} · ${effectivePrice.toLocaleString('en-US')}
                     </span>
-                    <span className="font-sans text-sm font-semibold text-[#A56E52]">
+                    <span className="font-sans text-sm font-semibold text-[#A56E52] shrink-0">
                       Total: ${total.toLocaleString('en-US')}
                     </span>
                   </div>

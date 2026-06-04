@@ -86,6 +86,58 @@ describe('upsertEvent — validation', () => {
   });
 });
 
+describe('upsertEvent — ticket tiers', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  function baseForm() {
+    const fd = new FormData();
+    fd.append('title', 'Tier Event');
+    fd.append('slug', 'tier-event');
+    fd.append('date', '2026-08-29');
+    fd.append('city', 'Miami');
+    fd.append('venue', 'Venue');
+    return fd;
+  }
+
+  it('stores sanitized tiers and mirrors the lowest price; nulls legacy VIP columns', async () => {
+    const chain = { insert: vi.fn().mockResolvedValue({ error: null }) };
+    mockClient._fromFn.mockReturnValue(chain);
+    const { upsertEvent } = await getActions();
+
+    const fd = baseForm();
+    fd.append('ticket_tiers', JSON.stringify([
+      { name: '  Platinum Table  ', price: '1500', benefits: [' 10 seats ', ''] },
+      { name: 'Per person', price: 140, benefits: [] },
+      { name: '   ', price: 99, benefits: [] }, // dropped (empty name)
+    ]));
+    await upsertEvent(fd);
+
+    const insertCall = chain.insert.mock.calls[0][0];
+    expect(insertCall.ticket_tiers).toEqual([
+      { name: 'Platinum Table', price: 1500, benefits: ['10 seats'] },
+      { name: 'Per person', price: 140, benefits: [] },
+    ]);
+    expect(insertCall.price).toBe(140);       // mirror = lowest priced tier
+    expect(insertCall.price_vip).toBeNull();
+    expect(insertCall.vip_benefits).toBeNull();
+  });
+
+  it('treats malformed tiers JSON as no tiers and keeps legacy price', async () => {
+    const chain = { insert: vi.fn().mockResolvedValue({ error: null }) };
+    mockClient._fromFn.mockReturnValue(chain);
+    const { upsertEvent } = await getActions();
+
+    const fd = baseForm();
+    fd.append('ticket_tiers', 'not-json');
+    fd.append('price', '200');
+    await upsertEvent(fd);
+
+    const insertCall = chain.insert.mock.calls[0][0];
+    expect(insertCall.ticket_tiers).toEqual([]);
+    expect(insertCall.price).toBe(200);
+  });
+});
+
 describe('deleteEvent', () => {
   beforeEach(() => vi.clearAllMocks());
 

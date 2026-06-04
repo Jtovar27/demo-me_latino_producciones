@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { sanitizeTiers, minTierPrice } from '@/lib/tickets';
+import type { TicketTier } from '@/types/supabase';
 
 function revalidateEventPaths() {
   revalidatePath('/admin/events');
@@ -36,6 +38,17 @@ export async function upsertEvent(formData: FormData) {
   const vipBenefitsRaw = (formData.get('vip_benefits') as string) || '';
   const vip_benefits = vipBenefitsRaw.split('\n').map((b) => b.trim()).filter(Boolean);
 
+  // Named ticket tiers (new system). Sent as a JSON string from the admin form.
+  // When present they are the source of truth: we mirror the lowest price into the
+  // legacy `price` column and null out `price_vip` / `vip_benefits` so the row stays
+  // coherent for any reader that hasn't moved to resolveTicketTiers().
+  let ticket_tiers: TicketTier[] = [];
+  const tiersRaw = formData.get('ticket_tiers') as string | null;
+  if (tiersRaw) {
+    try { ticket_tiers = sanitizeTiers(JSON.parse(tiersRaw)); } catch { ticket_tiers = []; }
+  }
+  const usingTiers = ticket_tiers.length > 0;
+
   const payload = {
     title,
     slug,
@@ -52,9 +65,10 @@ export async function upsertEvent(formData: FormData) {
     image_url: (formData.get('image_url') as string)?.trim() || null,
     video_url: (formData.get('video_url') as string)?.trim() || null,
     capacity,
-    price,
-    price_vip,
-    vip_benefits: vip_benefits.length > 0 ? vip_benefits : null,
+    price:        usingTiers ? (minTierPrice(ticket_tiers) ?? 0) : price,
+    price_vip:    usingTiers ? null : price_vip,
+    vip_benefits: usingTiers ? null : (vip_benefits.length > 0 ? vip_benefits : null),
+    ticket_tiers,
     eventbrite_url: (formData.get('eventbrite_url') as string)?.trim() || null,
     featured: formData.get('featured') === 'true',
     tags,

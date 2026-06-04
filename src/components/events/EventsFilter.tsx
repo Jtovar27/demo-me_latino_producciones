@@ -6,6 +6,7 @@ import type { DBEvent } from '@/types/supabase';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import TicketPurchaseModal from '@/components/ui/TicketPurchaseModal';
 import EventbriteButton from '@/components/events/EventbriteButton';
+import { resolveTicketTiers } from '@/lib/tickets';
 
 const WA_NUMBER = '13055252555';
 
@@ -358,9 +359,7 @@ export default function EventsFilter({ events }: EventsFilterProps) {
         eventDate={ticketEvent.date}
         eventCity={ticketEvent.city}
         eventState={ticketEvent.state}
-        eventPrice={ticketEvent.price ?? 0}
-        eventPriceVip={ticketEvent.price_vip}
-        vipBenefits={ticketEvent.vip_benefits}
+        tiers={resolveTicketTiers(ticketEvent)}
         eventbriteUrl={ticketEvent.eventbrite_url}
         onClose={closeTickets}
       />

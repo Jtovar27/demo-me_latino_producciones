@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import TicketPurchaseModal from './TicketPurchaseModal';
 import EventbriteButton from '@/components/events/EventbriteButton';
+import { resolveTicketTiers, minTierPrice } from '@/lib/tickets';
+import type { TicketTier } from '@/types/supabase';
 
 const WA_NUMBER = '13055252555';
 const POPUP_SESSION_KEY = 'me_promo_v1';
@@ -19,6 +21,7 @@ interface FeaturedEvent {
   price: number;
   price_vip: number | null;
   vip_benefits: string[] | null;
+  ticket_tiers: TicketTier[];
   eventbrite_url: string | null;
 }
 
@@ -81,6 +84,9 @@ export default function PromoPopup() {
   }
 
   if (!visible || !event) return null;
+
+  const tiers = resolveTicketTiers(event);
+  const minPrice = minTierPrice(tiers);
 
   const waInfoMsg = encodeURIComponent(
     `Hola! Me interesa asistir a "${event.title}" el ${formatDate(event.date)} en ${event.city}, ${event.state}. ¿Pueden darme más información?`
@@ -168,14 +174,9 @@ export default function PromoPopup() {
               <p className="font-sans text-[11px] text-[#5B4638]">
                 {formatDate(event.date)} &nbsp;·&nbsp; {event.venue}
               </p>
-              {event.price > 0 && (
+              {minPrice !== null && (
                 <p className="font-sans text-sm font-semibold mt-1.5" style={{ color: '#A56E52' }}>
-                  Desde ${event.price.toLocaleString('en-US')}
-                  {event.price_vip && event.price_vip > 0 && (
-                    <span className="ml-3 font-sans text-xs font-normal text-[#5B4638]">
-                      VIP ${event.price_vip.toLocaleString('en-US')}
-                    </span>
-                  )}
+                  Desde ${minPrice.toLocaleString('en-US')}
                 </p>
               )}
 
@@ -233,9 +234,7 @@ export default function PromoPopup() {
           eventDate={event.date}
           eventCity={event.city}
           eventState={event.state}
-          eventPrice={event.price}
-          eventPriceVip={event.price_vip}
-          vipBenefits={event.vip_benefits}
+          tiers={tiers}
           eventbriteUrl={event.eventbrite_url}
           onClose={() => setModalOpen(false)}
         />

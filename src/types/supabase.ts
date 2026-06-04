@@ -9,6 +9,13 @@ export type FlagshipVenue = {
   tag_en: string;
 };
 
+// A named ticket type for an event — admin-defined, unlimited per event.
+export type TicketTier = {
+  name: string;
+  price: number;
+  benefits: string[];
+};
+
 // Row types extracted to avoid circular self-references inside Database interface
 type EventRow = {
   id: string; title: string; slug: string; date: string; end_date: string | null;
@@ -16,6 +23,7 @@ type EventRow = {
   description: string | null; image_url: string | null; video_url: string | null;
   capacity: number; registered: number; price: number;
   price_vip: number | null; vip_benefits: string[] | null;
+  ticket_tiers: TicketTier[];
   featured: boolean; tags: string[]; created_at: string; updated_at: string;
   title_en: string | null; description_en: string | null;
   eventbrite_url: string | null;

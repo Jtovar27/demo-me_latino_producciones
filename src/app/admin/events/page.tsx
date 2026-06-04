@@ -9,7 +9,20 @@ import MediaPicker from '@/components/admin/MediaPicker';
 import { getEvents, upsertEvent, deleteEvent, setFeaturedForPopup } from '@/app/actions/events';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { t, tr } from '@/lib/i18n/translations';
+import { resolveTicketTiers, minTierPrice } from '@/lib/tickets';
 import type { DBEvent } from '@/types/supabase';
+
+// Editor-local draft of a ticket tier: price and benefits are kept as raw strings
+// while editing; the server (upsertEvent → sanitizeTiers) normalizes on save.
+type TierDraft = { name: string; price: string; benefits: string };
+
+function draftsFromEvent(ev: DBEvent): TierDraft[] {
+  return resolveTicketTiers(ev).map((tier) => ({
+    name: tier.name,
+    price: tier.price > 0 ? String(tier.price) : '',
+    benefits: tier.benefits.join('\n'),
+  }));
+}
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString('es-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -44,8 +57,7 @@ const categoryLabels: Record<string, string> = {
 
 const emptyForm = {
   title: '', title_en: '', slug: '', date: '', end_date: '', city: '', state: '',
-  venue: '', category: 'flagship', capacity: '', status: 'upcoming', price: '',
-  price_vip: '', vip_benefits: '', eventbrite_url: '',
+  venue: '', category: 'flagship', capacity: '', status: 'upcoming', eventbrite_url: '',
   description: '', description_en: '', featured: 'false', image_url: '', tags: '',
 };
 
@@ -61,6 +73,7 @@ export default function AdminEventsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editEvent, setEditEvent] = useState<DBEvent | null>(null);
   const [form, setForm]           = useState<FormState>(emptyForm);
+  const [tiers, setTiers]         = useState<TierDraft[]>([]);
   const [saving, setSaving]       = useState(false);
   const [toast, setToast]         = useState('');
 
@@ -84,6 +97,7 @@ export default function AdminEventsPage() {
   function openNew() {
     setEditEvent(null);
     setForm(emptyForm);
+    setTiers([]);
     setModalOpen(true);
   }
 
@@ -101,9 +115,6 @@ export default function AdminEventsPage() {
       category:       ev.category,
       capacity:       String(ev.capacity),
       status:         ev.status,
-      price:          String(ev.price),
-      price_vip:      ev.price_vip != null ? String(ev.price_vip) : '',
-      vip_benefits:   (ev.vip_benefits ?? []).join('\n'),
       eventbrite_url: ev.eventbrite_url ?? '',
       description:    ev.description ?? '',
       description_en: ev.description_en ?? '',
@@ -111,6 +122,7 @@ export default function AdminEventsPage() {
       image_url:      ev.image_url ?? '',
       tags:           (ev.tags ?? []).join(', '),
     });
+    setTiers(draftsFromEvent(ev));
     setModalOpen(true);
   }
 
@@ -141,9 +153,9 @@ export default function AdminEventsPage() {
       fd.append('category',    form.category);
       fd.append('capacity',    form.capacity);
       fd.append('status',      form.status);
-      fd.append('price',        form.price);
-      fd.append('price_vip',    form.price_vip);
-      fd.append('vip_benefits', form.vip_benefits);
+      fd.append('ticket_tiers', JSON.stringify(
+        tiers.map((d) => ({ name: d.name, price: d.price, benefits: d.benefits.split('\n') }))
+      ));
       fd.append('eventbrite_url', form.eventbrite_url);
       fd.append('description',    form.description);
       fd.append('description_en', form.description_en);
@@ -177,6 +189,26 @@ export default function AdminEventsPage() {
 
   function updateForm(field: keyof FormState, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  // ── Ticket tier editor ──────────────────────────────────────
+  function addTier() {
+    setTiers((prev) => [...prev, { name: '', price: '', benefits: '' }]);
+  }
+  function removeTier(index: number) {
+    setTiers((prev) => prev.filter((_, i) => i !== index));
+  }
+  function updateTier(index: number, patch: Partial<TierDraft>) {
+    setTiers((prev) => prev.map((tier, i) => (i === index ? { ...tier, ...patch } : tier)));
+  }
+  function moveTier(index: number, dir: -1 | 1) {
+    setTiers((prev) => {
+      const next = [...prev];
+      const target = index + dir;
+      if (target < 0 || target >= next.length) return prev;
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
   }
 
   return (
@@ -334,7 +366,7 @@ export default function AdminEventsPage() {
                     <Badge variant={ev.status as 'upcoming' | 'sold-out' | 'past'} />
                   </td>
                   <td className="px-4 py-5 hidden xl:table-cell">
-                    <p className="font-sans text-xs text-[#2A2421]">{formatCurrency(ev.price, tr(ae.free, lang))}</p>
+                    <p className="font-sans text-xs text-[#2A2421]">{formatCurrency(minTierPrice(resolveTicketTiers(ev)) ?? 0, tr(ae.free, lang))}</p>
                   </td>
                   <td className="px-7 py-5">
                     <div className="flex items-center justify-end gap-2">
@@ -437,21 +469,64 @@ export default function AdminEventsPage() {
                   <input type="number" value={form.capacity} onChange={(e) => updateForm('capacity', e.target.value)} placeholder="500"
                     className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
                 </div>
-                <div>
-                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(ae.priceLbl, lang)}</label>
-                  <input type="number" value={form.price} onChange={(e) => updateForm('price', e.target.value)} placeholder="397"
-                    className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
-                </div>
-                <div>
-                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(ae.priceVipLbl, lang)}</label>
-                  <input type="number" value={form.price_vip} onChange={(e) => updateForm('price_vip', e.target.value)} placeholder="797"
-                    className="w-full border border-[#A56E52]/50 bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
-                </div>
+                {/* Ticket tiers — unlimited named types per event */}
                 <div className="sm:col-span-2">
-                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(ae.vipBenefitsLbl, lang)} <span className="normal-case text-[#A56E52]">{tr(ae.vipBenefitsHint, lang)}</span></label>
-                  <textarea value={form.vip_benefits} onChange={(e) => updateForm('vip_benefits', e.target.value)} rows={4}
-                    placeholder={"Acceso a meet & greet con speakers\nAsiento preferencial en primera fila\nKit de bienvenida premium\nCóctel VIP privado antes del evento"}
-                    className="w-full border border-[#A56E52]/50 bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors resize-none" />
+                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">
+                    {tr(ae.ticketTiersLbl, lang)} <span className="normal-case text-[#A56E52]">{tr(ae.ticketTiersHint, lang)}</span>
+                  </label>
+
+                  <div className="flex flex-col gap-3">
+                    {tiers.length === 0 && (
+                      <p className="font-sans text-[11px] text-[#5B4638] border border-dashed border-[#D7C6B2] bg-[#F7F3EE] px-4 py-3">
+                        {tr(ae.noTiers, lang)}
+                      </p>
+                    )}
+
+                    {tiers.map((tier, i) => (
+                      <div key={i} className="border border-[#D7C6B2] bg-white p-4 flex flex-col gap-3">
+                        <div className="flex items-start gap-2">
+                          <span className="mt-7 font-sans text-[10px] text-[#A56E52] w-5 shrink-0">#{i + 1}</span>
+                          <div className="flex-1 grid grid-cols-1 sm:grid-cols-[1fr_120px] gap-3">
+                            <div>
+                              <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-1.5">{tr(ae.tierNameLbl, lang)}</label>
+                              <input type="text" value={tier.name} onChange={(e) => updateTier(i, { name: e.target.value })}
+                                placeholder={tr(ae.tierNamePlaceholder, lang)}
+                                className="w-full border border-[#D7C6B2] bg-white px-3 py-2.5 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
+                            </div>
+                            <div>
+                              <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-1.5">{tr(ae.tierPriceLbl, lang)}</label>
+                              <input type="number" min="0" value={tier.price} onChange={(e) => updateTier(i, { price: e.target.value })}
+                                placeholder="1500"
+                                className="w-full border border-[#D7C6B2] bg-white px-3 py-2.5 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-1 shrink-0 pt-6">
+                            <button type="button" onClick={() => moveTier(i, -1)} disabled={i === 0} title={tr(ae.moveTierUp, lang)}
+                              className="border border-[#D7C6B2] px-2 py-1 font-sans text-[11px] leading-none text-[#5B4638] hover:border-[#A56E52] hover:text-[#A56E52] transition-colors disabled:opacity-30 disabled:cursor-not-allowed">↑</button>
+                            <button type="button" onClick={() => moveTier(i, 1)} disabled={i === tiers.length - 1} title={tr(ae.moveTierDown, lang)}
+                              className="border border-[#D7C6B2] px-2 py-1 font-sans text-[11px] leading-none text-[#5B4638] hover:border-[#A56E52] hover:text-[#A56E52] transition-colors disabled:opacity-30 disabled:cursor-not-allowed">↓</button>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-1.5">
+                            {tr(ae.tierBenefitsLbl, lang)} <span className="normal-case text-[#A56E52]">{tr(ae.tierBenefitsHint, lang)}</span>
+                          </label>
+                          <textarea value={tier.benefits} onChange={(e) => updateTier(i, { benefits: e.target.value })} rows={3}
+                            placeholder={"Mesa para 10 personas\nAsientos en primera fila\nKit de bienvenida"}
+                            className="w-full border border-[#D7C6B2] bg-white px-3 py-2.5 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors resize-none" />
+                        </div>
+                        <button type="button" onClick={() => removeTier(i)}
+                          className="self-start border border-[#D7C6B2] px-3 py-1.5 font-sans text-[9px] uppercase tracking-widest text-[#5B4638] hover:border-red-400 hover:text-red-500 transition-colors">
+                          {tr(ae.removeTier, lang)}
+                        </button>
+                      </div>
+                    ))}
+
+                    <button type="button" onClick={addTier}
+                      className="self-start border border-[#A56E52] px-4 py-2.5 font-sans text-[10px] uppercase tracking-widest text-[#A56E52] hover:bg-[#A56E52] hover:text-white transition-colors">
+                      {tr(ae.addTier, lang)}
+                    </button>
+                  </div>
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(ae.eventbriteUrlLbl, lang)} <span className="normal-case text-[#A56E52]">{tr(ae.eventbriteUrlHint, lang)}</span></label>

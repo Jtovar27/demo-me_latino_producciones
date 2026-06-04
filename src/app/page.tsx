@@ -6,6 +6,7 @@ import Badge from '@/components/ui/Badge';
 import SectionHeader from '@/components/ui/SectionHeader';
 import MobileCarousel from '@/components/ui/MobileCarousel';
 import { editorialImages } from '@/lib/media';
+import { resolveTicketTiers, minTierPrice } from '@/lib/tickets';
 import { getEvents } from '@/app/actions/events';
 import { getSpeakers } from '@/app/actions/speakers';
 import { getPublishedReviews } from '@/app/actions/reviews';
@@ -316,6 +317,7 @@ export default async function HomePage() {
               <MobileCarousel itemWidth="w-[72vw]" interval={4500}>
                 {upcomingEvents.map((event) => {
                   const d = formatDate(event.date);
+                  const minPrice = minTierPrice(resolveTicketTiers(event));
                   return (
                     <div key={event.id} className="flex flex-col bg-[#FDFAF7] h-full">
                       <div className="bg-[#2A2421] px-5 py-4 flex items-center gap-4">
@@ -336,17 +338,12 @@ export default async function HomePage() {
                       </div>
                       <div className="px-5 pb-5 flex items-center justify-between">
                         <div className="flex flex-col">
-                          {event.price === 0 && (!event.price_vip || event.price_vip === 0) ? (
+                          {minPrice === null ? (
                             <span className="font-serif text-base text-[#2A2421]">{lang === 'en' ? 'Free entry' : 'Entrada libre'}</span>
-                          ) : event.price > 0 ? (
-                            <>
-                              <span className="font-serif text-xl text-[#2A2421]">${event.price}</span>
-                              <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'per person' : 'por persona'}</span>
-                            </>
                           ) : (
                             <>
-                              <span className="font-serif text-xl text-[#A56E52]">${event.price_vip}</span>
-                              <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'VIP — per person' : 'VIP — por persona'}</span>
+                              <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'From' : 'Desde'}</span>
+                              <span className="font-serif text-xl text-[#2A2421]">${minPrice.toLocaleString('en-US')}</span>
                             </>
                           )}
                         </div>
@@ -362,6 +359,7 @@ export default async function HomePage() {
             <div className="hidden md:grid grid-cols-3 gap-px bg-[#C4B09A]">
               {upcomingEvents.map((event) => {
                 const d = formatDate(event.date);
+                const minPrice = minTierPrice(resolveTicketTiers(event));
                 return (
                   <div key={event.id} className="flex flex-col bg-[#FDFAF7] group">
                     <div className="bg-[#2A2421] px-8 py-6 flex items-center gap-6">
@@ -385,17 +383,12 @@ export default async function HomePage() {
                     </div>
                     <div className="px-8 pb-8 flex items-center justify-between">
                       <div className="flex flex-col">
-                        {event.price === 0 && (!event.price_vip || event.price_vip === 0) ? (
+                        {minPrice === null ? (
                           <span className="font-serif text-lg text-[#2A2421]">{lang === 'en' ? 'Free entry' : 'Entrada libre'}</span>
-                        ) : event.price > 0 ? (
-                          <>
-                            <span className="font-serif text-2xl text-[#2A2421]">${event.price}</span>
-                            <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'per person' : 'por persona'}</span>
-                          </>
                         ) : (
                           <>
-                            <span className="font-serif text-2xl text-[#A56E52]">${event.price_vip}</span>
-                            <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'VIP — per person' : 'VIP — por persona'}</span>
+                            <span className="font-sans text-[10px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'From' : 'Desde'}</span>
+                            <span className="font-serif text-2xl text-[#2A2421]">${minPrice.toLocaleString('en-US')}</span>
                           </>
                         )}
                       </div>

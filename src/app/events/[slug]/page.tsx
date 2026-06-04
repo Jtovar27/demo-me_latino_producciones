@@ -7,6 +7,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getPublishedReviewsForEvent } from '@/app/actions/reviews';
 import ReviewSubmitForm from './ReviewSubmitForm';
 import EventTicketButtons from '@/components/events/EventTicketButtons';
+import { resolveTicketTiers } from '@/lib/tickets';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,6 +68,7 @@ export default async function EventDetailPage({ params }: Props) {
   const { data: eventReviews } = await getPublishedReviewsForEvent(event.id, event.title);
 
   const sc = statusConfig(event.status, lang);
+  const tiers = resolveTicketTiers(event);
 
   return (
     <PublicLayout>
@@ -124,24 +126,24 @@ export default async function EventDetailPage({ params }: Props) {
                   <span className="font-sans text-sm text-[#2A2421]">{event.venue}</span>
                   <span className="font-sans text-xs text-[#5B4638]">{event.city}, {event.state}</span>
                 </div>
-                {event.price === 0 && !event.price_vip && (
+                {tiers.length === 0 ? (
                   <div className="flex flex-col gap-0.5">
                     <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'Price' : 'Precio'}</span>
                     <span className="font-serif text-xl text-[#2A2421]">{lang === 'en' ? 'Free entry' : 'Entrada libre'}</span>
                   </div>
-                )}
-                {event.price > 0 && (
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'Regular' : 'Regular'}</span>
-                    <span className="font-serif text-2xl text-[#2A2421]">${event.price}</span>
-                    <span className="font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{lang === 'en' ? 'per person' : 'por persona'}</span>
-                  </div>
-                )}
-                {event.price_vip && event.price_vip > 0 && (
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">VIP</span>
-                    <span className="font-serif text-2xl text-[#A56E52]">${event.price_vip}</span>
-                    <span className="font-sans text-[10px] uppercase tracking-widest text-[#5B4638]">{lang === 'en' ? 'per person' : 'por persona'}</span>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">{lang === 'en' ? 'Tickets' : 'Entradas'}</span>
+                    <div className="flex flex-col gap-2">
+                      {tiers.map((tier, i) => (
+                        <div key={`${tier.name}-${i}`} className="flex items-baseline justify-between gap-4 border-b border-[#EAE1D6] pb-2 last:border-0 last:pb-0">
+                          <span className="font-sans text-sm text-[#2A2421]">{tier.name}</span>
+                          <span className="font-serif text-xl text-[#A56E52] shrink-0">
+                            {tier.price > 0 ? `$${tier.price.toLocaleString('en-US')}` : (lang === 'en' ? 'Free' : 'Gratis')}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -152,19 +154,23 @@ export default async function EventDetailPage({ params }: Props) {
                 </p>
               )}
 
-              {event.price_vip && event.price_vip > 0 && event.vip_benefits && event.vip_benefits.length > 0 && (
-                <div className="border border-[#A56E52]/40 bg-[#F7F3EE] p-5 flex flex-col gap-3">
-                  <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">
-                    {lang === 'en' ? 'VIP — Includes' : 'VIP — Incluye'}
-                  </span>
-                  <ul className="flex flex-col gap-2">
-                    {event.vip_benefits.map((b) => (
-                      <li key={b} className="flex items-start gap-2">
-                        <span className="mt-[6px] h-1 w-1 shrink-0 rounded-full bg-[#A56E52]" />
-                        <span className="font-sans text-sm text-[#2A2421]">{b}</span>
-                      </li>
-                    ))}
-                  </ul>
+              {tiers.some((tier) => tier.benefits.length > 0) && (
+                <div className="flex flex-col gap-4">
+                  {tiers.filter((tier) => tier.benefits.length > 0).map((tier, i) => (
+                    <div key={`${tier.name}-ben-${i}`} className="border border-[#A56E52]/40 bg-[#F7F3EE] p-5 flex flex-col gap-3">
+                      <span className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">
+                        {tier.name} — {lang === 'en' ? 'Includes' : 'Incluye'}
+                      </span>
+                      <ul className="flex flex-col gap-2">
+                        {tier.benefits.map((b) => (
+                          <li key={b} className="flex items-start gap-2">
+                            <span className="mt-[6px] h-1 w-1 shrink-0 rounded-full bg-[#A56E52]" />
+                            <span className="font-sans text-sm text-[#2A2421]">{b}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
               )}
 
@@ -189,6 +195,7 @@ export default async function EventDetailPage({ params }: Props) {
                     price: event.price,
                     price_vip: event.price_vip,
                     vip_benefits: event.vip_benefits,
+                    ticket_tiers: event.ticket_tiers,
                     eventbrite_url: event.eventbrite_url,
                     status: event.status,
                   }}
