@@ -204,7 +204,7 @@ export default async function TheRealHappinessPage() {
           'Anyone seeking growth, perspective, and meaningful connection.',
         ],
         // Hosts (host cards come from the real_happiness_hosts table)
-        hostsEyebrow: 'Hosted by',
+        hostsEyebrow: 'Production',
         hostsTitle: 'Voices that lead the experience.',
         // Speakers
         spkEyebrow: 'Confirmed speakers',
@@ -323,7 +323,7 @@ export default async function TheRealHappinessPage() {
           'Personas que buscan crecer, ganar perspectiva y conectar con propósito.',
         ],
         // Hosts (los hosts vienen de la tabla real_happiness_hosts)
-        hostsEyebrow: 'Conducción',
+        hostsEyebrow: 'Producción',
         hostsTitle: 'Las voces que lideran la experiencia.',
         // Speakers
         spkEyebrow: 'Speakers confirmados',
