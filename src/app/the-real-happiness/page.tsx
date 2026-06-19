@@ -7,7 +7,7 @@ import SponsorPackagesSection from '@/components/sponsors/SponsorPackagesSection
 import RealHappinessLeadForm from '@/components/realHappiness/RealHappinessLeadForm';
 import { getSpeakers } from '@/app/actions/speakers';
 import { getFlagshipEvents } from '@/app/actions/flagship';
-import { getRealHappinessSpeakers } from '@/app/actions/realHappiness';
+import { getRealHappinessSpeakers, getRealHappinessHosts } from '@/app/actions/realHappiness';
 import { getLang } from '@/lib/i18n/getLang';
 import type { DBSpeaker, FlagshipVenue } from '@/types/supabase';
 
@@ -98,15 +98,36 @@ export default async function TheRealHappinessPage() {
     { data: dbSpeakers },
     { data: flagship },
     { data: rhSpeakers },
+    { data: rhHosts },
   ] = await Promise.all([
     getSpeakers(),
     getFlagshipEvents(),
     getRealHappinessSpeakers(),
+    getRealHappinessHosts(),
   ]);
 
-  // Hosts are rendered separately in section 5 — defensively skip them if an
-  // admin happened to add them to the speakers table.
-  const featuredHosts = ['Mónica Espinoza', 'Joyce Urdaneta', 'Joyceleine Scarleth'];
+  // Hosts (section 5) come from the real_happiness_hosts table (managed in
+  // /admin/real-happiness). Image priority per host:
+  //   1. The image_url set on the row (admin upload)
+  //   2. A name match in the general speakers table (legacy behaviour)
+  //   3. Fallback initials placeholder rendered by the card itself
+  const hostCards = rhHosts.map((h) => ({
+    id:      h.id,
+    name:    h.name,
+    role:    lang === 'en' ? (h.role_en || h.role_es) : (h.role_es || h.role_en),
+    body:    lang === 'en' ? (h.bio_en || h.bio_es) : (h.bio_es || h.bio_en),
+    image:
+      h.image_url ??
+      dbSpeakerByName(dbSpeakers ?? [], h.name)?.image_url ??
+      null,
+  }));
+
+  // Defensively skip hosts (and a couple of legacy aliases) if an admin happened
+  // to also add them to the confirmed-speakers table.
+  const featuredHosts = [
+    ...hostCards.map((h) => h.name),
+    'Mónica Espinoza', 'Joyce Urdaneta', 'Joyceleine Scarleth',
+  ];
   // Image priority for each card:
   //   1. The image_url set on the real_happiness_speakers row (admin upload)
   //   2. A name match in the general speakers table (legacy behaviour)
@@ -182,17 +203,9 @@ export default async function TheRealHappinessPage() {
           'Wellness, education, and community professionals.',
           'Anyone seeking growth, perspective, and meaningful connection.',
         ],
-        // Hosts
+        // Hosts (host cards come from the real_happiness_hosts table)
         hostsEyebrow: 'Hosted by',
         hostsTitle: 'Voices that lead the experience.',
-        host1Name: 'Mónica Espinoza',
-        host1Role: 'CEO & Founder · ME Producciones',
-        host1Body:
-          'A leader in entertainment and corporate event production, Mónica is known for creating purposeful experiences across the United States and Ecuador. ME Producciones specializes in events that inspire and entertain — including the Stand Up Latin Tour in Ecuador and large-scale brand activations recognized for their cultural merit.',
-        host2Name: 'Joyce Urdaneta',
-        host2Role: 'Host · El Sol Network TV Orlando',
-        host2Body:
-          'Communicator, writer, and coach, Joyce promotes happiness, well-being, and personal development through every platform she touches. Host of "De Noche y Sin Sueño con Joy", she brings warmth, depth, and presence — and will host The Real Happiness Experience on stage.',
         // Speakers
         spkEyebrow: 'Confirmed speakers',
         spkTitle: 'Voices in the room.',
@@ -309,17 +322,9 @@ export default async function TheRealHappinessPage() {
           'Profesionales de bienestar, educación y comunidad.',
           'Personas que buscan crecer, ganar perspectiva y conectar con propósito.',
         ],
-        // Hosts
+        // Hosts (los hosts vienen de la tabla real_happiness_hosts)
         hostsEyebrow: 'Conducción',
         hostsTitle: 'Las voces que lideran la experiencia.',
-        host1Name: 'Mónica Espinoza',
-        host1Role: 'CEO & Fundadora · ME Producciones',
-        host1Body:
-          'Líder en entretenimiento y producción de eventos corporativos, Mónica es reconocida por crear experiencias con propósito en Estados Unidos y Ecuador. ME Producciones se especializa en eventos que inspiran y entretienen — incluyendo el Stand Up Latin Tour en Ecuador y activaciones de marca a gran escala reconocidas por su mérito cultural.',
-        host2Name: 'Joyce Urdaneta',
-        host2Role: 'Host · El Sol Network TV Orlando',
-        host2Body:
-          'Comunicadora, escritora y coach, Joyce promueve la felicidad, el bienestar y el desarrollo personal en cada plataforma donde participa. Conductora de "De Noche y Sin Sueño con Joy", aporta calidez, profundidad y presencia — y será la host de The Real Happiness Experience en escena.',
         // Speakers
         spkEyebrow: 'Speakers confirmados',
         spkTitle: 'Las voces en la sala.',
@@ -561,26 +566,8 @@ export default async function TheRealHappinessPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#C4B09A]">
-            {[
-              {
-                name: copy.host1Name,
-                role: copy.host1Role,
-                body: copy.host1Body,
-                image:
-                  dbSpeakerByName(dbSpeakers ?? [], 'Mónica Espinoza')?.image_url ??
-                  '/MEspinoza.jpg.png',
-              },
-              {
-                name: copy.host2Name,
-                role: copy.host2Role,
-                body: copy.host2Body,
-                image:
-                  dbSpeakerByName(dbSpeakers ?? [], 'Joyceleine Scarleth')?.image_url ??
-                  dbSpeakerByName(dbSpeakers ?? [], 'Joyce Urdaneta')?.image_url ??
-                  null,
-              },
-            ].map((h) => (
-              <div key={h.name} className="flex flex-col bg-[#FDFAF7] p-6 sm:p-8 md:p-10">
+            {hostCards.map((h) => (
+              <div key={h.id} className="flex flex-col bg-[#FDFAF7] p-6 sm:p-8 md:p-10">
                 <div className="flex items-start gap-4 sm:gap-5">
                   <div className="relative h-16 w-16 sm:h-20 sm:w-20 shrink-0 overflow-hidden border border-[#D7C6B2] bg-[#EAE1D6]">
                     {h.image ? (

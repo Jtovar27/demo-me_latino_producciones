@@ -837,6 +837,22 @@ export const t = {
     toastError:       { es: 'No se pudo guardar.',                                            en: 'Could not save.' },
     saved:            { es: 'Orden guardado.',                                                en: 'Order saved.' },
     saveFailed:       { es: 'No se pudo guardar el orden.',                                   en: 'Could not save order.' },
+    // Hosts (Conducción)
+    hostsTitle:       { es: 'Hosts (Conducción)',                                             en: 'Hosts' },
+    hostsDesc:        { es: 'Estos hosts aparecen en la sección "Conducción" del sitio. Edita la foto, el nombre, el subtítulo y la descripción. Se ordenan según la lista (usa las flechas).', en: 'These hosts appear in the "Hosted by" section of the site. Edit the photo, name, subtitle and description. Order follows the list (use the arrows).' },
+    addHost:          { es: '+ Nuevo host',                                                   en: '+ New host' },
+    noHosts:          { es: 'Aún no hay hosts. Agrega el primero.',                           en: 'No hosts yet. Add the first one.' },
+    editHostModal:    { es: 'Editar host',                                                    en: 'Edit host' },
+    newHostModal:     { es: 'Nuevo host',                                                     en: 'New host' },
+    roleEsLbl:        { es: 'Subtítulo / Rol (ES)',                                           en: 'Subtitle / Role (ES)' },
+    roleEnLbl:        { es: 'Subtítulo / Rol (EN)',                                           en: 'Subtitle / Role (EN)' },
+    bioEsLbl:         { es: 'Descripción (ES)',                                               en: 'Description (ES)' },
+    bioEnLbl:         { es: 'Descripción (EN)',                                               en: 'Description (EN)' },
+    saveHost:         { es: 'Guardar host',                                                   en: 'Save host' },
+    deleteHostConfirm:{ es: '¿Eliminar este host? Esta acción no se puede deshacer.',         en: 'Delete this host? This action cannot be undone.' },
+    hostCreated:      { es: 'Host creado.',                                                   en: 'Host created.' },
+    hostUpdated:      { es: 'Host actualizado.',                                              en: 'Host updated.' },
+    hostDeleted:      { es: 'Host eliminado.',                                                en: 'Host deleted.' },
   },
 
   // ─── Admin: Hero ─────────────────────────────────────────────────────────

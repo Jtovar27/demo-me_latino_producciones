@@ -145,6 +145,20 @@ type RealHappinessSpeakerRow = {
   updated_at: string;
 };
 
+type RealHappinessHostRow = {
+  id:         string;
+  name:       string;
+  role_es:    string;
+  role_en:    string;
+  bio_es:     string;
+  bio_en:     string;
+  image_url:  string | null;
+  sort_order: number;
+  active:     boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 type HeroSlideRow = {
   id: string;
   image_url:    string;
@@ -241,6 +255,12 @@ export interface Database {
         Update: Partial<RealHappinessSpeakerRow>;
         Relationships: [];
       };
+      real_happiness_hosts: {
+        Row: RealHappinessHostRow;
+        Insert: Partial<RealHappinessHostRow>;
+        Update: Partial<RealHappinessHostRow>;
+        Relationships: [];
+      };
     };
   };
 }
@@ -258,3 +278,4 @@ export type DBSiteConfig      = SiteConfigRow;
 export type DBHeroSlide       = HeroSlideRow;
 export type DBFlagshipEvent   = FlagshipEventRow;
 export type DBRealHappinessSpeaker = RealHappinessSpeakerRow;
+export type DBRealHappinessHost    = RealHappinessHostRow;
