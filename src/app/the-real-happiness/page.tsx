@@ -565,7 +565,7 @@ export default async function TheRealHappinessPage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#C4B09A]">
+          <div className={`grid grid-cols-1 gap-px bg-[#C4B09A] ${hostCards.length > 1 ? 'md:grid-cols-2' : ''}`}>
             {hostCards.map((h) => (
               <div key={h.id} className="flex flex-col bg-[#FDFAF7] p-6 sm:p-8 md:p-10">
                 <div className="flex items-start gap-4 sm:gap-5">
