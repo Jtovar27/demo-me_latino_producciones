@@ -27,6 +27,7 @@ type EventRow = {
   featured: boolean; tags: string[]; created_at: string; updated_at: string;
   title_en: string | null; description_en: string | null;
   eventbrite_url: string | null;
+  ticketplate_url: string | null;
 };
 
 type SpeakerRow = {

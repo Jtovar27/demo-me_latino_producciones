@@ -319,6 +319,11 @@ export const t = {
     eventbriteBtn:       { es: 'Continuar en Eventbrite',   en: 'Continue on Eventbrite' },
     eventbriteBuyBtn:    { es: 'Comprar en Eventbrite',     en: 'Buy on Eventbrite' },
     eventbriteSoon:      { es: 'Link de Eventbrite próximamente', en: 'Eventbrite link coming soon' },
+    ticketplateTitle:    { es: 'Pagar con TicketPlate',     en: 'Pay with TicketPlate' },
+    ticketplateDesc:     { es: 'Compra tus tickets con tarjeta de crédito o débito en TicketPlate.', en: 'Buy your tickets with credit or debit card on TicketPlate.' },
+    ticketplateBtn:      { es: 'Continuar en TicketPlate',  en: 'Continue on TicketPlate' },
+    ticketplateBuyBtn:   { es: 'Comprar en TicketPlate',    en: 'Buy on TicketPlate' },
+    ticketplateSoon:     { es: 'Link de TicketPlate próximamente', en: 'TicketPlate link coming soon' },
   },
 
   // ── Ticket Purchase Modal ─────────────────────────────────
@@ -412,6 +417,8 @@ export const t = {
     noTiers:          { es: 'Sin tipos = evento gratis. Agrega un tipo para cobrar entrada.', en: 'No types = free event. Add a type to charge for entry.' },
     eventbriteUrlLbl: { es: 'Link de Eventbrite',         en: 'Eventbrite link' },
     eventbriteUrlHint:{ es: '(opcional — se mostrará como segunda opción de pago)', en: '(optional — will appear as a second payment option)' },
+    ticketplateUrlLbl: { es: 'Link de TicketPlate',        en: 'TicketPlate link' },
+    ticketplateUrlHint:{ es: '(opcional — se mostrará como otra opción de pago)', en: '(optional — will appear as another payment option)' },
     descriptionLbl:   { es: 'Descripción (ES)',            en: 'Description (ES)' },
     descriptionEnLbl: { es: 'Descripción (EN)',            en: 'Description (EN)' },
     tagsLbl:          { es: 'Etiquetas (separadas por coma)', en: 'Tags (comma-separated)' },

@@ -18,6 +18,7 @@ interface Props {
   eventState: string;
   tiers: TicketTier[];
   eventbriteUrl?: string | null;
+  ticketplateUrl?: string | null;
   onClose: () => void;
 }
 
@@ -41,6 +42,7 @@ export default function TicketPurchaseModal({
   eventState,
   tiers,
   eventbriteUrl,
+  ticketplateUrl,
   onClose,
 }: Props) {
   const [name, setName]         = useState('');
@@ -200,7 +202,23 @@ export default function TicketPurchaseModal({
               </div>
             )}
 
-            {!isFree && eventbriteUrl && (
+            {!isFree && ticketplateUrl && (
+              /* Alternativa: pagar en TicketPlate */
+              <div className="border border-[#1D4ED8] bg-[#F3F6FD] px-5 py-4 space-y-3">
+                <p className="font-sans text-[9px] uppercase tracking-widest text-[#1D4ED8]">{tr(pf.ticketplateTitle, lang)}</p>
+                <p className="font-sans text-[11px] leading-relaxed text-[#5B4638]">{tr(pf.ticketplateDesc, lang)}</p>
+                <a
+                  href={ticketplateUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full bg-[#1D4ED8] px-6 py-3.5 font-sans text-[11px] uppercase tracking-widest text-white hover:bg-[#1E40AF] transition-colors"
+                >
+                  {tr(pf.ticketplateBtn, lang)}
+                </a>
+              </div>
+            )}
+
+            {!isFree && (eventbriteUrl || ticketplateUrl) && (
               /* Separador entre métodos de pago */
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-px bg-[#D7C6B2]" />
@@ -298,21 +316,37 @@ export default function TicketPurchaseModal({
                 </p>
               </div>
 
-              {!isFree && eventbriteUrl && (
-                /* Acceso directo a Eventbrite antes de llenar el formulario */
+              {!isFree && (eventbriteUrl || ticketplateUrl) && (
+                /* Acceso directo a plataformas externas antes de llenar el formulario */
                 <>
-                  <div className="border border-[#A56E52] bg-[#FDF7F3] px-4 py-3.5 space-y-2.5">
-                    <p className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">{tr(pf.eventbriteTitle, lang)}</p>
-                    <p className="font-sans text-[11px] leading-relaxed text-[#5B4638]">{tr(pf.eventbriteDesc, lang)}</p>
-                    <a
-                      href={eventbriteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full bg-[#D1410C] px-5 py-3 font-sans text-[10px] uppercase tracking-widest text-white hover:bg-[#B3370A] transition-colors"
-                    >
-                      {tr(pf.eventbriteBtn, lang)}
-                    </a>
-                  </div>
+                  {eventbriteUrl && (
+                    <div className="border border-[#A56E52] bg-[#FDF7F3] px-4 py-3.5 space-y-2.5">
+                      <p className="font-sans text-[9px] uppercase tracking-widest text-[#A56E52]">{tr(pf.eventbriteTitle, lang)}</p>
+                      <p className="font-sans text-[11px] leading-relaxed text-[#5B4638]">{tr(pf.eventbriteDesc, lang)}</p>
+                      <a
+                        href={eventbriteUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 w-full bg-[#D1410C] px-5 py-3 font-sans text-[10px] uppercase tracking-widest text-white hover:bg-[#B3370A] transition-colors"
+                      >
+                        {tr(pf.eventbriteBtn, lang)}
+                      </a>
+                    </div>
+                  )}
+                  {ticketplateUrl && (
+                    <div className="border border-[#1D4ED8] bg-[#F3F6FD] px-4 py-3.5 space-y-2.5">
+                      <p className="font-sans text-[9px] uppercase tracking-widest text-[#1D4ED8]">{tr(pf.ticketplateTitle, lang)}</p>
+                      <p className="font-sans text-[11px] leading-relaxed text-[#5B4638]">{tr(pf.ticketplateDesc, lang)}</p>
+                      <a
+                        href={ticketplateUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 w-full bg-[#1D4ED8] px-5 py-3 font-sans text-[10px] uppercase tracking-widest text-white hover:bg-[#1E40AF] transition-colors"
+                      >
+                        {tr(pf.ticketplateBtn, lang)}
+                      </a>
+                    </div>
+                  )}
                   <div className="flex items-center gap-3">
                     <div className="flex-1 h-px bg-[#D7C6B2]" />
                     <span className="font-sans text-[9px] uppercase tracking-[0.3em] text-[#5B4638]">{tr(pf.orDivider, lang)}</span>

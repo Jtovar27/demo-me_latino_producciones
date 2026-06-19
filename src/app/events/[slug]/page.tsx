@@ -197,6 +197,7 @@ export default async function EventDetailPage({ params }: Props) {
                     vip_benefits: event.vip_benefits,
                     ticket_tiers: event.ticket_tiers,
                     eventbrite_url: event.eventbrite_url,
+                    ticketplate_url: event.ticketplate_url,
                     status: event.status,
                   }}
                 />

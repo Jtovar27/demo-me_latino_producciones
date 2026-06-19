@@ -57,7 +57,7 @@ const categoryLabels: Record<string, string> = {
 
 const emptyForm = {
   title: '', title_en: '', slug: '', date: '', end_date: '', city: '', state: '',
-  venue: '', category: 'flagship', capacity: '', status: 'upcoming', eventbrite_url: '',
+  venue: '', category: 'flagship', capacity: '', status: 'upcoming', eventbrite_url: '', ticketplate_url: '',
   description: '', description_en: '', featured: 'false', image_url: '', tags: '',
 };
 
@@ -116,6 +116,7 @@ export default function AdminEventsPage() {
       capacity:       String(ev.capacity),
       status:         ev.status,
       eventbrite_url: ev.eventbrite_url ?? '',
+      ticketplate_url: ev.ticketplate_url ?? '',
       description:    ev.description ?? '',
       description_en: ev.description_en ?? '',
       featured:       String(ev.featured),
@@ -157,6 +158,7 @@ export default function AdminEventsPage() {
         tiers.map((d) => ({ name: d.name, price: d.price, benefits: d.benefits.split('\n') }))
       ));
       fd.append('eventbrite_url', form.eventbrite_url);
+      fd.append('ticketplate_url', form.ticketplate_url);
       fd.append('description',    form.description);
       fd.append('description_en', form.description_en);
       fd.append('featured',       form.featured);
@@ -532,6 +534,12 @@ export default function AdminEventsPage() {
                   <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(ae.eventbriteUrlLbl, lang)} <span className="normal-case text-[#A56E52]">{tr(ae.eventbriteUrlHint, lang)}</span></label>
                   <input type="url" value={form.eventbrite_url} onChange={(e) => updateForm('eventbrite_url', e.target.value)}
                     placeholder="https://www.eventbrite.com/e/..."
+                    className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block font-sans text-[9px] uppercase tracking-widest text-[#5B4638] mb-2">{tr(ae.ticketplateUrlLbl, lang)} <span className="normal-case text-[#A56E52]">{tr(ae.ticketplateUrlHint, lang)}</span></label>
+                  <input type="url" value={form.ticketplate_url} onChange={(e) => updateForm('ticketplate_url', e.target.value)}
+                    placeholder="https://ticketplate.com/..."
                     className="w-full border border-[#D7C6B2] bg-white px-4 py-3 font-sans text-sm text-[#2A2421] outline-none focus:border-[#A56E52] transition-colors" />
                 </div>
                 <div className="sm:col-span-2">

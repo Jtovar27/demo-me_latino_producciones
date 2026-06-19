@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import TicketPurchaseModal from '@/components/ui/TicketPurchaseModal';
 import EventbriteButton from '@/components/events/EventbriteButton';
+import TicketPlateButton from '@/components/events/TicketPlateButton';
 import { resolveTicketTiers } from '@/lib/tickets';
 import type { TicketTier } from '@/types/supabase';
 
@@ -17,6 +18,7 @@ interface EventData {
   vip_benefits: string[] | null;
   ticket_tiers: TicketTier[];
   eventbrite_url: string | null;
+  ticketplate_url: string | null;
   status: string;
 }
 
@@ -68,7 +70,10 @@ export default function EventTicketButtons({ event }: { event: EventData }) {
           </Link>
         </div>
         {isFutureEvent(event.status) && (
-          <EventbriteButton url={event.eventbrite_url} variant="full" />
+          <>
+            <EventbriteButton url={event.eventbrite_url} variant="full" />
+            <TicketPlateButton url={event.ticketplate_url} variant="full" />
+          </>
         )}
       </div>
 
@@ -80,6 +85,7 @@ export default function EventTicketButtons({ event }: { event: EventData }) {
           eventState={event.state}
           tiers={resolveTicketTiers(event)}
           eventbriteUrl={event.eventbrite_url}
+          ticketplateUrl={event.ticketplate_url}
           onClose={() => setModalOpen(false)}
         />
       )}

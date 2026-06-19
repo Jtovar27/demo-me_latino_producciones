@@ -70,6 +70,7 @@ export async function upsertEvent(formData: FormData) {
     vip_benefits: usingTiers ? null : (vip_benefits.length > 0 ? vip_benefits : null),
     ticket_tiers,
     eventbrite_url: (formData.get('eventbrite_url') as string)?.trim() || null,
+    ticketplate_url: (formData.get('ticketplate_url') as string)?.trim() || null,
     featured: formData.get('featured') === 'true',
     tags,
     updated_at: new Date().toISOString(),

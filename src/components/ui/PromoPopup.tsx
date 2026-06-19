@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import TicketPurchaseModal from './TicketPurchaseModal';
 import EventbriteButton from '@/components/events/EventbriteButton';
+import TicketPlateButton from '@/components/events/TicketPlateButton';
 import { resolveTicketTiers, minTierPrice } from '@/lib/tickets';
 import type { TicketTier } from '@/types/supabase';
 
@@ -23,6 +24,7 @@ interface FeaturedEvent {
   vip_benefits: string[] | null;
   ticket_tiers: TicketTier[];
   eventbrite_url: string | null;
+  ticketplate_url: string | null;
 }
 
 function formatDate(dateStr: string) {
@@ -199,6 +201,9 @@ export default function PromoPopup() {
                 {/* Botón 2: Comprar en Eventbrite (o aviso "próximamente") */}
                 <EventbriteButton url={event.eventbrite_url} variant="full" />
 
+                {/* Botón 2b: Comprar en TicketPlate (solo si hay link) */}
+                <TicketPlateButton url={event.ticketplate_url} variant="full" />
+
                 {/* Botón 3: Más Información */}
                 <a
                   href={waInfoUrl}
@@ -236,6 +241,7 @@ export default function PromoPopup() {
           eventState={event.state}
           tiers={tiers}
           eventbriteUrl={event.eventbrite_url}
+          ticketplateUrl={event.ticketplate_url}
           onClose={() => setModalOpen(false)}
         />
       )}
