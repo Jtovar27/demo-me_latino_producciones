@@ -2,10 +2,12 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createPublicClient } from '@/lib/supabase/public';
+import { isAdmin } from '@/lib/auth/requireAdmin';
 import type { DBSponsor } from '@/types/supabase';
 
 export async function getSponsors() {
-  const client = createAdminClient();
+  const client = createPublicClient();
   const { data, error } = await client
     .from('sponsors')
     .select('*')
@@ -17,6 +19,7 @@ export async function getSponsors() {
 }
 
 export async function upsertSponsor(formData: FormData) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const id = formData.get('id') as string | null;
 
@@ -61,6 +64,7 @@ export async function upsertSponsor(formData: FormData) {
  * Other tiers are untouched.
  */
 export async function reorderSponsors(tier: string, orderedIds: string[]) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   if (!tier || !Array.isArray(orderedIds) || orderedIds.length === 0) {
     return { error: 'No sponsors to reorder.' };
   }
@@ -80,6 +84,7 @@ export async function reorderSponsors(tier: string, orderedIds: string[]) {
 }
 
 export async function deleteSponsor(id: string) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const { error } = await client.from('sponsors').delete().eq('id', id);
   if (error) return { error: error.message };

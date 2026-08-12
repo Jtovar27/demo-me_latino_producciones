@@ -2,9 +2,12 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createPublicClient } from '@/lib/supabase/public';
+import { isAdmin } from '@/lib/auth/requireAdmin';
 import type { DBSpeaker } from '@/types/supabase';
 
 export async function upsertSpeaker(formData: FormData) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const id = formData.get('id') as string | null;
 
@@ -49,6 +52,7 @@ export async function upsertSpeaker(formData: FormData) {
 }
 
 export async function deleteSpeaker(id: string) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const { error } = await client.from('speakers').delete().eq('id', id);
   if (error) return { error: error.message };
@@ -59,7 +63,7 @@ export async function deleteSpeaker(id: string) {
 }
 
 export async function getSpeakers() {
-  const client = createAdminClient();
+  const client = createPublicClient();
   const { data, error } = await client
     .from('speakers')
     .select('*')
@@ -74,6 +78,7 @@ export async function getSpeakers() {
  * The admin always sends the full list, so this is conflict-free.
  */
 export async function reorderSpeakers(orderedIds: string[]) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
     return { error: 'No speakers to reorder.' };
   }

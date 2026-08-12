@@ -68,12 +68,12 @@ describe('proxy — protected /admin routes', () => {
     expect(res.status).toBe(307);
   });
 
-  it('allows through with a valid session token', async () => {
+  it('allows through with a valid, freshly-issued session token', async () => {
     const { proxy } = await getProxy();
-    // Build the expected token using the same algorithm
-    const { buildSessionToken } = await import('../src/lib/auth/session');
-    const token = buildSessionToken();
-    const res = proxy(makeRequest('/admin/events', token));
+    const { issueSessionToken } = await import('../src/lib/auth/session');
+    const token = issueSessionToken();
+    expect(token).toBeTruthy();
+    const res = proxy(makeRequest('/admin/events', token!));
     expect(res.status).toBe(200);
   });
 
@@ -81,5 +81,30 @@ describe('proxy — protected /admin routes', () => {
     const { proxy } = await getProxy();
     const res = proxy(makeRequest('/admin/settings', 'meprod_wrong_token'));
     expect(res.status).toBe(307);
+  });
+
+  // ── Regression: AUTH-1 — the "unconfigured" sentinel must never authenticate ──
+  it('rejects the literal "unconfigured" cookie even when env vars are missing', async () => {
+    delete process.env.ADMIN_USERNAME;
+    delete process.env.ADMIN_PASSWORD;
+    vi.resetModules();
+    const { proxy } = await getProxy();
+    const res = proxy(makeRequest('/admin/events', 'unconfigured'));
+    expect(res.status).toBe(307); // redirected to login, NOT granted
+  });
+
+  // ── Regression: a token signed with a DIFFERENT password must not verify ──
+  it('rejects a token issued under a different admin password (rotation invalidates sessions)', async () => {
+    const sessionMod = await import('../src/lib/auth/session');
+    process.env.ADMIN_PASSWORD = 'old-password';
+    vi.resetModules();
+    const oldToken = (await import('../src/lib/auth/session')).issueSessionToken();
+    // Rotate the password.
+    process.env.ADMIN_PASSWORD = 'new-password';
+    vi.resetModules();
+    const { proxy } = await getProxy();
+    const res = proxy(makeRequest('/admin/events', oldToken!));
+    expect(res.status).toBe(307);
+    void sessionMod;
   });
 });

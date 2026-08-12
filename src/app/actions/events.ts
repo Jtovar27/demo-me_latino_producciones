@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createPublicClient } from '@/lib/supabase/public';
+import { isAdmin } from '@/lib/auth/requireAdmin';
 import { sanitizeTiers, minTierPrice } from '@/lib/tickets';
 import type { TicketTier } from '@/types/supabase';
 
@@ -12,6 +14,8 @@ function revalidateEventPaths() {
 }
 
 export async function upsertEvent(formData: FormData) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
+
   const client = createAdminClient();
   const id = formData.get('id') as string | null;
 
@@ -89,6 +93,8 @@ export async function upsertEvent(formData: FormData) {
 }
 
 export async function deleteEvent(id: string) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
+
   const client = createAdminClient();
   const { error } = await client.from('events').delete().eq('id', id);
   if (error) return { error: error.message };
@@ -97,7 +103,7 @@ export async function deleteEvent(id: string) {
 }
 
 export async function getEvents() {
-  const client = createAdminClient();
+  const client = createPublicClient();
   const { data, error } = await client
     .from('events')
     .select('*')
@@ -124,6 +130,8 @@ export async function getUpcomingEvents() {
  * are featured between the clear-all and the set-one operations.
  */
 export async function setFeaturedForPopup(id: string) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
+
   const client = createAdminClient();
 
   // Clear all featured flags first, then set the target.

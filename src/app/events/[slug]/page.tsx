@@ -3,7 +3,7 @@ import { getLang } from '@/lib/i18n/getLang';
 import Image from 'next/image';
 import Link from 'next/link';
 import PublicLayout from '@/components/layout/PublicLayout';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { createPublicClient } from '@/lib/supabase/public';
 import { getPublishedReviewsForEvent } from '@/app/actions/reviews';
 import ReviewSubmitForm from './ReviewSubmitForm';
 import EventTicketButtons from '@/components/events/EventTicketButtons';
@@ -55,14 +55,21 @@ export default async function EventDetailPage({ params }: Props) {
   const { slug } = await params;
   const lang = await getLang();
 
-  const client = createAdminClient();
+  const client = createPublicClient();
   const { data: event, error } = await client
     .from('events')
     .select('*')
     .eq('slug', slug)
-    .single();
+    .maybeSingle();
 
-  if (error || !event) notFound();
+  // Distinguish a genuinely missing event (404) from a transient DB/network failure.
+  // maybeSingle() returns { data: null, error: null } for "no rows", so a non-null error
+  // is a real failure — throw it to the retryable error boundary instead of faking a 404.
+  if (error) {
+    console.error('[event-detail] load error:', error.message);
+    throw new Error('Failed to load event');
+  }
+  if (!event) notFound();
 
   // Fetch published reviews for this event — filtered at DB level by event_id or event_name
   const { data: eventReviews } = await getPublishedReviewsForEvent(event.id, event.title);

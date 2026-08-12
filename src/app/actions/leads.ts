@@ -2,11 +2,13 @@
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createPublicClient } from '@/lib/supabase/public';
+import { isAdmin } from '@/lib/auth/requireAdmin';
 
 const VALID_LEAD_STATUSES = ['new', 'contacted', 'qualified', 'converted', 'closed'] as const;
 type LeadStatus = typeof VALID_LEAD_STATUSES[number];
 
 export async function updateLeadStatus(id: string, status: string, notes?: string) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   if (!VALID_LEAD_STATUSES.includes(status as LeadStatus)) {
     return { error: `Estado inválido: ${status}` };
   }
@@ -25,6 +27,7 @@ export async function updateLeadStatus(id: string, status: string, notes?: strin
 }
 
 export async function getLeads() {
+  if (!(await isAdmin())) return { data: [], error: 'No autorizado.' };
   const client = createAdminClient();
   const { data, error } = await client
     .from('leads')

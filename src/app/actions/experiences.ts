@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createPublicClient } from '@/lib/supabase/public';
+import { isAdmin } from '@/lib/auth/requireAdmin';
 
 function revalidateExperiencePaths() {
   revalidatePath('/admin/experiences');
@@ -10,7 +12,7 @@ function revalidateExperiencePaths() {
 }
 
 export async function getExperiences() {
-  const client = createAdminClient();
+  const client = createPublicClient();
   const { data, error } = await client
     .from('experiences')
     .select('*')
@@ -20,7 +22,7 @@ export async function getExperiences() {
 }
 
 export async function getExperienceBySlug(slug: string) {
-  const client = createAdminClient();
+  const client = createPublicClient();
   const { data, error } = await client
     .from('experiences')
     .select('*')
@@ -31,6 +33,7 @@ export async function getExperienceBySlug(slug: string) {
 }
 
 export async function upsertExperience(formData: FormData) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const id = formData.get('id') as string | null;
 
@@ -71,6 +74,7 @@ export async function upsertExperience(formData: FormData) {
 }
 
 export async function deleteExperience(id: string) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const { error } = await client.from('experiences').delete().eq('id', id);
   if (error) return { error: error.message };

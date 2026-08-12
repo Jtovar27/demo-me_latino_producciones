@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { buildSessionToken } from '@/lib/auth/session';
+import { verifySessionToken } from '@/lib/auth/session';
 
 const BUCKET = process.env.NEXT_PUBLIC_STORAGE_BUCKET ?? 'meproducciones-media';
 const SESSION_COOKIE = 'me_admin_session';
 
 export async function POST(req: NextRequest) {
-  const session = req.cookies.get(SESSION_COOKIE);
-  if (!session?.value || session.value !== buildSessionToken()) {
+  const token = req.cookies.get(SESSION_COOKIE)?.value;
+  if (!verifySessionToken(token)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

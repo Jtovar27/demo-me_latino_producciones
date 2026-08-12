@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createPublicClient } from '@/lib/supabase/public';
+import { isAdmin } from '@/lib/auth/requireAdmin';
 import type { DBRealHappinessSpeaker, DBRealHappinessHost } from '@/types/supabase';
 
 /**
@@ -49,7 +51,7 @@ export async function getRealHappinessSpeakers(): Promise<{
   data: DBRealHappinessSpeaker[];
   error: string | null;
 }> {
-  const client = createAdminClient();
+  const client = createPublicClient();
   const { data, error } = await client
     .from('real_happiness_speakers')
     .select('*')
@@ -72,6 +74,7 @@ export async function getAllRealHappinessSpeakers(): Promise<{
   data: DBRealHappinessSpeaker[];
   error: string | null;
 }> {
+  if (!(await isAdmin())) return { data: [], error: 'No autorizado.' };
   const client = createAdminClient();
   const { data, error } = await client
     .from('real_happiness_speakers')
@@ -83,6 +86,7 @@ export async function getAllRealHappinessSpeakers(): Promise<{
 }
 
 export async function upsertRealHappinessSpeaker(formData: FormData) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const id = formData.get('id') as string | null;
 
@@ -124,6 +128,7 @@ export async function upsertRealHappinessSpeaker(formData: FormData) {
 }
 
 export async function deleteRealHappinessSpeaker(id: string) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const { error } = await client
     .from('real_happiness_speakers')
@@ -141,6 +146,7 @@ export async function deleteRealHappinessSpeaker(id: string) {
  * Admin always sends the full list, so this is conflict-free.
  */
 export async function reorderRealHappinessSpeakers(orderedIds: string[]) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
     return { error: 'No speakers to reorder.' };
   }
@@ -206,7 +212,7 @@ export async function getRealHappinessHosts(): Promise<{
   data: DBRealHappinessHost[];
   error: string | null;
 }> {
-  const client = createAdminClient();
+  const client = createPublicClient();
   const { data, error } = await client
     .from('real_happiness_hosts')
     .select('*')
@@ -229,6 +235,7 @@ export async function getAllRealHappinessHosts(): Promise<{
   data: DBRealHappinessHost[];
   error: string | null;
 }> {
+  if (!(await isAdmin())) return { data: [], error: 'No autorizado.' };
   const client = createAdminClient();
   const { data, error } = await client
     .from('real_happiness_hosts')
@@ -240,6 +247,7 @@ export async function getAllRealHappinessHosts(): Promise<{
 }
 
 export async function upsertRealHappinessHost(formData: FormData) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const id = formData.get('id') as string | null;
 
@@ -283,6 +291,7 @@ export async function upsertRealHappinessHost(formData: FormData) {
 }
 
 export async function deleteRealHappinessHost(id: string) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const { error } = await client
     .from('real_happiness_hosts')
@@ -300,6 +309,7 @@ export async function deleteRealHappinessHost(id: string) {
  * Admin always sends the full list, so this is conflict-free.
  */
 export async function reorderRealHappinessHosts(orderedIds: string[]) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
     return { error: 'No hosts to reorder.' };
   }

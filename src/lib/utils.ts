@@ -40,6 +40,31 @@ export function formatCurrency(
 }
 
 /**
+ * Returns a URL only if it is safe to place in an href/src: an http(s) absolute URL or a
+ * site-relative path. Anything else (javascript:, data:, vbscript:, protocol-relative //host,
+ * malformed) returns null. Database-sourced URLs (eventbrite_url, ticketplate_url, cta_href,
+ * sponsor website) MUST be passed through this before rendering, to prevent stored/DOM XSS.
+ * @example safeExternalUrl("javascript:alert(1)") => null
+ * @example safeExternalUrl("https://eventbrite.com/e/x") => "https://eventbrite.com/e/x"
+ */
+export function safeExternalUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  // Allow site-relative paths, but not protocol-relative //host which is effectively external.
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) return trimmed;
+  try {
+    const u = new URL(trimmed);
+    if (u.protocol === "http:" || u.protocol === "https:" || u.protocol === "mailto:" || u.protocol === "tel:") {
+      return u.toString();
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Converts a string into a URL-friendly slug.
  * @example slugify("The Real Happiness 2025") => "the-real-happiness-2025"
  */

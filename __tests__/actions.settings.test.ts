@@ -6,6 +6,14 @@ const mockClient = mockSupabaseClient();
 vi.mock('@/lib/supabase/admin', () => ({
   createAdminClient: () => mockClient,
 }));
+// getSiteConfig now uses the public (anon) client — point it at the same mock.
+vi.mock('@/lib/supabase/public', () => ({
+  createPublicClient: () => mockClient,
+}));
+vi.mock('@/lib/auth/requireAdmin', () => ({
+  isAdmin: vi.fn(async () => true),
+  requireAdmin: vi.fn(async () => null),
+}));
 
 async function getActions() {
   return import('../src/app/actions/settings');

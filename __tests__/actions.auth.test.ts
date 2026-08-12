@@ -10,6 +10,8 @@ async function getActions() {
 describe('loginAction', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Fresh module each test so the in-memory login rate-limiter does not leak between tests.
+    vi.resetModules();
     process.env.ADMIN_USERNAME = 'testadmin';
     process.env.ADMIN_PASSWORD = 'testpass123';
   });
@@ -49,9 +51,30 @@ describe('loginAction', () => {
     await expect(loginAction(fd)).rejects.toThrow('NEXT_REDIRECT:/admin');
     expect(mockCookieStore.set).toHaveBeenCalledWith(
       'me_admin_session',
-      expect.stringMatching(/^meprod_/),
-      expect.objectContaining({ httpOnly: true, sameSite: 'lax' })
+      // New scheme: a signed `payload.signature` token, httpOnly + secure-aware + expiring.
+      expect.stringMatching(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/),
+      expect.objectContaining({ httpOnly: true, sameSite: 'lax', path: '/' })
     );
+    // The issued cookie must actually verify.
+    const issued = mockCookieStore.set.mock.calls.find((c) => c[0] === 'me_admin_session')?.[1];
+    const { verifySessionToken } = await import('../src/lib/auth/session');
+    expect(verifySessionToken(issued)).toBe(true);
+  });
+
+  it('throttles after too many failed attempts from the same client', async () => {
+    const { loginAction } = await getActions();
+    const bad = () => {
+      const fd = new FormData();
+      fd.append('username', 'testadmin');
+      fd.append('password', 'wrong');
+      return loginAction(fd);
+    };
+    let sawLimit = false;
+    for (let i = 0; i < 12; i++) {
+      const r = await bad();
+      if (r?.error && /Demasiados intentos/.test(r.error)) { sawLimit = true; break; }
+    }
+    expect(sawLimit).toBe(true);
   });
 
   it('redirects to safe `from` param when it starts with /admin', async () => {

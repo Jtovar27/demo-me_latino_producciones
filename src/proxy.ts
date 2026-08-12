@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { buildSessionToken } from '@/lib/auth/session';
+import { verifySessionToken } from '@/lib/auth/session';
 
 const SESSION_COOKIE = 'me_admin_session';
 
+/**
+ * Optimistic edge guard for /admin *page* navigations. This is NOT the authorization boundary —
+ * it only improves UX by redirecting unauthenticated browsers to the login page. The real
+ * authorization is enforced inside each Server Action / route handler via requireAdmin(), because
+ * Server Actions are reachable at route paths this matcher does not cover.
+ */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -13,19 +19,14 @@ export function proxy(request: NextRequest) {
   // Allow the login page through
   if (pathname === '/admin/login') return NextResponse.next();
 
-  // Check session cookie
-  const session = request.cookies.get(SESSION_COOKIE);
-  if (!session?.value) {
+  const token = request.cookies.get(SESSION_COOKIE)?.value;
+
+  if (!verifySessionToken(token)) {
     const loginUrl = new URL('/admin/login', request.url);
     loginUrl.searchParams.set('from', pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // Validate the session token against the shared builder (single source of truth)
-  if (session.value !== buildSessionToken()) {
-    const loginUrl = new URL('/admin/login', request.url);
     const res = NextResponse.redirect(loginUrl);
-    res.cookies.delete(SESSION_COOKIE);
+    // Clear any stale/invalid cookie so the browser stops resending it.
+    if (token) res.cookies.delete(SESSION_COOKIE);
     return res;
   }
 

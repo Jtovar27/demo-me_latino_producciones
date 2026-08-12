@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { safeExternalUrl } from '@/lib/utils';
 import type { DBHeroSlide } from '@/types/supabase';
 
 interface HeroCarouselProps {
@@ -115,9 +116,9 @@ export default function HeroCarousel({ slides, lang = 'es' }: HeroCarouselProps)
                   {slide.location}
                 </p>
               )}
-              {ctaLabel && slide.cta_href && (
+              {ctaLabel && safeExternalUrl(slide.cta_href) && (
                 <a
-                  href={slide.cta_href}
+                  href={safeExternalUrl(slide.cta_href)!}
                   className="mt-3 inline-flex items-center gap-1.5 font-sans text-[9px] uppercase tracking-widest text-[#EAE1D6]/70 hover:text-[#EAE1D6] transition-colors duration-200"
                 >
                   {ctaLabel}

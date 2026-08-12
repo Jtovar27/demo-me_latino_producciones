@@ -2,10 +2,12 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createPublicClient } from '@/lib/supabase/public';
+import { isAdmin } from '@/lib/auth/requireAdmin';
 import type { DBFlagshipEvent, FlagshipVenue } from '@/types/supabase';
 
 export async function getFlagshipEvents(): Promise<{ data: DBFlagshipEvent[] | null; error: string | null }> {
-  const client = createAdminClient();
+  const client = createPublicClient();
   const { data, error } = await client
     .from('flagship_events')
     .select('*')
@@ -15,6 +17,7 @@ export async function getFlagshipEvents(): Promise<{ data: DBFlagshipEvent[] | n
 }
 
 export async function getAllFlagshipEvents(): Promise<{ data: DBFlagshipEvent[] | null; error: string | null }> {
+  if (!(await isAdmin())) return { data: null, error: 'No autorizado.' };
   const client = createAdminClient();
   const { data, error } = await client
     .from('flagship_events')
@@ -28,6 +31,7 @@ function parseVenues(json: string): FlagshipVenue[] {
 }
 
 export async function createFlagshipEvent(formData: FormData): Promise<{ error?: string }> {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const title = (formData.get('title') as string | null)?.trim();
   if (!title) return { error: 'El título es requerido.' };
 
@@ -48,6 +52,7 @@ export async function createFlagshipEvent(formData: FormData): Promise<{ error?:
 }
 
 export async function updateFlagshipEvent(id: string, formData: FormData): Promise<{ error?: string }> {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const title = (formData.get('title') as string | null)?.trim();
   if (!title) return { error: 'El título es requerido.' };
 
@@ -71,6 +76,7 @@ export async function updateFlagshipEvent(id: string, formData: FormData): Promi
 }
 
 export async function deleteFlagshipEvent(id: string): Promise<{ error?: string }> {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const { error } = await client.from('flagship_events').delete().eq('id', id);
   if (error) return { error: error.message };

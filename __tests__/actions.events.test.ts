@@ -6,6 +6,15 @@ const mockClient = mockSupabaseClient();
 vi.mock('@/lib/supabase/admin', () => ({
   createAdminClient: () => mockClient,
 }));
+// getEvents now uses the public (anon) client — point it at the same mock.
+vi.mock('@/lib/supabase/public', () => ({
+  createPublicClient: () => mockClient,
+}));
+// Admin authorization is exercised separately (actions.authz.test.ts); treat these as authenticated.
+vi.mock('@/lib/auth/requireAdmin', () => ({
+  isAdmin: vi.fn(async () => true),
+  requireAdmin: vi.fn(async () => null),
+}));
 
 async function getActions() {
   return import('../src/app/actions/events');

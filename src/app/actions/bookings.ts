@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createPublicClient } from '@/lib/supabase/public';
+import { isAdmin } from '@/lib/auth/requireAdmin';
 import { getLang } from '@/lib/i18n/getLang';
 
 export async function submitBooking(formData: FormData) {
@@ -36,6 +37,7 @@ export async function submitBooking(formData: FormData) {
 }
 
 export async function updateBooking(id: string, updates: { status?: string; internal_notes?: string; follow_up?: boolean }) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const { error } = await client.from('bookings').update({ ...updates, updated_at: new Date().toISOString() }).eq('id', id);
   if (error) return { error: error.message };
@@ -44,6 +46,7 @@ export async function updateBooking(id: string, updates: { status?: string; inte
 }
 
 export async function getBookings() {
+  if (!(await isAdmin())) return { data: [], error: 'No autorizado.' };
   const client = createAdminClient();
   const { data, error } = await client.from('bookings').select('*').order('submitted_at', { ascending: false });
   return { data: data ?? [], error: error?.message ?? null };

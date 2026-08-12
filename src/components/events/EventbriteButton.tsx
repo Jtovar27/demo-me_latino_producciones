@@ -2,6 +2,7 @@
 
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { t, tr } from '@/lib/i18n/translations';
+import { safeExternalUrl } from '@/lib/utils';
 
 interface Props {
   url: string | null | undefined;
@@ -21,7 +22,8 @@ export default function EventbriteButton({ url, variant = 'full' }: Props) {
   const { lang } = useLanguage();
   const pf = t.paymentFlow;
 
-  const hasUrl = typeof url === 'string' && url.trim().length > 0;
+  const safeUrl = safeExternalUrl(url);
+  const hasUrl = safeUrl !== null;
 
   const sizeCls = variant === 'compact'
     ? 'px-4 py-3 text-[10px]'
@@ -41,7 +43,7 @@ export default function EventbriteButton({ url, variant = 'full' }: Props) {
 
   return (
     <a
-      href={url!}
+      href={safeUrl!}
       target="_blank"
       rel="noopener noreferrer"
       className={`flex items-center justify-center gap-2 w-full bg-[#F05537] hover:bg-[#D1410C] font-sans uppercase tracking-widest text-white transition-colors ${sizeCls}`}

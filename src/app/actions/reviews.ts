@@ -2,8 +2,10 @@
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createPublicClient } from '@/lib/supabase/public';
+import { isAdmin } from '@/lib/auth/requireAdmin';
 
 export async function upsertReview(formData: FormData) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const id = formData.get('id') as string | null;
 
@@ -41,6 +43,7 @@ export async function upsertReview(formData: FormData) {
 }
 
 export async function setReviewStatus(id: string, status: string) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const { error } = await client
     .from('reviews')
@@ -53,6 +56,7 @@ export async function setReviewStatus(id: string, status: string) {
 }
 
 export async function setReviewFeatured(id: string, featured: boolean) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const { error } = await client
     .from('reviews')
@@ -65,6 +69,7 @@ export async function setReviewFeatured(id: string, featured: boolean) {
 }
 
 export async function deleteReview(id: string) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const { error } = await client.from('reviews').delete().eq('id', id);
   if (error) return { error: error.message };
@@ -74,6 +79,7 @@ export async function deleteReview(id: string) {
 }
 
 export async function getReviews() {
+  if (!(await isAdmin())) return { data: [], error: 'No autorizado.' };
   const client = createAdminClient();
   const { data, error } = await client
     .from('reviews')

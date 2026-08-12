@@ -20,8 +20,12 @@ const mockCookieStore = {
   get: vi.fn(),
   getAll: vi.fn(() => []),
 };
+const mockHeaderStore = {
+  get: vi.fn(() => null),
+};
 vi.mock('next/headers', () => ({
   cookies: vi.fn(async () => mockCookieStore),
+  headers: vi.fn(async () => mockHeaderStore),
 }));
 
-export { mockCookieStore };
+export { mockCookieStore, mockHeaderStore };

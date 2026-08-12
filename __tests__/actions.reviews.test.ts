@@ -10,6 +10,10 @@ vi.mock('@/lib/supabase/admin', () => ({
 vi.mock('@/lib/supabase/public', () => ({
   createPublicClient: () => mockPublicClient,
 }));
+vi.mock('@/lib/auth/requireAdmin', () => ({
+  isAdmin: vi.fn(async () => true),
+  requireAdmin: vi.fn(async () => null),
+}));
 
 async function getActions() {
   return import('../src/app/actions/reviews');

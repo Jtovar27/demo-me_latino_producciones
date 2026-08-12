@@ -1,6 +1,8 @@
 import type { MetadataRoute } from 'next';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://meproducciones.com';
+// Canonical production host is the www subdomain (apex redirects to it). Keep this in sync with
+// the layout metadataBase and set NEXT_PUBLIC_SITE_URL in the deployment to override per-environment.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.meproducciones.com';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

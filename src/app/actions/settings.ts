@@ -2,9 +2,11 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createPublicClient } from '@/lib/supabase/public';
+import { isAdmin } from '@/lib/auth/requireAdmin';
 
 export async function getSiteConfig() {
-  const client = createAdminClient();
+  const client = createPublicClient();
   const { data, error } = await client
     .from('site_config')
     .select('*')
@@ -15,6 +17,8 @@ export async function getSiteConfig() {
 }
 
 export async function updateSiteConfig(formData: FormData) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
+
   const client = createAdminClient();
 
   const s  = (key: string) => (formData.get(key) as string | null)?.trim() || undefined;

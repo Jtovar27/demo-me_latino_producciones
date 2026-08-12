@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createPublicClient } from '@/lib/supabase/public';
+import { isAdmin } from '@/lib/auth/requireAdmin';
 
 const BUCKET = process.env.NEXT_PUBLIC_STORAGE_BUCKET ?? 'meproducciones-media';
 
@@ -17,6 +19,8 @@ function revalidateGalleryPaths() {
 }
 
 export async function uploadMediaFile(formData: FormData) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
+
   const client = createAdminClient();
   const file = formData.get('file') as File;
   if (!file) return { error: 'No file provided' };
@@ -63,6 +67,8 @@ export async function uploadMediaFile(formData: FormData) {
 }
 
 export async function deleteMediaFile(id: string, storagePath: string) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
+
   const client = createAdminClient();
 
   // Delete DB record FIRST — if storage removal fails, we can retry.
@@ -81,6 +87,8 @@ export async function deleteMediaFile(id: string, storagePath: string) {
 }
 
 export async function getSignedUploadUrl(filename: string, contentType: string) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
+
   const client = createAdminClient();
   const isVideo = contentType.startsWith('video/');
   const folder = isVideo ? 'videos' : 'images';
@@ -101,6 +109,8 @@ export async function createGalleryItem(payload: {
   media_type:   'image' | 'video';
   category:     string;
 }) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
+
   const client = createAdminClient();
 
   // Generate public URL server-side using the SDK (most reliable format)
@@ -129,6 +139,8 @@ export async function updateGalleryItem(
   id: string,
   updates: { alt?: string; category?: string; featured?: boolean }
 ) {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
+
   const client = createAdminClient();
   const { error } = await client.from('gallery_items').update(updates).eq('id', id);
   if (error) return { error: error.message };
@@ -137,6 +149,8 @@ export async function updateGalleryItem(
 }
 
 export async function getGalleryItems(type?: 'image' | 'video') {
+  if (!(await isAdmin())) return { data: [], error: 'No autorizado.' };
+
   const client = createAdminClient();
   let query = client
     .from('gallery_items')
@@ -154,7 +168,7 @@ export async function getGalleryItems(type?: 'image' | 'video') {
 const PUBLIC_GALLERY_CATEGORIES = ['backstage', 'moments', 'audience', 'stage', 'details'] as const;
 
 export async function getPublicGalleryItems() {
-  const client = createAdminClient();
+  const client = createPublicClient();
 
   // The admin MediaPicker uploads speaker/sponsor/real-happiness photos into
   // gallery_items with a default category of "moments", so a category filter

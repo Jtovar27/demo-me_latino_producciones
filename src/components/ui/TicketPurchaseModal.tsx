@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { submitBooking } from '@/app/actions/bookings';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { t, tr } from '@/lib/i18n/translations';
+import { safeExternalUrl } from '@/lib/utils';
 import type { TicketTier } from '@/types/supabase';
 
 const WA_NUMBER        = '13055252555';
@@ -41,10 +42,13 @@ export default function TicketPurchaseModal({
   eventCity,
   eventState,
   tiers,
-  eventbriteUrl,
-  ticketplateUrl,
+  eventbriteUrl: eventbriteUrlRaw,
+  ticketplateUrl: ticketplateUrlRaw,
   onClose,
 }: Props) {
+  // Sanitize DB-sourced ticketing URLs once — blocks javascript:/data: hrefs (DOM XSS).
+  const eventbriteUrl = safeExternalUrl(eventbriteUrlRaw);
+  const ticketplateUrl = safeExternalUrl(ticketplateUrlRaw);
   const [name, setName]         = useState('');
   const [email, setEmail]       = useState('');
   const [phone, setPhone]       = useState('');

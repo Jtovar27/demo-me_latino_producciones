@@ -2,11 +2,14 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createPublicClient } from '@/lib/supabase/public';
+import { isAdmin } from '@/lib/auth/requireAdmin';
 import type { DBHeroSlide } from '@/types/supabase';
 
 // ── Read ──────────────────────────────────────────────────────
 
 export async function getHeroSlides(): Promise<{ data: DBHeroSlide[]; error: string | null }> {
+  if (!(await isAdmin())) return { data: [], error: 'No autorizado.' };
   const client = createAdminClient();
   const { data, error } = await client
     .from('hero_slides')
@@ -17,7 +20,7 @@ export async function getHeroSlides(): Promise<{ data: DBHeroSlide[]; error: str
 }
 
 export async function getActiveHeroSlides(): Promise<{ data: DBHeroSlide[]; error: string | null }> {
-  const client = createAdminClient();
+  const client = createPublicClient();
   const { data, error } = await client
     .from('hero_slides')
     .select('*')
@@ -30,6 +33,7 @@ export async function getActiveHeroSlides(): Promise<{ data: DBHeroSlide[]; erro
 // ── Write ─────────────────────────────────────────────────────
 
 export async function upsertHeroSlide(formData: FormData): Promise<{ error?: string; success?: boolean }> {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
 
   const s  = (key: string) => (formData.get(key) as string | null)?.trim() || null;
@@ -78,6 +82,7 @@ export async function upsertHeroSlide(formData: FormData): Promise<{ error?: str
 }
 
 export async function deleteHeroSlide(id: string): Promise<{ error?: string; success?: boolean }> {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   if (!id) return { error: 'ID requerido.' };
   const client = createAdminClient();
   const { error } = await client.from('hero_slides').delete().eq('id', id);
@@ -89,6 +94,7 @@ export async function deleteHeroSlide(id: string): Promise<{ error?: string; suc
 export async function reorderHeroSlides(
   orderedIds: string[]
 ): Promise<{ error?: string; success?: boolean }> {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const updates = orderedIds.map((id, index) =>
     client.from('hero_slides').update({ sort_order: index, updated_at: new Date().toISOString() }).eq('id', id)
@@ -104,6 +110,7 @@ export async function toggleHeroSlide(
   id: string,
   active: boolean
 ): Promise<{ error?: string; success?: boolean }> {
+  if (!(await isAdmin())) return { error: 'No autorizado.' };
   const client = createAdminClient();
   const { error } = await client
     .from('hero_slides')
